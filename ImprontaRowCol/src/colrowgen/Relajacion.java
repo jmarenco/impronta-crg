@@ -64,14 +64,14 @@ public class Relajacion
 	private void crearVariables() throws IloException
 	{
 		_vars = new HashMap<IloNumVar, Pad>();
-		
+		int i = 1;
 		for(Point point: _puntos)
 		for(Semilla semilla: _instancia.getSemillas())
 		{
 			_pads.add(point, semilla); // No se agrega si el pad no es factible
 			
 			if( _pads.contains(point, semilla) )
-				_vars.put(_cplex.boolVar(), _pads.get(point, semilla));
+				_vars.put(_cplex.boolVar("x" + (i++)), _pads.get(point, semilla));
 //				_vars.put(_cplex.numVar(0, _infinity), _pads.get(point, semilla));
 		}
 	}
@@ -94,6 +94,7 @@ public class Relajacion
 		for(Coordinate coord: _vars.get(var).getPerimetro().getCoordinates()) if( _constr.containsKey(coord) == false )
 		{
 			IloNumExpr lhs = _cplex.linearNumExpr();
+			lhs = _cplex.sum(lhs, var);
 
 			for(IloNumVar ovar: _vars.keySet())
 				System.out.println(coord + " " + _vars.get(ovar).getPerimetro() + " " + _vars.get(ovar).contiene(coord) );
@@ -115,7 +116,10 @@ public class Relajacion
 			_solucion = new Solucion(_instancia);
 			
 			for(IloNumVar var: _vars.keySet()) if( _cplex.getValue(var) > 0.05 )
+			{
+				System.out.println(var + " = " + _cplex.getValue(var));
 				_solucion.agregarPad(_vars.get(var));
+			}
 		}
 	}
 }
