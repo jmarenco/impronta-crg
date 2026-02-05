@@ -612,14 +612,6 @@ public class Instancia
 	{
 		return _ogip;
 	}
-	public double getAngulo()
-	{
-		return _angulo;
-	}
-	public double getToleranciaAngulo()
-	{
-		return _toleranciaAngulo;
-	}
 	public double getPasoHorizontal()
 	{
 		return _pasoHorizontal;

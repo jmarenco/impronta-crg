@@ -142,6 +142,11 @@ public class Viewer extends JPanel
     
     public static void show(Instancia instancia)
     {
+    	show(instancia, null);
+    }
+    
+    public static void show(Instancia instancia, Solucion solucion)
+    {
         Viewer panel = new Viewer();
         JFrame frame = new JFrame(instancia.getArchivo());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -156,12 +161,15 @@ public class Viewer extends JPanel
 
 //       	panel.addGeometry(solver.getDiscretizacion().getPuntos());
 
-//        for(Pad pad: solucion.getPads())
-//        {
-//            panel.addGeometry(pad.getPerimetro());
-//            panel.addGeometry(pad.getLocacion());
-//            panel.addGeometry(pad.getCentro());
-//        }
+        if( solucion != null )
+        {
+	        for(Pad pad: solucion.getPads())
+	        {
+	            panel.addGeometry(pad.getPerimetro());
+	            panel.addGeometry(pad.getLocacion());
+	            panel.addGeometry(pad.getCentro());
+	        }
+        }
         
         for(Restriccion restriccion: instancia.getRestricciones())
         	panel.addGeometry(restriccion.getPolygon());
