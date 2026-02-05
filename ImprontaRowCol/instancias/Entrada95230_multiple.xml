@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Parámetros>
+  <!--Dirección ideal del esfuerzo horizontal mínimo y tolerancia-->
+  <Esfuerzo_horizontal_mínimo Ángulo="0" Tolerancia="0" Nx="200" Ny="200" MaxTiempoModelo="120" MaxTiempoSolver="120" />
+  <Áreas>
+    <Área Capa="Yacimiento" ID="1">
+      <Envolvente ID="1" Vértices="18">
+        <Vértice X="2472097,78" Y="5828229,03" />
+        <Vértice X="2474597,78" Y="5828228,99" />
+        <Vértice X="2474597,72" Y="5830228,96" />
+        <Vértice X="2478687,97" Y="5830228,97" />
+        <Vértice X="2478688,00" Y="5822801,49" />
+        <Vértice X="2475077,98" Y="5822801,48" />
+        <Vértice X="2475078,02" Y="5819843,51" />
+        <Vértice X="2474075,28" Y="5819845,52" />
+        <Vértice X="2467074,25" Y="5819846,05" />
+        <Vértice X="2458698,29" Y="5819845,07" />
+        <Vértice X="2455060,72" Y="5819843,47" />
+        <Vértice X="2455060,71" Y="5826367,48" />
+        <Vértice X="2455065,37" Y="5826369,39" />
+        <Vértice X="2464095,33" Y="5826369,41" />
+        <Vértice X="2464095,41" Y="5830229,76" />
+        <Vértice X="2468899,50" Y="5830229,03" />
+        <Vértice X="2472097,73" Y="5830229,00" />
+        <Vértice X="2472097,78" Y="5828229,03" />
+      </Envolvente>
+      <Agujero ID="1" Vértices="5">
+        <Vértice X="2473413,06" Y="5823661,72" />
+        <Vértice X="2472890,17" Y="5825435,85" />
+        <Vértice X="2471069,69" Y="5824986,13" />
+        <Vértice X="2471484,56" Y="5822790,01" />
+        <Vértice X="2473413,06" Y="5823661,72" />
+      </Agujero>
+      <Agujero ID="2" Vértices="6">
+        <Vértice X="2468402,25" Y="5825291,26" />
+        <Vértice X="2463341,25" Y="5825351,79" />
+        <Vértice X="2463509,69" Y="5821962,13" />
+        <Vértice X="2465919,11" Y="5821963,55" />
+        <Vértice X="2468290,08" Y="5822105,07" />
+        <Vértice X="2468402,25" Y="5825291,26" />
+      </Agujero>
+    </Área>
+    <Área Capa="Yacimiento" ID="6">
+      <Envolvente ID="1" Vértices="5">
+        <Vértice X="2476459,84" Y="5820324,42" />
+        <Vértice X="2480904,85" Y="5820324,42" />
+        <Vértice X="2480904,85" Y="5815641,29" />
+        <Vértice X="2476459,84" Y="5815641,29" />
+        <Vértice X="2476459,84" Y="5820324,42" />
+      </Envolvente>
+    </Área>
+    <Área Capa="Yacimiento" ID="11">
+      <Envolvente ID="1" Vértices="5">
+        <Vértice X="2468111,88" Y="5818520,47" />
+        <Vértice X="2468270,63" Y="5814551,72" />
+        <Vértice X="2463759,82" Y="5814371,28" />
+        <Vértice X="2463601,07" Y="5818340,04" />
+        <Vértice X="2468111,88" Y="5818520,47" />
+      </Envolvente>
+      <Agujero ID="1" Vértices="5">
+        <Vértice X="2464950,45" Y="5817308,16" />
+        <Vértice X="2465109,20" Y="5815641,29" />
+        <Vértice X="2467093,57" Y="5815879,41" />
+        <Vértice X="2466855,45" Y="5817705,04" />
+        <Vértice X="2464950,45" Y="5817308,16" />
+      </Agujero>
+      <Envolvente ID="2" Vértices="5">
+        <Vértice X="2458124,18" Y="5818895,67" />
+        <Vértice X="2461854,81" Y="5817625,67" />
+        <Vértice X="2455822,30" Y="5814450,66" />
+        <Vértice X="2455742,93" Y="5817625,67" />
+        <Vértice X="2458124,18" Y="5818895,67" />
+      </Envolvente>
+      <Agujero ID="1" Vértices="5">
+        <Vértice X="2457092,30" Y="5817308,16" />
+        <Vértice X="2457092,30" Y="5816196,91" />
+        <Vértice X="2459314,81" Y="5817546,29" />
+        <Vértice X="2458124,18" Y="5818101,92" />
+        <Vértice X="2457092,30" Y="5817308,16" />
+      </Agujero>
+    </Área>
+  </Áreas>
+  <Semillas Cantidad="1">
+    <Semilla ID="Semilla 1" Coeficiente="1">
+      <PAD Largo="1000" Ancho="2200" />
+      <LOCACION Largo="180" Ancho="120" X="2335" Y="500" Tolerancia="60" />
+    </Semilla>
+  </Semillas>
+  <Restricciones />
+</Parámetros>

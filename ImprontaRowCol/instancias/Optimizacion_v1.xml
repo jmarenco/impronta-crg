@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Parámetros>
+  <!--Así irían los comentarios-->
+  <Área Capa="Yacimiento" ID="1" Vértices="8">
+    <Vértice X="2465784,28" Y="5907266,72" />
+    <Vértice X="2463123,50" Y="5904408,43" />
+    <Vértice X="2454979,42" Y="5904361,22" />
+    <Vértice X="2454884,17" Y="5913711,61" />
+    <Vértice X="2458583,02" Y="5913743,36" />
+    <Vértice X="2458582,29" Y="5911631,55" />
+    <Vértice X="2465772,48" Y="5911741,09" />
+    <Vértice X="2465784,28" Y="5907266,72" />
+  </Área>
+  <Semillas Cantidad="2">
+    <Semilla ID="Semilla 1">
+      <PAD Largo="3190" Ancho="1080" />
+      <LOCACION Largo="200" Ancho="250" Tolerancia="10" />
+    </Semilla>
+    <Semilla ID="Semilla 3">
+      <PAD Largo="3190" Ancho="360" />
+      <LOCACION Largo="250" Ancho="200" Tolerancia="10" />
+    </Semilla>
+  </Semillas>
+  <Restricciones Cantidad="3">
+    <Restricción ID="1" Vértices="7">
+      <Vértice X="2457091,03" Y="5913730,55" />
+      <Vértice X="2457069,94" Y="5913674,44" />
+      <Vértice X="2456780,70" Y="5913688,18" />
+      <Vértice X="2456808,26" Y="5913720,05" />
+      <Vértice X="2456862,43" Y="5913714,53" />
+      <Vértice X="2457013,09" Y="5913729,89" />
+      <Vértice X="2457091,03" Y="5913730,55" />
+    </Restricción>
+    <Restricción ID="2" Vértices="5">
+      <Vértice X="2458020,00" Y="5913738,53" />
+      <Vértice X="2458038,33" Y="5913674,44" />
+      <Vértice X="2457970,69" Y="5913693,78" />
+      <Vértice X="2458017,14" Y="5913738,50" />
+      <Vértice X="2458020,00" Y="5913738,53" />
+    </Restricción>
+    <Restricción ID="3" Vértices="4">
+      <Vértice X="2456298,71" Y="5913685,70" />
+      <Vértice X="2456322,90" Y="5913591,43" />
+      <Vértice X="2456256,26" Y="5913637,44" />
+      <Vértice X="2456298,71" Y="5913685,70" />
+    </Restricción>
+  </Restricciones>
+  <!--Dirección ideal del esfuerzo horizontal mínimo y tolerancia-->
+  <Esfuerzo_horizontal_mínimo Ángulo="45" Tolerancia="10" />
+ </Parámetros>
