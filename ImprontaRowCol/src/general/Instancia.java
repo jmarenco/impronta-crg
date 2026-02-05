@@ -123,6 +123,7 @@ public class Instancia
 	}
 	
 	// Muestra el contenido del archivo .xml
+	@SuppressWarnings("unused")
 	private void recorrer(Node nodo)
 	{
 		if( nodo != null )

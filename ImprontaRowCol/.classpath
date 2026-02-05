@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="packages/jts-1.13.jar"/>
 	<classpathentry kind="lib" path="packages/jtsio-1.13.jar"/>
 	<classpathentry kind="lib" path="packages/junit.jar"/>
+	<classpathentry kind="lib" path="packages/cplex.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

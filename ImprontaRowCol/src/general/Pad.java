@@ -100,6 +100,10 @@ public class Pad
 	{
 		return _perimetro.contains(punto);
 	}
+	public boolean contiene(Coordinate coordinate)
+	{
+		return contiene(_instancia.getFactory().createPoint(coordinate));
+	}
 	
 	// Determina si los pads se intersecan
 	public boolean interseca(Pad otro)
@@ -122,6 +126,12 @@ public class Pad
 	// Determina si la locacion se interseca con algún área restringida
 	public boolean factible()
 	{
+		if( _instancia.getRegion().getGeometry().contains(this.getPerimetro()) == false )
+			return false;
+		
+		if( _instancia.getRegion().getGeometry().contains(this.getLocacion()) == false )
+			return false;
+		
 		for(Restriccion restriccion: _instancia.getRestricciones())
 		{
 			if( interseca(restriccion) )
