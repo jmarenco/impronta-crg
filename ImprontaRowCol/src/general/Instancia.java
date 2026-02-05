@@ -5,7 +5,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -19,24 +18,19 @@ import org.w3c.dom.Text;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
 
 // Representa una instancia del problema
 public class Instancia
 {
 	private Region _region;
-	private double _angulo;
-	private double _toleranciaAngulo;
+	private double _angulo; // TODO: Rotar la instancia en sentido inverso
 	private double _pasoHorizontal;
 	private double _pasoVertical;
-	private int _minPuntosHorizontal = 30;
-	private int _maxPuntosHorizontal = 200;
-	private int _minPuntosVertical = 30;
-	private int _maxPuntosVertical = 200;
 	private ArrayList<Semilla> _semillas;
 	private ArrayList<Restriccion> _restricciones;
 	private OGIP _ogip;
 	private GeometryFactory _factory;
+	private String _archivo;
 	
 	public enum Formato { Nada, French, US };
 	public static Formato _formato = Formato.French;
@@ -48,11 +42,13 @@ public class Instancia
 		_restricciones = new ArrayList<Restriccion>();
 		_factory = new GeometryFactory();
 		_ogip = null;
+		_archivo = "";
 	}
 	
 	// Connstruye una instancia a partir de un archivo .xml
 	public Instancia(String archivoXml)
 	{
+		_archivo = archivoXml;
 		_region = new Region();
 		_semillas = new ArrayList<Semilla>();
 		_restricciones = new ArrayList<Restriccion>();
@@ -108,9 +104,6 @@ public class Instancia
 				if( nodo.getNodeName() == "Ogip" )
 					obtenerOGIP(nodo);
 			}
-			
-			// Calcula los pasos de la discretización, si corresponde
-			calcularPasos();
 	    }
 	    catch (Exception e)
 	    {
@@ -337,95 +330,6 @@ public class Instancia
 	    }
 	}
 	
-	// Calcula valores por defecto para la discretización
-	private void calcularPasos()
-	{
-		if( _pasoHorizontal == 0 )
-		{
-			// Proyecta la región al eje x
-			double xMax = Double.NEGATIVE_INFINITY;
-			double xMin = Double.POSITIVE_INFINITY;
-			
-			for(Polygon envolvente: _region.getEnvolventes())
-			for(Coordinate c: envolvente.getCoordinates())
-			{
-				xMax = Math.max(xMax, c.x);
-				xMin = Math.min(xMin, c.x);
-			}
-
-			// Calcula el mcd entre los anchos de las semillas
-			ArrayList<Integer> valores = new ArrayList<Integer>();
-			for(Semilla semilla: _semillas)
-				valores.add((int)semilla.getLargo());
-			
-			_pasoHorizontal = mcd(valores);
-
-			// Correcciones
-			if( _pasoHorizontal == 1 ) // Si son coprimos ...
-				_pasoHorizontal = Collections.max(valores) / 10;
-
-			while( Collections.min(valores) / _pasoHorizontal < 5 )
-				_pasoHorizontal = (int)(_pasoHorizontal / 2);
-			
-			while( (xMax - xMin) / _pasoHorizontal < _minPuntosHorizontal )
-				_pasoHorizontal = (int)(_pasoHorizontal / 2);
-			
-			while( (xMax - xMin) / _pasoHorizontal > _maxPuntosHorizontal )
-				_pasoHorizontal *= 2;
-		}
-		
-		if( _pasoVertical == 0 )
-		{
-			// Proyecta la región al eje y
-			double yMax = Double.NEGATIVE_INFINITY;
-			double yMin = Double.POSITIVE_INFINITY;
-			
-			for(Polygon envolvente: _region.getEnvolventes())
-			for(Coordinate c: envolvente.getCoordinates())
-			{
-				yMax = Math.max(yMax, c.y);
-				yMin = Math.min(yMin, c.y);
-			}
-
-			// Calcula el mcd entre los largos de las semillas
-			ArrayList<Integer> valores = new ArrayList<Integer>();
-			for(Semilla semilla: _semillas)
-				valores.add((int)semilla.getAncho());
-			
-			_pasoVertical = mcd(valores);
-			
-			// Correcciones
-			if( _pasoVertical == 1 ) // Si son coprimos ...
-				_pasoVertical = Collections.max(valores) / 10;
-			
-			while( Collections.min(valores) / _pasoVertical < 5 )
-				_pasoVertical = (int)(_pasoVertical / 2);
-
-			while( (yMax - yMin) / _pasoVertical < _minPuntosVertical )
-				_pasoVertical = (int)(_pasoVertical / 2);
-			
-			while( (yMax - yMin) / _pasoVertical > _maxPuntosVertical )
-				_pasoVertical *= 2;
-		}
-	}
-	
-	// Auxiliar: Máximo común divisor
-	private int mcd(ArrayList<Integer> valores)
-	{
-		if( valores.size() == 0 )
-			return 0;
-		
-		int a = valores.get(0);
-		for(int i=1; i<valores.size(); ++i)
-			a = mcd(a, valores.get(i));
-		
-		return a;
-	}
-	private int mcd(int a, int b)
-	{
-		return b ==0  ? a : mcd(b, a%b);
-	}
-	
 	// Obtiene las restricciones del archivo .xml
 	private void obtenerRestricciones(Node nodo)
 	{
@@ -488,21 +392,17 @@ public class Instancia
 		try
 		{
 			String angulo = nodo.getAttributes().getNamedItem("Ángulo").getNodeValue();
-			String tolerancia = nodo.getAttributes().getNamedItem("Tolerancia").getNodeValue();
 			String pasoHorizontal = nodo.getAttributes().getNamedItem("Nx").getNodeValue();
 			String pasoVertical = nodo.getAttributes().getNamedItem("Ny").getNodeValue();
-//			String maxGeneracion = nodo.getAttributes().getNamedItem("MaxTiempoModelo").getNodeValue();
-//			String maxSolver = nodo.getAttributes().getNamedItem("MaxTiempoSolver").getNodeValue();
 			
 			_angulo = toDouble(angulo) * Math.PI / 180;
-			_toleranciaAngulo = toDouble(tolerancia) * Math.PI / 180;
 			_pasoHorizontal = toDouble(pasoHorizontal);
 			_pasoVertical = toDouble(pasoVertical);
 			
 			DecimalFormat df = new DecimalFormat("0.0000");
 			System.out.println("Parametros de la optimizacion");
 			System.out.println();
-			System.out.println("  -> Esfuerzo minimo: " + df.format(_angulo) + " +/- " + df.format(_toleranciaAngulo));
+			System.out.println("  -> Esfuerzo minimo: " + df.format(_angulo));
 			System.out.println("  -> Delta x: " + df.format(_pasoHorizontal) + ", Delta y: " + df.format(_pasoVertical) + " (input)");
 			System.out.println();
 		}
@@ -552,7 +452,7 @@ public class Instancia
 		
 		System.out.println("  -> " + _ogip.getCantidad() + " mediciones leidas");
 		System.out.println();
-	}	
+	}
 	
 	// Setters
 	public void setRegion(Region region)
@@ -568,14 +468,6 @@ public class Instancia
 			throw new IllegalArgumentException();
 		
 		_angulo = angulo;
-	}
-	public void setToleranciaAngulo(double tolerancia)
-	{
-		if( tolerancia < 0 )
-			throw new IllegalArgumentException();
-		
-		_toleranciaAngulo = tolerancia;
-		
 	}
 	public void setPasoHorizontal(double paso)
 	{
@@ -613,14 +505,6 @@ public class Instancia
 	{
 		return _ogip;
 	}
-	public double getAngulo()
-	{
-		return _angulo;
-	}
-	public double getToleranciaAngulo()
-	{
-		return _toleranciaAngulo;
-	}
 	public double getPasoHorizontal()
 	{
 		return _pasoHorizontal;
@@ -628,6 +512,10 @@ public class Instancia
 	public double getPasoVertical()
 	{
 		return _pasoVertical;
+	}
+	public String getArchivo()
+	{
+		return _archivo;
 	}
 	
 	// Obtiene un constructor de geometrías
