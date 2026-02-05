@@ -1,4 +1,4 @@
-package general;
+package impronta;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -37,10 +37,9 @@ public class Instancia
 	private ArrayList<Restriccion> _restricciones;
 	private OGIP _ogip;
 	private GeometryFactory _factory;
-	private String _archivo = "";
 	
 	public enum Formato { Nada, French, US };
-	private static Formato _formato = Formato.Nada;
+	public static Formato _formato = Formato.Nada;
 	
 	// Constructor por defecto
 	public Instancia()
@@ -54,7 +53,6 @@ public class Instancia
 	// Connstruye una instancia a partir de un archivo .xml
 	public Instancia(String archivoXml)
 	{
-		_archivo = archivoXml;
 		_region = new Region();
 		_semillas = new ArrayList<Semilla>();
 		_restricciones = new ArrayList<Restriccion>();
@@ -492,17 +490,23 @@ public class Instancia
 			String tolerancia = nodo.getAttributes().getNamedItem("Tolerancia").getNodeValue();
 			String pasoHorizontal = nodo.getAttributes().getNamedItem("Nx").getNodeValue();
 			String pasoVertical = nodo.getAttributes().getNamedItem("Ny").getNodeValue();
+			String maxGeneracion = nodo.getAttributes().getNamedItem("MaxTiempoModelo").getNodeValue();
+			String maxSolver = nodo.getAttributes().getNamedItem("MaxTiempoSolver").getNodeValue();
 			
 			_angulo = toDouble(angulo) * Math.PI / 180;
 			_toleranciaAngulo = toDouble(tolerancia) * Math.PI / 180;
 			_pasoHorizontal = toDouble(pasoHorizontal);
 			_pasoVertical = toDouble(pasoVertical);
 			
+			Timer.setTiempoGeneracion(toDouble(maxGeneracion));
+			Timer.setTiempoSolver(toDouble(maxSolver));
+			
 			DecimalFormat df = new DecimalFormat("0.0000");
 			System.out.println("Parametros de la optimizacion");
 			System.out.println();
 			System.out.println("  -> Esfuerzo minimo: " + df.format(_angulo) + " +/- " + df.format(_toleranciaAngulo));
 			System.out.println("  -> Delta x: " + df.format(_pasoHorizontal) + ", Delta y: " + df.format(_pasoVertical) + " (input)");
+			System.out.println("  -> Tiempo maximo generacion: " + df.format(Timer.getTiempoGeneracion()) + " sg., solver: " + df.format(Timer.getTiempoSolver()) + " sg.");
 			System.out.println();
 		}
 	    catch (Exception e)
@@ -627,16 +631,6 @@ public class Instancia
 	public double getPasoVertical()
 	{
 		return _pasoVertical;
-	}
-	public String getArchivo()
-	{
-		return _archivo;
-	}
-	
-	// Configuración
-	public static void set(Formato formato)
-	{
-		_formato = formato;
 	}
 	
 	// Obtiene un constructor de geometrías
