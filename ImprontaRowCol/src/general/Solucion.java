@@ -1,7 +1,9 @@
 package general;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import com.vividsolutions.jts.geom.Point;
@@ -10,22 +12,32 @@ import com.vividsolutions.jts.geom.Point;
 public class Solucion
 {
 	private Instancia _instancia;
-	private ArrayList<Pad> _pads;
+	private Map<Pad, Double> _pads;
 	
 	public Solucion(Instancia instancia)
 	{
 		_instancia = instancia;
-		_pads = new ArrayList<Pad>();
+		_pads = new HashMap<Pad, Double>();
 	}
 	
-	public void agregarPad(Pad pad)
+	public void agregar(Pad pad)
 	{
-		_pads.add(pad);
+		_pads.put(pad, 1.0);
 	}
 	
-	public ArrayList<Pad> getPads()
+	public void agregar(Pad pad, double valor)
 	{
-		return _pads;
+		_pads.put(pad, valor);
+	}
+	
+	public Set<Pad> getPads()
+	{
+		return _pads.keySet();
+	}
+	
+	public double getValor(Pad pad)
+	{
+		return _pads.containsKey(pad) ? _pads.get(pad) : 0;
 	}
 	
 	// Area cubierta por la solución, en valor absoluto y en porcentaje del yacimiento
@@ -46,6 +58,6 @@ public class Solucion
 	// Centros de los pads de la solución
 	public List<Point> getCentros()
 	{
-		return _pads.stream().map(p -> p.getCentro()).collect(Collectors.toList());
+		return _pads.keySet().stream().map(p -> p.getCentro()).collect(Collectors.toList());
 	}
 }

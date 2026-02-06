@@ -124,7 +124,7 @@ public class Relajacion
 				if( _mostrarSolucion == true )
 					System.out.println(var + " = " + _cplex.getValue(var));
 				
-				_solucion.agregarPad(_vars.get(var));
+				_solucion.agregar(_vars.get(var), _cplex.getValue(var));
 			}
 		}
 	}

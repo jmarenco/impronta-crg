@@ -27,6 +27,7 @@ public class Viewer extends JPanel
 	private static final long serialVersionUID = 1L;
 
 	private List<Geometry> geometries = new ArrayList<Geometry>();
+	private List<Color> colors = new ArrayList<Color>();
 	private OGIP ogip = null;
   
     private int _minx = Integer.MAX_VALUE;
@@ -37,7 +38,13 @@ public class Viewer extends JPanel
 
     public void addGeometry(Geometry geom)
     {
+    	addGeometry(geom, Color.BLACK);
+    }
+    
+    public void addGeometry(Geometry geom, Color color)
+    {
         geometries.add(geom);
+        colors.add(color);
         
         for(Coordinate c: geom.getCoordinates())
         {
@@ -61,8 +68,11 @@ public class Viewer extends JPanel
 
         if (!geometries.isEmpty())
         {
-            for (Geometry geom : geometries)
+        	for(int i=0; i<geometries.size(); ++i)
             {
+        		Geometry geom = geometries.get(i);
+        		g2d.setColor(colors.get(i));
+        		
             	if( geom.getClass().getName().contains("Polygon") )
             		drawPolygon((Polygon)geom, g2d);
 
@@ -165,9 +175,12 @@ public class Viewer extends JPanel
         {
 	        for(Pad pad: solucion.getPads())
 	        {
-	            panel.addGeometry(pad.getPerimetro());
-	            panel.addGeometry(pad.getLocacion());
-	            panel.addGeometry(pad.getCentro());
+	    		int nivel = 255 - (int)(255 * solucion.getValor(pad));
+	    		Color color = new Color(nivel, nivel, nivel);
+
+	    		panel.addGeometry(pad.getPerimetro(), color);
+	            panel.addGeometry(pad.getLocacion(), color);
+	            panel.addGeometry(pad.getCentro(), color);
 	        }
         }
         

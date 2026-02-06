@@ -67,7 +67,7 @@ public class Goloso
 				Vertice v = vertices.get(k);
 	
 				// Lo agrega a la solución
-				actual.agregarPad(_pads.get(v.numero));
+				actual.agregar(_pads.get(v.numero));
 				
 				// Elimina de los posibles a todos los pads que intersecan al pad seleccionado
 				for(Clique clique: _grafo.getCliquesDe(v.numero))
