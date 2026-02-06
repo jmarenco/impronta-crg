@@ -29,6 +29,8 @@ public class Relajacion
 	private Solucion _solucion;
 	
 	private double _infinity = Double.POSITIVE_INFINITY;
+	private boolean _mostrarSolucion = true;
+	private boolean _entero = false;
 	
 	public Relajacion(Instancia instancia, List<Point> puntos, PadCache padCache)
 	{
@@ -71,8 +73,12 @@ public class Relajacion
 			_pads.add(point, semilla); // No se agrega si el pad no es factible
 			
 			if( _pads.contains(point, semilla) )
-				_vars.put(_cplex.boolVar("x" + (i++)), _pads.get(point, semilla));
-//				_vars.put(_cplex.numVar(0, _infinity), _pads.get(point, semilla));
+			{
+				if( _entero == false )
+					_vars.put(_cplex.numVar(0, _infinity, "x" + (i++)), _pads.get(point, semilla));
+				else
+					_vars.put(_cplex.boolVar("x" + (i++)), _pads.get(point, semilla));
+			}
 		}
 	}
 
@@ -96,14 +102,12 @@ public class Relajacion
 			IloNumExpr lhs = _cplex.linearNumExpr();
 			lhs = _cplex.sum(lhs, var);
 
-			for(IloNumVar ovar: _vars.keySet())
-				System.out.println(coord + " " + _vars.get(ovar).getPerimetro() + " " + _vars.get(ovar).contiene(coord) );
-
 			for(IloNumVar ovar: _vars.keySet()) if( _vars.get(ovar).contiene(coord) )
 				lhs = _cplex.sum(lhs, ovar);
 			
 			IloRange constraint = _cplex.le(lhs, 1);
-			System.out.println(constraint);
+
+			_cplex.add(constraint);
 			_constr.put(coord, constraint);
 		}
 	}
@@ -117,7 +121,9 @@ public class Relajacion
 			
 			for(IloNumVar var: _vars.keySet()) if( _cplex.getValue(var) > 0.05 )
 			{
-				System.out.println(var + " = " + _cplex.getValue(var));
+				if( _mostrarSolucion == true )
+					System.out.println(var + " = " + _cplex.getValue(var));
+				
 				_solucion.agregarPad(_vars.get(var));
 			}
 		}
