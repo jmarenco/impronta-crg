@@ -33,63 +33,52 @@ public class DualCovering
 		System.out.println("Agregando " + agregado);
 		System.out.println();
 		
-		if( _rects.size() == 0 )
-		{
-			put(agregado, valor);
-			return;
-		}
+		ArrayList<Rect> nuevos = new ArrayList<Rect>();
+		nuevos.add(agregado);
 		
-		ArrayList<Rect> pendientes = new ArrayList<Rect>();
-		pendientes.add(agregado);
-		
-		while( pendientes.size() > 0 )
+		for(Rect rect: new ArrayList<Rect>(_rects.keySet()))
+		for(Rect nuevo: new ArrayList<Rect>(nuevos))
 		{
-			Rect nuevo = pendientes.get(0);
-			pendientes.remove(0);
+			System.out.println("  Considerando existente " + rect + " y nuevo " + nuevo);
 			
-			for(Rect rect: new ArrayList<Rect>(_rects.keySet()))
+			if( intersecan(rect, nuevo) )
 			{
-				System.out.println("  Considerando " + rect);
-				if( intersecan(rect, nuevo) )
-				{
-					// Elimina el rectángulo anterior
-					double anterior = _rects.get(rect);
-					remove(rect);
+				// Elimina los dos rectángulos
+				double anterior = _rects.get(rect);
+				remove(rect);
+				nuevos.remove(nuevo);
 					
-					// Rectangulos de "nuevo" por fuera de "rect"
-					add(pendientes, nuevo.izquierda, rect.derecha, nuevo.arriba, nuevo.abajo);
-					add(pendientes, Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), rect.abajo, nuevo.abajo);
-					add(pendientes, rect.derecha, nuevo.derecha, nuevo.arriba, nuevo.abajo);
-					add(pendientes, Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), rect.arriba, nuevo.arriba);
+				// Rectangulos de "nuevo" por fuera de "rect"
+				add(nuevos, nuevo.izquierda, rect.izquierda, nuevo.arriba, nuevo.abajo);
+				add(nuevos, Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), rect.abajo, nuevo.abajo);
+				add(nuevos, rect.derecha, nuevo.derecha, nuevo.arriba, nuevo.abajo);
+				add(nuevos, Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), nuevo.arriba, rect.arriba);
 					
-					// Rectangulos de "rect" por fuera de "nuevo"
-					put(rect.izquierda, nuevo.derecha, rect.arriba, rect.abajo, anterior);
-					put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), nuevo.abajo, rect.abajo, anterior);
-					put(nuevo.derecha, rect.derecha, rect.arriba, rect.abajo, anterior);
-					put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), nuevo.arriba, rect.arriba, anterior);
+				// Rectangulos de "rect" por fuera de "nuevo"
+				put(rect.izquierda, nuevo.izquierda, rect.arriba, rect.abajo, anterior);
+				put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), nuevo.abajo, rect.abajo, anterior);
+				put(nuevo.derecha, rect.derecha, rect.arriba, rect.abajo, anterior);
+				put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), rect.arriba, nuevo.arriba, anterior);
 					
-					// Interseccion
-					put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), Math.max(rect.arriba, nuevo.arriba), Math.min(rect.abajo, nuevo.abajo), anterior + valor);
-				}
-				else
-				{
-					put(nuevo, valor);
-				}
-				
-				System.out.println("  Resultado:");
-				for(Rect r: _rects.keySet())
-					System.out.println("   - " + r);
-				System.out.println();
+				// Interseccion
+				put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), Math.max(rect.arriba, nuevo.arriba), Math.min(rect.abajo, nuevo.abajo), anterior + valor);
 			}
 
-			System.out.println("  Pendientes:");
-			for(Rect r: pendientes)
+			System.out.println("  Existentes:");
+			for(Rect r: _rects.keySet())
 				System.out.println("   - " + r);
-			System.out.println("  " + pendientes.size() + " pendientes");
 			System.out.println();
 
-			new Scanner(System.in).nextLine();
+			System.out.println("  Nuevos:");
+			for(Rect r: nuevos)
+				System.out.println("   - " + r);
+			System.out.println();
+
+//			new Scanner(System.in).nextLine();
 		}
+		
+		for(Rect nuevo: nuevos)
+			put(nuevo, valor);
 	}
 	
 	private void add(ArrayList<Rect> pendientes, double izq, double der, double arr, double abj)
