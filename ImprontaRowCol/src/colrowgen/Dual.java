@@ -124,7 +124,7 @@ public class Dual
 	{
 		IloNumExpr lhs = _cplex.linearNumExpr();
 				
-		for(IloNumVar var: _slacks)
+		for(IloNumVar var: _vars)
 			lhs = _cplex.sum(lhs, var);
 		
 		_cplex.add(_cplex.eq(lhs, _target));
@@ -143,7 +143,7 @@ public class Dual
 			{
 				IloNumVar var = _vars.get(i);
 				
-				if( _cplex.getValue(var) > 0.05 )
+				if( _cplex.getValue(var) > 0.0000001 )
 				{
 					if( _mostrarSolucion == true )
 						System.out.println(var + " = " + _cplex.getValue(var));
@@ -151,7 +151,13 @@ public class Dual
 					_solucion.put(_puntos.get(i), _cplex.getValue(var));
 				}
 			}
+			
+			if( _mostrarSolucion == true )
+				System.out.println("Dual objective value: " + _cplex.getObjValue());
 		}
+		
+		if( _mostrarSolucion == true )
+			System.out.println("Cplex status: " + _cplex.getStatus());
 		
 		_cplex.end();
 	}

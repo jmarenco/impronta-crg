@@ -10,6 +10,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import general.Instancia;
 import general.OGIP;
 import general.Restriccion;
+import general.Semilla;
 import general.Solucion;
 import general.Pad;
 
@@ -19,6 +20,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -152,10 +155,20 @@ public class Viewer extends JPanel
     
     public static void show(Instancia instancia)
     {
-    	show(instancia, null);
+    	show(instancia, null, null, null);
     }
     
     public static void show(Instancia instancia, Solucion solucion)
+    {
+    	show(instancia, solucion, null, null);
+    }
+
+    public static void show(Instancia instancia, Map<Point, Double> dual, Semilla semilla)
+    {
+    	show(instancia, null, dual, semilla);
+    }
+
+    public static void show(Instancia instancia, Solucion solucion, Map<Point, Double> dual, Semilla semilla)
     {
         Viewer panel = new Viewer();
         JFrame frame = new JFrame(instancia.getArchivo());
@@ -182,6 +195,12 @@ public class Viewer extends JPanel
 	            panel.addGeometry(pad.getLocacion(), color);
 	            panel.addGeometry(pad.getCentro(), color);
 	        }
+        }
+        
+        if( dual != null )
+        {
+        	for(Point punto: dual.keySet()) if( dual.get(punto) > 0 )
+        		panel.addGeometry(new Pad(instancia, semilla, punto.getCoordinate()).getPerimetro());
         }
         
         for(Restriccion restriccion: instancia.getRestricciones())

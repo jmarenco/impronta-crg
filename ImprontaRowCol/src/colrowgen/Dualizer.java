@@ -1,9 +1,7 @@
 package colrowgen;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Point;
@@ -16,6 +14,8 @@ public class Dualizer
 	private ArrayList<Point> _puntos;
 	private PadCache _pads;
 	private double _target;
+	
+	private Map<Point, Double> _dualSolution;
 	
 	public Dualizer(Relajacion relajacion)
 	{
@@ -35,6 +35,11 @@ public class Dualizer
 	public void ejecutar()
 	{
 		Dual dual = new Dual(_instancia, _puntos, _pads, _target);
-		Map<Point, Double> solucion = dual.resolver();
+		_dualSolution = dual.resolver();
+	}
+	
+	public Map<Point, Double> getDualSolution()
+	{
+		return _dualSolution;
 	}
 }

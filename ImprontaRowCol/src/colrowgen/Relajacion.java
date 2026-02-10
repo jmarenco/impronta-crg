@@ -31,7 +31,7 @@ public class Relajacion
 	private double _objValue;
 	
 	private double _infinity = Double.POSITIVE_INFINITY;
-	private boolean _mostrarSolucion = false;
+	private boolean _mostrarSolucion = true;
 	private boolean _exportarModelo = false;
 	private boolean _entero = false;
 	
@@ -133,8 +133,14 @@ public class Relajacion
 				
 				_solucion.agregar(_vars.get(var), _cplex.getValue(var));
 			}
+			
+			if( _mostrarSolucion == true )
+				System.out.println("Primal objective value: " + _objValue);
 		}
 		
+		if( _mostrarSolucion == true )
+			System.out.println("Cplex status: " + _cplex.getStatus());
+
 		_cplex.end();
 	}
 	

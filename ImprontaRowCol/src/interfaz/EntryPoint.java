@@ -12,7 +12,7 @@ public class EntryPoint {
 	public static void main(String[] args)
 	{
 		Instancia.set(Instancia.Formato.French);
-		Instancia instancia = new Instancia("instancias/sqr.01.xml");
+		Instancia instancia = new Instancia("instancias/test.xml");
 		
 		Goloso goloso = new Goloso(instancia);
 		Solucion solucion = goloso.resolver();
@@ -26,5 +26,8 @@ public class EntryPoint {
 		
 		Dualizer dualizer = new Dualizer(relajacion);
 		dualizer.ejecutar();
+		
+		Viewer.show(instancia, dualizer.getDualSolution(), instancia.getSemillas().get(0));
+//		Viewer.show(instancia, dualizer.getDualSolution(), instancia.getSemillas().get(1));
 	}
 }
