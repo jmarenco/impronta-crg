@@ -20,9 +20,10 @@ public class Goloso
 	protected Discretizacion _discretizacion;
 	protected ArrayList<Pad> _pads;
 	protected Grafo _grafo;
-
-	// Generador de números aleatorios
-	private static Random _random = new Random();
+	protected Random _random;
+	
+	private static int _semilla = 0;
+	private static int _intentos = 100;
 
 	// Constructor
 	public Goloso(Instancia instancia)
@@ -48,9 +49,9 @@ public class Goloso
 		
 		Solucion ret = null;
 		double mejorValor = Double.MIN_VALUE;
-		int cantidadTotal = 100;
+		_random = new Random(_semilla);
 		
-		for(int i=0; i<cantidadTotal; ++i)
+		for(int i=0; i<_intentos; ++i)
 		{
 			Solucion actual = new Solucion(_instancia);
 			double valorizacion = 0;
@@ -78,7 +79,7 @@ public class Goloso
 				valorizacion += v.valorizacion;
 			}
 			
-			System.out.print("  -> Solución " + (i+1) + "/" + cantidadTotal + " - fobj: " + valorizacion);
+			System.out.print("  -> Solución " + (i+1) + "/" + _intentos + " - fobj: " + valorizacion);
 
 			if( mejorValor < valorizacion )
 			{

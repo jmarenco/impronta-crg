@@ -29,7 +29,8 @@ public class Relajacion
 	private Solucion _solucion;
 	
 	private double _infinity = Double.POSITIVE_INFINITY;
-	private boolean _mostrarSolucion = true;
+	private boolean _mostrarSolucion = false;
+	private boolean _exportarModelo = false;
 	private boolean _entero = false;
 	
 	public Relajacion(Instancia instancia, List<Point> puntos, PadCache padCache)
@@ -114,7 +115,9 @@ public class Relajacion
 
 	private void resolverModelo() throws IloException
 	{
-		_cplex.exportModel("/home/javier/Escritorio/modelo.lp");
+		if( _exportarModelo == true )
+			_cplex.exportModel("/home/javier/Escritorio/modelo.lp");
+		
 		if( _cplex.solve() == true )
 		{
 			_solucion = new Solucion(_instancia);
