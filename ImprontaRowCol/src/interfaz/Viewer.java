@@ -7,6 +7,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
+import colrowgen.DualCovering;
 import general.Instancia;
 import general.OGIP;
 import general.Restriccion;
@@ -155,27 +156,41 @@ public class Viewer extends JPanel
     
     public static void show(Instancia instancia)
     {
-    	show(instancia, null, null, null);
+        Viewer panel = new Viewer();
+        addEnvelope(panel, instancia);
+        addRestricciones(panel, instancia);
+        showFrame(instancia, panel, "Instancia");
     }
     
     public static void show(Instancia instancia, Solucion solucion)
     {
-    	show(instancia, solucion, null, null);
+        Viewer panel = new Viewer();
+        addEnvelope(panel, instancia);
+        addSolucion(panel, solucion);
+        addRestricciones(panel, instancia);
+        showFrame(instancia, panel, "Solución");
     }
 
     public static void show(Instancia instancia, Map<Point, Double> dual, Semilla semilla)
     {
-    	show(instancia, null, dual, semilla);
+        Viewer panel = new Viewer();
+        addEnvelope(panel, instancia);
+        addDual(panel, instancia, dual, semilla);
+        addRestricciones(panel, instancia);
+        showFrame(instancia, panel, "Solución dual");
     }
 
-    public static void show(Instancia instancia, Solucion solucion, Map<Point, Double> dual, Semilla semilla)
+    public static void show(Instancia instancia, DualCovering covering, Semilla semilla)
     {
         Viewer panel = new Viewer();
-        JFrame frame = new JFrame(instancia.getArchivo());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(panel);
-        frame.setSize(500, 500);
+        addEnvelope(panel, instancia);
+        addDualCovering(panel, instancia, covering, semilla);
+        addRestricciones(panel, instancia);
+        showFrame(instancia, panel, "Dual covering");
+    }
 
+    private static void addEnvelope(Viewer panel, Instancia instancia)
+    {
         for(Polygon envolvente: instancia.getRegion().getEnvolventes())
         	panel.addGeometry(envolvente);
         
@@ -183,31 +198,63 @@ public class Viewer extends JPanel
         	panel.addGeometry(agujero);
 
 //       	panel.addGeometry(solver.getDiscretizacion().getPuntos());
-
-        if( solucion != null )
-        {
-	        for(Pad pad: solucion.getPads())
-	        {
-	    		int nivel = 255 - (int)(255 * solucion.getValor(pad));
-	    		Color color = new Color(nivel, nivel, nivel);
-
-	    		panel.addGeometry(pad.getPerimetro(), color);
-	            panel.addGeometry(pad.getLocacion(), color);
-	            panel.addGeometry(pad.getCentro(), color);
-	        }
-        }
-        
-        if( dual != null )
-        {
-        	for(Point punto: dual.keySet()) if( dual.get(punto) > 0 )
-        		panel.addGeometry(new Pad(instancia, semilla, punto.getCoordinate()).getPerimetro());
-        }
-        
+    }
+    
+    private static void addRestricciones(Viewer panel, Instancia instancia)
+    {
         for(Restriccion restriccion: instancia.getRestricciones())
         	panel.addGeometry(restriccion.getPolygon());
         
 //       	panel.addOGIP(instancia.getOGIP());
-        
-        frame.setVisible(true);
     }
+
+	private static void addSolucion(Viewer panel, Solucion solucion)
+	{
+		for(Pad pad: solucion.getPads())
+		{
+			int nivel = 255 - (int)(255 * solucion.getValor(pad));
+			Color color = new Color(nivel, nivel, nivel);
+
+			panel.addGeometry(pad.getPerimetro(), color);
+		    panel.addGeometry(pad.getLocacion(), color);
+		    panel.addGeometry(pad.getCentro(), color);
+		}
+	}
+	
+	private static void addDual(Viewer panel, Instancia instancia, Map<Point, Double> dual, Semilla semilla)
+	{
+    	for(Point punto: dual.keySet()) if( dual.get(punto) > 0 )
+    	{
+			int nivel = 255 - (int)(255 * ((semilla.getLargo() * semilla.getAncho() / 1e6) - dual.get(punto)));
+			Color color = new Color(nivel, nivel, nivel);
+    		
+    		panel.addGeometry(new Pad(instancia, semilla, punto.getCoordinate()).getPerimetro(), color);
+    	}
+	}
+	
+	private static void addDualCovering(Viewer panel, Instancia instancia, DualCovering covering, Semilla semilla)
+	{
+		for(DualCovering.Rect rect: covering.getRectangulos())
+		{
+			double cx = (rect.izquierda + rect.derecha) / 2;
+			double cy = (rect.arriba + rect.abajo) / 2;
+			
+			Pad pad = new Pad(instancia, semilla, new Coordinate(cx,cy));
+			double targetArea = pad.getArea();
+
+			int nivel = 255 - (int)(255 * (targetArea - covering.get(rect)));
+			Color color = new Color(nivel, nivel, nivel);
+    		
+			panel.addGeometry(pad.getPerimetro(), color);
+		}
+	}
+
+	private static void showFrame(Instancia instancia, Viewer panel, String texto)
+	{
+		JFrame frame = new JFrame(texto + " - " + instancia.getArchivo());
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(panel);
+        frame.setSize(500, 500);
+        frame.setVisible(true);
+	}
 }

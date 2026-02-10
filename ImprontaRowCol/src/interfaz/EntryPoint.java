@@ -1,9 +1,11 @@
 package interfaz;
 
+import colrowgen.DualCovering;
 import colrowgen.Dualizer;
 import colrowgen.PadCache;
 import colrowgen.Relajacion;
 import general.Instancia;
+import general.Semilla;
 import general.Solucion;
 import heuristicas.Goloso;
 
@@ -27,7 +29,12 @@ public class EntryPoint {
 		Dualizer dualizer = new Dualizer(relajacion);
 		dualizer.ejecutar();
 		
-		Viewer.show(instancia, dualizer.getDualSolution(), instancia.getSemillas().get(0));
-//		Viewer.show(instancia, dualizer.getDualSolution(), instancia.getSemillas().get(1));
+		for(Semilla semilla: instancia.getSemillas())
+		{
+			DualCovering covering = new DualCovering(dualizer.getDualSolution(), semilla);
+
+			Viewer.show(instancia, dualizer.getDualSolution(), semilla);
+			Viewer.show(instancia, covering, semilla);
+		}
 	}
 }

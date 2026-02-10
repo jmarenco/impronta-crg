@@ -26,6 +26,12 @@ public class Dualizer
 		_puntos = new ArrayList<Point>();
 
 		for(Point point: relajacion.varPoints())
+			System.out.println("VarPoint " + point);
+
+		for(Coordinate coordinate: relajacion.constraintPoints())
+			System.out.println("ConstraintPoint " + coordinate);
+
+		for(Point point: relajacion.varPoints())
 			_puntos.add(point);
 
 		for(Coordinate coordinate: relajacion.constraintPoints())

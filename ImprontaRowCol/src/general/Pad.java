@@ -149,4 +149,9 @@ public class Pad
 
 		return valor / coeficiente;
 	}
+	
+	@Override public String toString()
+	{
+		return _perimetro.toString();
+	}
 }
