@@ -13,6 +13,7 @@ import ilog.cplex.IloCplex;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Point;
@@ -27,6 +28,7 @@ public class Relajacion
 	private Map<IloNumVar, Pad> _vars;
 	private Map<Coordinate, IloRange> _constr;
 	private Solucion _solucion;
+	private double _objValue;
 	
 	private double _infinity = Double.POSITIVE_INFINITY;
 	private boolean _mostrarSolucion = false;
@@ -67,6 +69,7 @@ public class Relajacion
 	private void crearVariables() throws IloException
 	{
 		_vars = new HashMap<IloNumVar, Pad>();
+		
 		int i = 1;
 		for(Point point: _puntos)
 		for(Semilla semilla: _instancia.getSemillas())
@@ -121,6 +124,7 @@ public class Relajacion
 		if( _cplex.solve() == true )
 		{
 			_solucion = new Solucion(_instancia);
+			_objValue = _cplex.getObjValue();
 			
 			for(IloNumVar var: _vars.keySet()) if( _cplex.getValue(var) > 0.05 )
 			{
@@ -130,5 +134,32 @@ public class Relajacion
 				_solucion.agregar(_vars.get(var), _cplex.getValue(var));
 			}
 		}
+		
+		_cplex.end();
+	}
+	
+	public List<Point> varPoints()
+	{
+		return _puntos;
+	}
+	
+	public Set<Coordinate> constraintPoints()
+	{
+		return _constr.keySet();
+	}
+
+	public Instancia getInstancia()
+	{
+		return _instancia;
+	}
+
+	public PadCache getPadCache()
+	{
+		return _pads;
+	}
+
+	public double getObjValue()
+	{
+		return _objValue;
 	}
 }

@@ -1,5 +1,6 @@
 package interfaz;
 
+import colrowgen.Dualizer;
 import colrowgen.PadCache;
 import colrowgen.Relajacion;
 import general.Instancia;
@@ -22,5 +23,8 @@ public class EntryPoint {
 		Solucion modelo = relajacion.resolver();
 		
 		Viewer.show(instancia, modelo);
+		
+		Dualizer dualizer = new Dualizer(relajacion);
+		dualizer.ejecutar();
 	}
 }

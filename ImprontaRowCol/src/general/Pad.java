@@ -114,7 +114,7 @@ public class Pad
 	// Área del perímetro
 	public double getArea()
 	{
-		return _perimetro.getArea();
+		return _perimetro.getArea() / 1e6;
 	}
 	
 	// Determina si la locación se interseca con el área restringida
