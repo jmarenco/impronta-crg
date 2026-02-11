@@ -37,44 +37,45 @@ public class DualCovering
 		nuevos.add(agregado);
 		
 		for(Rect rect: new ArrayList<Rect>(_rects.keySet()))
-		for(Rect nuevo: new ArrayList<Rect>(nuevos))
 		{
-			System.out.println("  Considerando existente " + rect + " y nuevo " + nuevo);
-			
-			if( intersecan(rect, nuevo) )
+			double anterior = _rects.get(rect);
+			for(Rect nuevo: new ArrayList<Rect>(nuevos))
 			{
-				// Elimina los dos rectángulos
-				double anterior = _rects.get(rect);
-				remove(rect);
-				nuevos.remove(nuevo);
-					
-				// Rectangulos de "nuevo" por fuera de "rect"
-				add(nuevos, nuevo.izquierda, rect.izquierda, nuevo.arriba, nuevo.abajo);
-				add(nuevos, Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), rect.abajo, nuevo.abajo);
-				add(nuevos, rect.derecha, nuevo.derecha, nuevo.arriba, nuevo.abajo);
-				add(nuevos, Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), nuevo.arriba, rect.arriba);
-					
-				// Rectangulos de "rect" por fuera de "nuevo"
-				put(rect.izquierda, nuevo.izquierda, rect.arriba, rect.abajo, anterior);
-				put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), nuevo.abajo, rect.abajo, anterior);
-				put(nuevo.derecha, rect.derecha, rect.arriba, rect.abajo, anterior);
-				put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), rect.arriba, nuevo.arriba, anterior);
-					
-				// Interseccion
-				put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), Math.max(rect.arriba, nuevo.arriba), Math.min(rect.abajo, nuevo.abajo), anterior + valor);
+				System.out.println("  Considerando existente " + rect + " y nuevo " + nuevo);
+				if( intersecan(rect, nuevo) )
+				{
+					// Elimina los dos rectángulos
+					remove(rect);
+					nuevos.remove(nuevo);
+						
+					// Rectangulos de "nuevo" por fuera de "rect"
+					add(nuevos, nuevo.izquierda, rect.izquierda, nuevo.arriba, nuevo.abajo);
+					add(nuevos, Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), rect.abajo, nuevo.abajo);
+					add(nuevos, rect.derecha, nuevo.derecha, nuevo.arriba, nuevo.abajo);
+					add(nuevos, Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), nuevo.arriba, rect.arriba);
+						
+					// Rectangulos de "rect" por fuera de "nuevo"
+					put(rect.izquierda, nuevo.izquierda, rect.arriba, rect.abajo, anterior);
+					put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), nuevo.abajo, rect.abajo, anterior);
+					put(nuevo.derecha, rect.derecha, rect.arriba, rect.abajo, anterior);
+					put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), rect.arriba, nuevo.arriba, anterior);
+						
+					// Interseccion
+					put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), Math.max(rect.arriba, nuevo.arriba), Math.min(rect.abajo, nuevo.abajo), anterior + valor);
+				}
+	
+				System.out.println("  Existentes:");
+				for(Rect r: _rects.keySet())
+					System.out.println("   - " + r);
+				System.out.println();
+	
+				System.out.println("  Nuevos:");
+				for(Rect r: nuevos)
+					System.out.println("   - " + r);
+				System.out.println();
+	
+	//			new Scanner(System.in).nextLine();
 			}
-
-			System.out.println("  Existentes:");
-			for(Rect r: _rects.keySet())
-				System.out.println("   - " + r);
-			System.out.println();
-
-			System.out.println("  Nuevos:");
-			for(Rect r: nuevos)
-				System.out.println("   - " + r);
-			System.out.println();
-
-//			new Scanner(System.in).nextLine();
 		}
 		
 		for(Rect nuevo: nuevos)

@@ -18,6 +18,10 @@ public class Discretizacion
 	private Instancia _instancia;
 	private Geometry _yacimiento;
 	
+	// Pasos de la discretización
+	private int _pasoHorizontal;
+	private int _pasoVertical;
+	
 	// Centroide y longitud al punto más distante
 	private Point _centroide;
 	private double _radio;
@@ -28,7 +32,19 @@ public class Discretizacion
 	// Genera la discretización
 	public Discretizacion(Instancia instancia)
 	{
+		construir(instancia, instancia.getPasoHorizontal(), instancia.getPasoVertical());
+	}
+	public Discretizacion(Instancia instancia, int pasoHorizontal, int pasoVertical)
+	{
+		construir(instancia, pasoHorizontal, pasoVertical);
+	}
+
+	// Construye la discretización
+	private void construir(Instancia instancia, int pasoHorizontal, int pasoVertical)
+	{
 		_instancia = instancia;
+		_pasoHorizontal = pasoHorizontal;
+		_pasoVertical = pasoVertical;
 		_yacimiento = instancia.getRegion().getGeometry();
 	
 		calcularRadio();
@@ -57,8 +73,8 @@ public class Discretizacion
 	{
 		ArrayList<Coordinate> puntos = new ArrayList<Coordinate>();
 		
-		for(double x=_centroide.getX()-_radio; x<_centroide.getX()+_radio; x+=_instancia.getPasoHorizontal())
-		for(double y=_centroide.getY()-_radio; y<_centroide.getY()+_radio; y+=_instancia.getPasoVertical())
+		for(double x=_instancia.snapx(_centroide.getX()-_radio); x<_centroide.getX()+_radio; x+=_pasoHorizontal)
+		for(double y=_instancia.snapy(_centroide.getY()-_radio); y<_centroide.getY()+_radio; y+=_pasoVertical)
 			puntos.add(new Coordinate(x, y));
 		
 		Coordinate[] ret = new Coordinate[puntos.size()];

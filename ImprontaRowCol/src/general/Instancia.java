@@ -1,11 +1,9 @@
 package general;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -19,20 +17,13 @@ import org.w3c.dom.Text;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
 
 // Representa una instancia del problema
 public class Instancia
 {
 	private Region _region;
-	private double _angulo;
-	private double _toleranciaAngulo;
-	private double _pasoHorizontal;
-	private double _pasoVertical;
-	private int _minPuntosHorizontal = 30;
-	private int _maxPuntosHorizontal = 200;
-	private int _minPuntosVertical = 30;
-	private int _maxPuntosVertical = 200;
+	private int _pasoHorizontal;
+	private int _pasoVertical;
 	private ArrayList<Semilla> _semillas;
 	private ArrayList<Restriccion> _restricciones;
 	private OGIP _ogip;
@@ -105,14 +96,14 @@ public class Instancia
 					obtenerRestricciones(nodo);
 
 				if( nodo.getNodeName() == "Esfuerzo_horizontal_mínimo" )
-					obtenerAngulo(nodo);
+					obtenerPasos(nodo);
 
 				if( nodo.getNodeName() == "Ogip" )
 					obtenerOGIP(nodo);
 			}
 			
 			// Calcula los pasos de la discretización, si corresponde
-			calcularPasos();
+			validarPasos();
 	    }
 	    catch (Exception e)
 	    {
@@ -340,92 +331,13 @@ public class Instancia
 	}
 	
 	// Calcula valores por defecto para la discretización
-	private void calcularPasos()
+	private void validarPasos()
 	{
 		if( _pasoHorizontal == 0 )
-		{
-			// Proyecta la región al eje x
-			double xMax = Double.NEGATIVE_INFINITY;
-			double xMin = Double.POSITIVE_INFINITY;
-			
-			for(Polygon envolvente: _region.getEnvolventes())
-			for(Coordinate c: envolvente.getCoordinates())
-			{
-				xMax = Math.max(xMax, c.x);
-				xMin = Math.min(xMin, c.x);
-			}
+			throw new RuntimeException("El paso horizontal no puede ser cero!");
 
-			// Calcula el mcd entre los anchos de las semillas
-			ArrayList<Integer> valores = new ArrayList<Integer>();
-			for(Semilla semilla: _semillas)
-				valores.add((int)semilla.getLargo());
-			
-			_pasoHorizontal = mcd(valores);
-
-			// Correcciones
-			if( _pasoHorizontal == 1 ) // Si son coprimos ...
-				_pasoHorizontal = Collections.max(valores) / 10;
-
-			while( Collections.min(valores) / _pasoHorizontal < 5 )
-				_pasoHorizontal = (int)(_pasoHorizontal / 2);
-			
-			while( (xMax - xMin) / _pasoHorizontal < _minPuntosHorizontal )
-				_pasoHorizontal = (int)(_pasoHorizontal / 2);
-			
-			while( (xMax - xMin) / _pasoHorizontal > _maxPuntosHorizontal )
-				_pasoHorizontal *= 2;
-		}
-		
 		if( _pasoVertical == 0 )
-		{
-			// Proyecta la región al eje y
-			double yMax = Double.NEGATIVE_INFINITY;
-			double yMin = Double.POSITIVE_INFINITY;
-			
-			for(Polygon envolvente: _region.getEnvolventes())
-			for(Coordinate c: envolvente.getCoordinates())
-			{
-				yMax = Math.max(yMax, c.y);
-				yMin = Math.min(yMin, c.y);
-			}
-
-			// Calcula el mcd entre los largos de las semillas
-			ArrayList<Integer> valores = new ArrayList<Integer>();
-			for(Semilla semilla: _semillas)
-				valores.add((int)semilla.getAncho());
-			
-			_pasoVertical = mcd(valores);
-			
-			// Correcciones
-			if( _pasoVertical == 1 ) // Si son coprimos ...
-				_pasoVertical = Collections.max(valores) / 10;
-			
-			while( Collections.min(valores) / _pasoVertical < 5 )
-				_pasoVertical = (int)(_pasoVertical / 2);
-
-			while( (yMax - yMin) / _pasoVertical < _minPuntosVertical )
-				_pasoVertical = (int)(_pasoVertical / 2);
-			
-			while( (yMax - yMin) / _pasoVertical > _maxPuntosVertical )
-				_pasoVertical *= 2;
-		}
-	}
-	
-	// Auxiliar: Máximo común divisor
-	private int mcd(ArrayList<Integer> valores)
-	{
-		if( valores.size() == 0 )
-			return 0;
-		
-		int a = valores.get(0);
-		for(int i=1; i<valores.size(); ++i)
-			a = mcd(a, valores.get(i));
-		
-		return a;
-	}
-	private int mcd(int a, int b)
-	{
-		return b ==0  ? a : mcd(b, a%b);
+			throw new RuntimeException("El paso vertical no puede ser cero!");
 	}
 	
 	// Obtiene las restricciones del archivo .xml
@@ -485,25 +397,19 @@ public class Instancia
 	}	
 	
 	// Obtiene el área del archivo .xml
-	private void obtenerAngulo(Node nodo)
+	private void obtenerPasos(Node nodo)
 	{
 		try
 		{
-			String angulo = nodo.getAttributes().getNamedItem("Ángulo").getNodeValue();
-			String tolerancia = nodo.getAttributes().getNamedItem("Tolerancia").getNodeValue();
 			String pasoHorizontal = nodo.getAttributes().getNamedItem("Nx").getNodeValue();
 			String pasoVertical = nodo.getAttributes().getNamedItem("Ny").getNodeValue();
 			
-			_angulo = toDouble(angulo) * Math.PI / 180;
-			_toleranciaAngulo = toDouble(tolerancia) * Math.PI / 180;
-			_pasoHorizontal = toDouble(pasoHorizontal);
-			_pasoVertical = toDouble(pasoVertical);
+			_pasoHorizontal = (int)toDouble(pasoHorizontal);
+			_pasoVertical = (int)toDouble(pasoVertical);
 			
-			DecimalFormat df = new DecimalFormat("0.0000");
 			System.out.println("Parametros de la optimizacion");
 			System.out.println();
-			System.out.println("  -> Esfuerzo minimo: " + df.format(_angulo) + " +/- " + df.format(_toleranciaAngulo));
-			System.out.println("  -> Delta x: " + df.format(_pasoHorizontal) + ", Delta y: " + df.format(_pasoVertical) + " (input)");
+			System.out.println("  -> Delta x: " + _pasoHorizontal + ", Delta y: " + _pasoVertical + " (input)");
 			System.out.println();
 		}
 	    catch (Exception e)
@@ -562,29 +468,14 @@ public class Instancia
 			
 		_region = region;
 	}
-	public void setAngulo(double angulo)
-	{
-		if( angulo < 0 || angulo >= 2*Math.PI)
-			throw new IllegalArgumentException();
-		
-		_angulo = angulo;
-	}
-	public void setToleranciaAngulo(double tolerancia)
-	{
-		if( tolerancia < 0 )
-			throw new IllegalArgumentException();
-		
-		_toleranciaAngulo = tolerancia;
-		
-	}
-	public void setPasoHorizontal(double paso)
+	public void setPasoHorizontal(int paso)
 	{
 		if( paso <= 0 )
 			throw new IllegalArgumentException();
 
 		_pasoHorizontal = paso;
 	}
-	public void setPasoVertical(double paso)
+	public void setPasoVertical(int paso)
 	{
 		if( paso <= 0 )
 			throw new IllegalArgumentException();
@@ -613,17 +504,59 @@ public class Instancia
 	{
 		return _ogip;
 	}
-	public double getPasoHorizontal()
+	public int getPasoHorizontal()
 	{
 		return _pasoHorizontal;
 	}
-	public double getPasoVertical()
+	public int getPasoVertical()
 	{
 		return _pasoVertical;
 	}
 	public String getArchivo()
 	{
 		return _archivo;
+	}
+	
+	// Manejo de la grilla discretizada
+	public int snapx(double x)
+	{
+		return _pasoHorizontal * (int)(x / (double)_pasoHorizontal + 0.5);
+	}
+	public int snapy(double y)
+	{
+		return _pasoVertical * (int)(y / (double)_pasoVertical + 0.5);
+	}
+	public ArrayList<Coordinate> multisnap(Coordinate point)
+	{
+		ArrayList<Coordinate> ret = new ArrayList<Coordinate>();
+		
+		int bx = _pasoHorizontal * (int)(point.x / (double)_pasoHorizontal);
+		int by = _pasoHorizontal * (int)(point.y / (double)_pasoHorizontal);
+
+		ret.add(new Coordinate(bx, by));
+		ret.add(new Coordinate(bx + _pasoHorizontal, by));
+		ret.add(new Coordinate(bx, by + _pasoVertical));
+		ret.add(new Coordinate(bx + _pasoHorizontal, by + _pasoVertical));
+		
+		return ret;
+	}
+	public ArrayList<Coordinate> snappedNeighbors(Coordinate point)
+	{
+		ArrayList<Coordinate> ret = new ArrayList<Coordinate>();
+		
+		int bx = _pasoHorizontal * (int)(snapx(point.x) / (double)_pasoHorizontal);
+		int by = _pasoHorizontal * (int)(snapy(point.y) / (double)_pasoHorizontal);
+
+		ret.add(new Coordinate(bx - _pasoHorizontal, by));
+		ret.add(new Coordinate(bx - _pasoHorizontal, by - _pasoVertical));
+		ret.add(new Coordinate(bx, by - _pasoVertical));
+		ret.add(new Coordinate(bx + _pasoHorizontal, by - _pasoVertical));
+		ret.add(new Coordinate(bx + _pasoHorizontal, by));
+		ret.add(new Coordinate(bx + _pasoHorizontal, by + _pasoVertical));
+		ret.add(new Coordinate(bx, by + _pasoVertical));
+		ret.add(new Coordinate(bx + _pasoHorizontal, by - _pasoVertical));
+		
+		return ret;
 	}
 	
 	// Configuración

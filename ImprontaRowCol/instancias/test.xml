@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Parámetros>
   <!--Dirección ideal del esfuerzo horizontal mínimo y tolerancia-->
-  <Esfuerzo_horizontal_mínimo Ángulo="0" Tolerancia="0" Nx="10" Ny="10"/>
+  <Esfuerzo_horizontal_mínimo Ángulo="0" Tolerancia="0" Nx="1" Ny="1"/>
   <Área Capa="Yacimiento" ID="1" Vértices="8">
     <Vértice X="0" Y="150" />
     <Vértice X="70" Y="150" />

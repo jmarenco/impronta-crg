@@ -22,13 +22,20 @@ public class Goloso
 	protected Grafo _grafo;
 	protected Random _random;
 	
+	private int _pasoHorizontal;
+	private int _pasoVertical;
+	
 	private static int _semilla = 0;
 	private static int _intentos = 100;
+	private static int _factorPasoHorizontal = 20;
+	private static int _factorPasoVertical = 20;
 
 	// Constructor
 	public Goloso(Instancia instancia)
 	{
 		_instancia = instancia;
+		_pasoHorizontal = instancia.getPasoHorizontal() * _factorPasoHorizontal;
+		_pasoVertical = instancia.getPasoVertical() * _factorPasoVertical;
 	}
 	
 	// Resuelve la instancia
@@ -154,9 +161,9 @@ public class Goloso
 	{
 		System.out.println("Construyendo discretizacion ...");
 		System.out.println();
-		System.out.println("  -> Delta x: " + _instancia.getPasoHorizontal() + ", Delta y: " + _instancia.getPasoVertical());
+		System.out.println("  -> Delta x: " + _pasoHorizontal + ", Delta y: " + _pasoVertical);
 
-		_discretizacion = new Discretizacion(_instancia);
+		_discretizacion = new Discretizacion(_instancia, _pasoHorizontal, _pasoVertical);
 
 		System.out.println("  -> " + _discretizacion.getPuntos().getCoordinates().length + " puntos generados");
 		System.out.println();
