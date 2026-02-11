@@ -531,7 +531,7 @@ public class Instancia
 		ArrayList<Coordinate> ret = new ArrayList<Coordinate>();
 		
 		int bx = _pasoHorizontal * (int)(point.x / (double)_pasoHorizontal);
-		int by = _pasoHorizontal * (int)(point.y / (double)_pasoHorizontal);
+		int by = _pasoVertical * (int)(point.y / (double)_pasoVertical);
 
 		ret.add(new Coordinate(bx, by));
 		ret.add(new Coordinate(bx + _pasoHorizontal, by));
@@ -545,7 +545,7 @@ public class Instancia
 		ArrayList<Coordinate> ret = new ArrayList<Coordinate>();
 		
 		int bx = _pasoHorizontal * (int)(snapx(point.x) / (double)_pasoHorizontal);
-		int by = _pasoHorizontal * (int)(snapy(point.y) / (double)_pasoHorizontal);
+		int by = _pasoVertical * (int)(snapy(point.y) / (double)_pasoVertical);
 
 		ret.add(new Coordinate(bx - _pasoHorizontal, by));
 		ret.add(new Coordinate(bx - _pasoHorizontal, by - _pasoVertical));
@@ -554,7 +554,7 @@ public class Instancia
 		ret.add(new Coordinate(bx + _pasoHorizontal, by));
 		ret.add(new Coordinate(bx + _pasoHorizontal, by + _pasoVertical));
 		ret.add(new Coordinate(bx, by + _pasoVertical));
-		ret.add(new Coordinate(bx + _pasoHorizontal, by - _pasoVertical));
+		ret.add(new Coordinate(bx - _pasoHorizontal, by + _pasoVertical));
 		
 		return ret;
 	}
