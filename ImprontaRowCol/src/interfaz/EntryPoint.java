@@ -31,10 +31,10 @@ public class EntryPoint {
 		
 		for(Semilla semilla: instancia.getSemillas())
 		{
-			DualCovering covering = new DualCovering(dualizer.getDualSolution(), semilla);
+			DualCovering covering = new DualCovering(instancia, dualizer.getDualSolution(), semilla);
 
 			Viewer.show(instancia, dualizer.getDualSolution(), semilla);
-			Viewer.show(instancia, covering, semilla);
+//			Viewer.show(instancia, covering, semilla);
 		}
 	}
 }

@@ -1,196 +1,62 @@
 package colrowgen;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.Set;
 
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygon;
 
+import general.Instancia;
+import general.Pad;
 import general.Semilla;
 
 public class DualCovering
 {
-	private Map<Rect,Double> _rects;
-	
-	public DualCovering(Map<Point,Double> dualSolution, Semilla semilla)
-	{
-		_rects = new HashMap<Rect,Double>();
-		
-		System.out.println("Construyendo dual covering");
-		System.out.println();
+	// Resultado final
+	private Map<Geometry,Double> _areas = new HashMap<Geometry,Double>();
 
+	// Constructor
+	public DualCovering(Instancia instancia, Map<Point,Double> dualSolution, Semilla semilla)
+	{
 		for(Point point: dualSolution.keySet())
-			add(new Rect(point, semilla), dualSolution.get(point));
-
-		System.out.println("Listo");
-	}
-	
-	private void add(Rect agregado, double valor)
-	{
-		System.out.println("Agregando " + agregado);
-		System.out.println();
-		
-		ArrayList<Rect> nuevos = new ArrayList<Rect>();
-		nuevos.add(agregado);
-		
-		for(Rect rect: new ArrayList<Rect>(_rects.keySet()))
 		{
-			double anterior = _rects.get(rect);
-			for(Rect nuevo: new ArrayList<Rect>(nuevos))
+			Polygon nuevo = new Pad(instancia, semilla, point.getCoordinate()).getPerimetro();
+			Geometry agregar = new Pad(instancia, semilla, point.getCoordinate()).getPerimetro();
+			
+			for(Geometry existente: new ArrayList<Geometry>(_areas.keySet()))
 			{
-				System.out.println("  Considerando existente " + rect + " y nuevo " + nuevo);
-				if( intersecan(rect, nuevo) )
+				if( nuevo.intersects(existente) )
 				{
-					// Elimina los dos rectángulos
-					remove(rect);
-					nuevos.remove(nuevo);
-						
-					// Rectangulos de "nuevo" por fuera de "rect"
-					add(nuevos, nuevo.izquierda, rect.izquierda, nuevo.arriba, nuevo.abajo);
-					add(nuevos, Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), rect.abajo, nuevo.abajo);
-					add(nuevos, rect.derecha, nuevo.derecha, nuevo.arriba, nuevo.abajo);
-					add(nuevos, Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), nuevo.arriba, rect.arriba);
-						
-					// Rectangulos de "rect" por fuera de "nuevo"
-					put(rect.izquierda, nuevo.izquierda, rect.arriba, rect.abajo, anterior);
-					put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), nuevo.abajo, rect.abajo, anterior);
-					put(nuevo.derecha, rect.derecha, rect.arriba, rect.abajo, anterior);
-					put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), rect.arriba, nuevo.arriba, anterior);
-						
-					// Interseccion
-					put(Math.max(rect.izquierda, nuevo.izquierda), Math.min(rect.derecha, nuevo.derecha), Math.max(rect.arriba, nuevo.arriba), Math.min(rect.abajo, nuevo.abajo), anterior + valor);
+					put(existente.difference(nuevo), _areas.get(existente));
+					put(existente.intersection(nuevo), _areas.get(existente) + dualSolution.get(point));
+				
+					_areas.remove(existente);
 				}
-	
-				System.out.println("  Existentes:");
-				for(Rect r: _rects.keySet())
-					System.out.println("   - " + r);
-				System.out.println();
-	
-				System.out.println("  Nuevos:");
-				for(Rect r: nuevos)
-					System.out.println("   - " + r);
-				System.out.println();
-	
-	//			new Scanner(System.in).nextLine();
+				
+				agregar = agregar.difference(existente);
 			}
-		}
-		
-		for(Rect nuevo: nuevos)
-			put(nuevo, valor);
-	}
-	
-	private void add(ArrayList<Rect> pendientes, double izq, double der, double arr, double abj)
-	{
-		Rect nuevo = new Rect(izq, der, arr, abj);
-		
-		if( nuevo.izquierda < nuevo.derecha && nuevo.arriba < nuevo.abajo && !pendientes.contains(nuevo) && !existeSimilar(nuevo) )
-			pendientes.add(nuevo);
-	}
-	
-	private void put(double izq, double der, double arr, double abj, double valor)
-	{
-		put(new Rect(izq, der, arr, abj), valor);
-	}
-	
-	private void put(Rect rect, double valor)
-	{
-		if( rect.izquierda < rect.derecha && rect.arriba < rect.abajo )
-			_rects.put(rect, valor);
-	}
-	
-	private void remove(Rect rect)
-	{
-		_rects.remove(rect);
-	}
-	
-	private boolean intersecan(Rect uno, Rect otro)
-	{
-		return !(uno.derecha < otro.izquierda || uno.izquierda > otro.derecha || uno.arriba > otro.abajo || uno.abajo < otro.arriba);
-	}
-	
-	private boolean existeSimilar(Rect rect)
-	{
-		return _rects.keySet().stream().anyMatch(r -> similares(r,rect));
-	}
-	
-	private boolean similares(Rect uno, Rect otro)
-	{
-		return similares(uno.izquierda, otro.izquierda) && similares(uno.derecha, otro.derecha) && similares(uno.arriba, otro.arriba) && similares(uno.abajo, otro.abajo);
-	}
-	
-	private boolean similares(double uno, double otro)
-	{
-		return Math.abs(uno - otro) < 1e-6;
-	}
-	
-	public Set<Rect> getRectangulos()
-	{
-		return _rects.keySet();
-	}
-	
-	public double get(Rect rect)
-	{
-		return _rects.get(rect);
-	}
-
-	public static class Rect
-	{
-		public double izquierda;
-		public double derecha;
-		public double arriba;
-		public double abajo;
-		
-		public Rect(Point centro, Semilla semilla)
-		{
-			izquierda = centro.getX() - semilla.getLargo() / 2;
-			derecha = centro.getX() + semilla.getLargo() / 2;
-			arriba = centro.getY() - semilla.getAncho() / 2;
-			abajo = centro.getY() + semilla.getAncho() / 2;
-
-//			System.out.println("Constructing rect");
-//			System.out.println("   " + centro);
-//			System.out.println("   " + semilla);
-//			System.out.println("   " + izquierda + " " + derecha + " " + arriba + " " + abajo);
-		}
-		
-		public Rect(double izq, double der, double arr, double abj)
-		{
-			izquierda = izq;
-			derecha = der;
-			arriba = arr;
-			abajo = abj;
-		}
-		
-		@Override
-		public int hashCode()
-		{
-			return Objects.hash(abajo, arriba, derecha, izquierda);
-		}
-		
-		@Override
-		public boolean equals(Object obj)
-		{
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Rect other = (Rect) obj;
-			return Double.doubleToLongBits(abajo) == Double.doubleToLongBits(other.abajo)
-					&& Double.doubleToLongBits(arriba) == Double.doubleToLongBits(other.arriba)
-					&& Double.doubleToLongBits(derecha) == Double.doubleToLongBits(other.derecha)
-					&& Double.doubleToLongBits(izquierda) == Double.doubleToLongBits(other.izquierda);
-		}
-		
-		@Override
-		public String toString()
-		{
-			return "[" + izquierda + ", " + derecha + " : " + arriba + ", " + abajo + "]";
+			
+			if( agregar.isEmpty() == false )
+				put(agregar, dualSolution.get(point));
 		}
 	}
-
+	
+	private void put(Geometry geometry, double valor)
+	{
+		if( !geometry.isEmpty() && geometry.getArea() > 0 )
+			_areas.put(geometry, valor);
+	}
+	
+	public Set<Geometry> getAreas()
+	{
+		return _areas.keySet();
+	}
+	
+	public double get(Geometry geom)
+	{
+		return _areas.get(geom);
+	}
 }

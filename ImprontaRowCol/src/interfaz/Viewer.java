@@ -7,7 +7,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-import colrowgen.DualCovering;
+import colrowgen.RectangularDualCovering;
 import general.Instancia;
 import general.OGIP;
 import general.Restriccion;
@@ -180,7 +180,7 @@ public class Viewer extends JPanel
         showFrame(instancia, panel, "Solución dual");
     }
 
-    public static void show(Instancia instancia, DualCovering covering, Semilla semilla)
+    public static void show(Instancia instancia, RectangularDualCovering covering, Semilla semilla)
     {
         Viewer panel = new Viewer();
         addEnvelope(panel, instancia);
@@ -232,9 +232,9 @@ public class Viewer extends JPanel
     	}
 	}
 	
-	private static void addDualCovering(Viewer panel, Instancia instancia, DualCovering covering, Semilla semilla)
+	private static void addDualCovering(Viewer panel, Instancia instancia, RectangularDualCovering covering, Semilla semilla)
 	{
-		for(DualCovering.Rect rect: covering.getRectangulos())
+		for(RectangularDualCovering.Rect rect: covering.getRectangulos())
 		{
 			double cx = (rect.izquierda + rect.derecha) / 2;
 			double cy = (rect.arriba + rect.abajo) / 2;
