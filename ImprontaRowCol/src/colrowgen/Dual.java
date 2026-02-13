@@ -146,7 +146,7 @@ public class Dual
 				if( _cplex.getValue(var) > 0.0000001 )
 				{
 					if( _mostrarSolucion == true )
-						System.out.println(var + " = " + _cplex.getValue(var));
+						System.out.println(var + " = " + _cplex.getValue(var) + " - " + _puntos.get(i));
 				
 					_solucion.put(_puntos.get(i), _cplex.getValue(var));
 				}

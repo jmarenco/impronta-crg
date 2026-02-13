@@ -7,7 +7,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-import colrowgen.RectangularDualCovering;
+import colrowgen.DualCovering;
 import general.Instancia;
 import general.OGIP;
 import general.Restriccion;
@@ -33,6 +33,7 @@ public class Viewer extends JPanel
 	private List<Geometry> geometries = new ArrayList<Geometry>();
 	private List<Color> colors = new ArrayList<Color>();
 	private OGIP ogip = null;
+	private DualCovering dualCovering = null;
   
     private int _minx = Integer.MAX_VALUE;
     private int _maxx = Integer.MIN_VALUE;
@@ -63,12 +64,20 @@ public class Viewer extends JPanel
     {
     	ogip = obj;
     }
+    
+    public void addDualCovering(DualCovering obj)
+    {
+    	dualCovering = obj;
+    }
 
     @Override
     protected void paintComponent(Graphics g)
     {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
+        
+        if( dualCovering != null )
+        	drawDualCovering(g2d);
 
         if (!geometries.isEmpty())
         {
@@ -143,6 +152,32 @@ public class Viewer extends JPanel
     		g2d.fill(circle);
     	}
     }
+    
+    private void drawDualCovering(Graphics2D g2d)
+    {
+		double targetArea = dualCovering.getSemilla().getAncho() * dualCovering.getSemilla().getLargo()/ 1e6;
+    	for(Geometry geom: dualCovering.getAreas())
+		{
+			double valor = Math.min(targetArea, dualCovering.get(geom));
+			int nivel = (int)(255 * (targetArea - valor) / targetArea);
+
+			Coordinate[] coords = geom.getCoordinates();
+			
+			int[] x = new int[coords.length];
+			int[] y = new int[coords.length];
+
+			for(int i=0; i<coords.length; ++i)
+			{
+				x[i] = convx(coords[i]);
+				y[i] = convy(coords[i]);
+			}
+			
+    		g2d.setColor(new Color(nivel, nivel, nivel));
+    		g2d.fillPolygon(x, y, x.length);
+    		g2d.setColor(Color.DARK_GRAY);
+    		g2d.drawPolygon(x, y, x.length);
+		}
+    }
 
     private int convx(Coordinate c)
     {
@@ -180,11 +215,11 @@ public class Viewer extends JPanel
         showFrame(instancia, panel, "Solución dual");
     }
 
-    public static void show(Instancia instancia, RectangularDualCovering covering, Semilla semilla)
+    public static void show(Instancia instancia, DualCovering covering)
     {
         Viewer panel = new Viewer();
+        panel.addDualCovering(covering);
         addEnvelope(panel, instancia);
-        addDualCovering(panel, instancia, covering, semilla);
         addRestricciones(panel, instancia);
         showFrame(instancia, panel, "Dual covering");
     }
@@ -204,8 +239,8 @@ public class Viewer extends JPanel
     {
         for(Restriccion restriccion: instancia.getRestricciones())
         	panel.addGeometry(restriccion.getPolygon());
-        
-//       	panel.addOGIP(instancia.getOGIP());
+
+       	panel.addOGIP(instancia.getOGIP());
     }
 
 	private static void addSolucion(Viewer panel, Solucion solucion)
@@ -223,30 +258,15 @@ public class Viewer extends JPanel
 	
 	private static void addDual(Viewer panel, Instancia instancia, Map<Point, Double> dual, Semilla semilla)
 	{
+		double targetArea = semilla.getAncho() * semilla.getLargo()/ 1e6;
     	for(Point punto: dual.keySet()) if( dual.get(punto) > 0 )
     	{
-			int nivel = 255 - (int)(255 * ((semilla.getLargo() * semilla.getAncho() / 1e6) - dual.get(punto)));
+			double valor = Math.min(targetArea, dual.get(punto));
+			int nivel = (int)(255 * (targetArea - valor) / targetArea);
 			Color color = new Color(nivel, nivel, nivel);
-    		
-    		panel.addGeometry(new Pad(instancia, semilla, punto.getCoordinate()).getPerimetro(), color);
-    	}
-	}
-	
-	private static void addDualCovering(Viewer panel, Instancia instancia, RectangularDualCovering covering, Semilla semilla)
-	{
-		for(RectangularDualCovering.Rect rect: covering.getRectangulos())
-		{
-			double cx = (rect.izquierda + rect.derecha) / 2;
-			double cy = (rect.arriba + rect.abajo) / 2;
-			
-			Pad pad = new Pad(instancia, semilla, new Coordinate(cx,cy));
-			double targetArea = pad.getArea();
 
-			int nivel = 255 - (int)(255 * (targetArea - covering.get(rect)));
-			Color color = new Color(nivel, nivel, nivel);
-    		
-			panel.addGeometry(pad.getPerimetro(), color);
-		}
+			panel.addGeometry(new Pad(instancia, semilla, punto.getCoordinate()).getPerimetro(), color);
+    	}
 	}
 
 	private static void showFrame(Instancia instancia, Viewer panel, String texto)
