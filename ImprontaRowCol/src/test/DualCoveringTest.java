@@ -47,7 +47,7 @@ public class DualCoveringTest
 		createCovering();
 		
 		assertEquals(1, _areas.size());
-		assertContains(0.75, 0, 0, 100, 0, 100, 40, 0, 40);
+		assertContainsRectangle(0.75, 0, 100, 0, 40);
 	}
 
 	@Test
@@ -57,93 +57,96 @@ public class DualCoveringTest
 		put(150, 10, 0.8);
 		createCovering();
 		
-		for(Geometry g: _areas)
-			System.out.println(g);
-		
 		assertEquals(2, _areas.size());
-		assertContains(0.75, 0, 0, 100, 0, 100, 40, 0, 40);
-		assertContains(0.8, 100, -10, 200, -10, 200, 30, 100, 30);
+		assertContainsRectangle(0.75, 0, 100, 0, 40);
+		assertContainsRectangle(0.8, 100, 200, -10, 30);
 	}
 
-//	@Test
-//	public void dosRectangulosAlineadosHorizontalmenteTest()
-//	{
-//		put(50, 20, 0.3);
-//		put(120, 20, 0.4);
-//		createCovering();
-//		
-//		assertEquals(3, _rectangulos.size());
-//		assertContains(0, 70, 0, 40, 0.3);
-//		assertContains(70, 100, 0, 40, 0.7);
-//		assertContains(100, 170, 0, 40, 0.4);
-//	}
-//
-//	@Test
-//	public void dosRectangulosAlineadosVerticalmenteTest()
-//	{
-//		put(50, 20, 0.3);
-//		put(50, 45, 0.4);
-//		createCovering();
-//		
-//		assertEquals(3, _rectangulos.size());
-//		assertContains(0, 100, 0, 25, 0.3);
-//		assertContains(0, 100, 25, 40, 0.7);
-//		assertContains(0, 100, 40, 65, 0.4);
-//	}
-//
-//	@Test
-//	public void dosRectangulosSolapadosArribaDerechaTest()
-//	{
-//		put(50, 20, 0.3);
-//		put(90, 50, 0.4);
-//		createCovering();
-//		
-//		assertEquals(5, _rectangulos.size());
-//		assertContains(0, 40, 0, 40, 0.3);
-//		assertContains(40, 100, 0, 30, 0.3);
-//		assertContains(40, 100, 30, 40, 0.7);
-//		assertContains(40, 100, 40, 70, 0.4);
-//		assertContains(100, 140, 30, 70, 0.4);
-//	}
-//
-//	@Test
-//	public void dosRectangulosSolapadosAbajoDerechaTest()
-//	{
-//		put(50, 20, 0.3);
-//		put(80, 0, 0.4);
-//		createCovering();
-//		
-//		assertEquals(5, _rectangulos.size());
-//		assertContains(0, 30, 0, 40, 0.3);
-//		assertContains(30, 100, 20, 40, 0.3);
-//		assertContains(30, 100, 0, 20, 0.7);
-//		assertContains(30, 100, -20, 0, 0.4);
-//		assertContains(100, 130, -20, 20, 0.4);
-//	}
-//
-//	@Test
-//	public void tresRectangulosSinInterseccionComunTest()
-//	{
-//		put(50, 20, 0.3);
-//		put(90, 50, 0.4);
-//		put(80, 0, 0.2);
-//		createCovering();
-//		
-//		System.out.println("************");
-//		for(RectangularDualCovering.Rect r: _rectangulos)
-//			System.out.println(r);
-//		
-//		assertEquals(9, _rectangulos.size());
-//		assertContains(0, 30, 0, 40, 0.3);
-//		assertContains(30, 40, 20, 40, 0.3);
-//		assertContains(40, 100, 20, 30, 0.3);
-//		assertContains(40, 100, 30, 40, 0.7);
-//		assertContains(40, 100, 40, 70, 0.4);
-//		assertContains(100, 140, 30, 70, 0.4);
-//		assertContains(30, 100, 0, 20, 0.5);
-//		assertContains(30, 100, -20, 0, 0.2);
-//		assertContains(100, 130, -20, 20, 0.2);
-//	}
+	@Test
+	public void dosRectangulosAlineadosHorizontalmenteTest()
+	{
+		put(50, 20, 0.3);
+		put(120, 20, 0.4);
+		createCovering();
+		
+		assertEquals(3, _areas.size());
+		assertContainsRectangle(0.3, 0, 70, 0, 40);
+		assertContainsRectangle(0.7, 70, 100, 0, 40);
+		assertContainsRectangle(0.4, 100, 170, 0, 40);
+	}
+
+	@Test
+	public void dosRectangulosAlineadosVerticalmenteTest()
+	{
+		put(50, 20, 0.3);
+		put(50, 45, 0.4);
+		createCovering();
+		
+		assertEquals(3, _areas.size());
+		assertContainsRectangle(0.3, 0, 100, 0, 25);
+		assertContainsRectangle(0.7, 0, 100, 25, 40);
+		assertContainsRectangle(0.4, 0, 100, 40, 65);
+	}
+
+	@Test
+	public void dosRectangulosSolapadosArribaDerechaTest()
+	{
+		put(50, 20, 0.3);
+		put(90, 50, 0.4);
+		createCovering();
+		
+		assertEquals(3, _areas.size());
+		assertContains(0.3, 0, 0, 100, 0, 100, 30, 40, 30, 40, 40, 0, 40);
+		assertContainsRectangle(0.7, 40, 100, 30, 40);
+		assertContains(0.4, 40, 40, 100, 40, 100, 30, 140, 30, 140, 70, 40, 70);
+	}
+
+	@Test
+	public void dosRectangulosSolapadosAbajoDerechaTest()
+	{
+		put(50, 20, 0.3);
+		put(80, 0, 0.4);
+		createCovering();
+		
+		assertEquals(3, _areas.size());
+		assertContains(0.3, 0, 0, 30, 0, 30, 20, 100, 20, 100, 40, 0, 40);
+		assertContainsRectangle(0.7, 30, 100, 0, 20);
+		assertContains(0.4, 30, 0, 30, -20, 130, -20, 130, 20, 100, 20, 100, 0);
+	}
+
+	@Test
+	public void tresRectangulosSinInterseccionComunTest()
+	{
+		put(50, 20, 0.3);
+		put(90, 50, 0.4);
+		put(80, 0, 0.2);
+		createCovering();
+		
+		assertEquals(5, _areas.size());
+		assertContains(0.3, 0, 0, 30, 0, 30, 20, 100, 20, 100, 30, 40, 30, 40, 40, 0, 40);
+		assertContainsRectangle(0.7, 40, 100, 30, 40);
+		assertContainsRectangle(0.5, 30, 100, 0, 20);
+		assertContains(0.4, 40, 40, 100, 40, 100, 30, 140, 30, 140, 70, 40, 70);
+		assertContains(0.2, 30, 0, 30, -20, 130, -20, 130, 20, 100, 20, 100, 0);
+	}
+
+	@Test
+	public void tresRectangulosConInterseccionComunTest()
+	{
+		put(50, 20, 0.3);
+		put(70, 40, 0.4);
+		put(90, 30, 0.2);
+		createCovering();
+		
+		assertEquals(7, _areas.size());
+		assertContains(0.3, 0, 0, 100, 0, 100, 10, 40, 10, 40, 20, 20, 20, 20, 40, 0, 40);
+		assertContainsRectangle(0.7, 20, 40, 20, 40);
+		assertContainsRectangle(0.5, 40, 100, 10, 20);
+		assertContainsRectangle(0.9, 40, 100, 20, 40);
+		assertContains(0.4, 20, 40, 40, 40, 40, 50, 120, 50, 120, 60, 20, 60);
+		assertContains(0.6, 40, 40, 100, 40, 100, 20, 120, 20, 120, 50, 40, 50);
+		assertContains(0.2, 100, 10, 140, 10, 140, 50, 120, 50, 120, 20, 100, 20);
+	}
 	
 	private void put(double x, double y, double valor)
 	{
@@ -154,6 +157,11 @@ public class DualCoveringTest
 	{
 		_covering = new DualCovering(_instancia, _dual, _instancia.getSemillas().get(0));
 		_areas = _covering.getAreas();
+	}
+	
+	private void assertContainsRectangle(double valor, double izquierda, double derecha, double arriba, double abajo)
+	{
+		assertContains(valor, izquierda, abajo, derecha, abajo, derecha, arriba, izquierda, arriba);
 	}
 	
 	private void assertContains(double valor, double ...x)

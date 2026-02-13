@@ -11,6 +11,7 @@ import com.vividsolutions.jts.geom.Point;
 
 import general.Semilla;
 
+@Deprecated
 public class RectangularDualCovering
 {
 	// Resultado final
