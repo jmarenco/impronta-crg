@@ -148,6 +148,54 @@ public class DualCoveringTest
 		assertContains(0.2, 100, 10, 140, 10, 140, 50, 120, 50, 120, 20, 100, 20);
 	}
 	
+	@Test
+	public void dosRectangulosPegadosVerticalmenteTest()
+	{
+		put(50, 20, 0.3);
+		put(50, 60, 0.4);
+		createCovering();
+		
+		assertEquals(2, _areas.size());
+		assertContainsRectangle(0.3, 0, 100, 0, 40);
+		assertContainsRectangle(0.4, 0, 100, 40, 80);
+	}
+	
+	@Test
+	public void dosRectangulosPegadosHorizontalmenteTest()
+	{
+		put(50, 20, 0.3);
+		put(150, 20, 0.4);
+		createCovering();
+		
+		assertEquals(2, _areas.size());
+		assertContainsRectangle(0.3, 0, 100, 0, 40);
+		assertContainsRectangle(0.4, 100, 200, 0, 40);
+	}
+	
+	@Test
+	public void dosRectangulosPegadosParcialmenteTest()
+	{
+		put(50, 20, 0.3);
+		put(150, 40, 0.4);
+		createCovering();
+		
+		assertEquals(2, _areas.size());
+		assertContainsRectangle(0.3, 0, 100, 0, 40);
+		assertContainsRectangle(0.4, 100, 200, 20, 60);
+	}
+	
+	@Test
+	public void dosRectangulosPegadosIgualesTest()
+	{
+		put(50, 20, 0.3);
+		put(50, 60, 0.3);
+		createCovering();
+		
+		assertEquals(2, _areas.size());
+		assertContainsRectangle(0.3, 0, 100, 0, 40);
+		assertContainsRectangle(0.3, 0, 100, 40, 80);
+	}
+	
 	private void put(double x, double y, double valor)
 	{
 		_dual.put(_factory.createPoint(new Coordinate(x,y)), valor);

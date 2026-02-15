@@ -31,7 +31,7 @@ public class Dual
 
 	private double _infinity = Double.POSITIVE_INFINITY;
 	private boolean _mostrarSolucion = true;
-	private boolean _exportarModelo = true;
+	private boolean _exportarModelo = false;
 
 	public Dual(Instancia instancia, ArrayList<Point> puntos, PadCache padCache, double target)
 	{

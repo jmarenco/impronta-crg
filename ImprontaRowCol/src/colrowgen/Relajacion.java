@@ -82,8 +82,6 @@ public class Relajacion
 					_vars.put(_cplex.numVar(0, _infinity, "x" + (i++)), _pads.get(point, semilla));
 				else
 					_vars.put(_cplex.boolVar("x" + (i++)), _pads.get(point, semilla));
-				
-//				System.out.println("Variable en punto " + point + " " + _pads.get(point, semilla));
 			}
 		}
 	}
@@ -106,9 +104,7 @@ public class Relajacion
 		for(Coordinate esquina: _vars.get(var).getPerimetro().getCoordinates())
 		for(Coordinate coord: _instancia.snappedNeighbors(esquina)) if( _vars.get(var).contiene(coord) && !_constr.containsKey(coord) )
 		{
-//			System.out.println("Restricción en punto: " + coord);
 			IloNumExpr lhs = _cplex.linearNumExpr();
-//			lhs = _cplex.sum(lhs, var);
 
 			for(IloNumVar ovar: _vars.keySet()) if( _vars.get(ovar).contiene(coord) )
 				lhs = _cplex.sum(lhs, ovar);
