@@ -217,10 +217,22 @@ public class Viewer extends JPanel
 
     public static void show(Instancia instancia, DualCovering covering)
     {
+    	show(instancia, covering, null);
+    }
+
+    public static void show(Instancia instancia, DualCovering covering, ArrayList<Point> nuevos)
+    {
         Viewer panel = new Viewer();
         panel.addDualCovering(covering);
         addEnvelope(panel, instancia);
         addRestricciones(panel, instancia);
+        
+        if( nuevos != null )
+        {
+        	for(Point point: nuevos)
+        		panel.addGeometry(point, Color.RED);
+        }
+
         showFrame(instancia, panel, "Dual covering");
     }
 

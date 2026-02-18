@@ -18,12 +18,14 @@ public class DualCovering
 	// Resultado final
 	private Map<Geometry,Double> _areas = new HashMap<Geometry,Double>();
 	
-	// Semilla
+	// Instancia y semilla
+	private Instancia _instancia;
 	private Semilla _semilla;
 
 	// Constructor
 	public DualCovering(Instancia instancia, Map<Point,Double> dualSolution, Semilla semilla)
 	{
+		_instancia = instancia;
 		_semilla = semilla;
 		
 		for(Point point: dualSolution.keySet())
@@ -69,5 +71,15 @@ public class DualCovering
 	public Semilla getSemilla()
 	{
 		return _semilla;
+	}
+	
+	public Geometry uncovered()
+	{
+		Geometry ret = _instancia.getRegion().getGeometry();
+		
+		for(Geometry geom: this.getAreas())
+			ret = ret.difference(geom);
+		
+		return ret;
 	}
 }

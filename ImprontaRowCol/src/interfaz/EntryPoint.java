@@ -34,7 +34,7 @@ public class EntryPoint {
 			DualCovering covering = new DualCovering(instancia, dualizer.getDualSolution(), semilla);
 
 			Viewer.show(instancia, dualizer.getDualSolution(), semilla);
-			Viewer.show(instancia, covering);
+			Viewer.show(instancia, covering, dualizer.getNuevos());
 		}
 	}
 }
