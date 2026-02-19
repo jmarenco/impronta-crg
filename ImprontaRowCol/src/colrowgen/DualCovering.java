@@ -54,8 +54,13 @@ public class DualCovering
 	
 	private void put(Geometry geometry, double valor)
 	{
-		if( !geometry.isEmpty() && geometry.getArea() > 0 )
-			_areas.put(geometry, valor);
+		for(int i=0; i<geometry.getNumGeometries(); ++i)
+		{
+			Geometry individual = geometry.getGeometryN(i);
+
+			if( !individual.isEmpty() && individual.getArea() > 0 )
+				_areas.put(individual, valor);
+		}
 	}
 	
 	public Set<Geometry> getAreas()

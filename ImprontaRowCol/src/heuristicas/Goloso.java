@@ -29,6 +29,7 @@ public class Goloso
 	private static int _intentos = 100;
 	private static int _factorPasoHorizontal = 20;
 	private static int _factorPasoVertical = 20;
+	private static boolean _verbose = false;
 
 	// Constructor
 	public Goloso(Instancia instancia)
@@ -51,8 +52,7 @@ public class Goloso
 	// Construye una solución en forma golosa y semi-aleatoria
 	public Solucion construirSolucion()
 	{
-		System.out.println("Construyendo solución ...");
-		System.out.println();
+		log("Construyendo solución ... \r\n");
 		
 		Solucion ret = null;
 		double mejorValor = Double.MIN_VALUE;
@@ -86,16 +86,15 @@ public class Goloso
 				valorizacion += v.valorizacion;
 			}
 			
-			System.out.print("  -> Solución " + (i+1) + "/" + _intentos + " - fobj: " + valorizacion);
-
+			String best = "";
 			if( mejorValor < valorizacion )
 			{
 				ret = actual;
 				mejorValor = valorizacion;
-				System.out.print(" *");
+				best = " *";
 			}
 			
-			System.out.println();			
+			log("  -> Solución " + (i+1) + "/" + _intentos + " - fobj: " + valorizacion + best);
 		}
 		
 		return ret;
@@ -159,26 +158,22 @@ public class Goloso
 	// Construye la discretización
 	protected void construirDiscretizacion()
 	{
-		System.out.println("Construyendo discretizacion ...");
-		System.out.println();
-		System.out.println("  -> Delta x: " + _pasoHorizontal + ", Delta y: " + _pasoVertical);
+		log("Construyendo discretizacion ... \r\n");
+		log("  -> Delta x: " + _pasoHorizontal + ", Delta y: " + _pasoVertical);
 
 		_discretizacion = new Discretizacion(_instancia, _pasoHorizontal, _pasoVertical);
 
-		System.out.println("  -> " + _discretizacion.getPuntos().getCoordinates().length + " puntos generados");
-		System.out.println();
+		log("  -> " + _discretizacion.getPuntos().getCoordinates().length + " puntos generados \r\n");
 	}
 
 	// Genera todos los pads factibles
 	protected void generarPads()
 	{
-		System.out.println("Construyendo pads ...");
-		System.out.println();
-		
+		log("Construyendo pads ... \r\n");
+
 		_pads = _discretizacion.construirPads();
 		
-		System.out.println("  -> " + _pads.size() + " pads generados");
-		System.out.println();
+		log("  -> " + _pads.size() + " pads generados \r\n");
 	}
 
 	// Construye el grafo de intersecciones
@@ -201,15 +196,28 @@ public class Goloso
 			_grafo.agregarClique(vertices);
 			
 			if( (++k) % (_discretizacion.getPuntos().getNumPoints() / 20) == 0 )
-				System.out.println("  -> Grafo " + Math.round(k * 100.0 / _discretizacion.getPuntos().getNumPoints()) + "% construido" );
+				log("  -> Grafo " + Math.round(k * 100.0 / _discretizacion.getPuntos().getNumPoints()) + "% construido" );
 		}
 
-		System.out.println();
+		log("");
 	}
 	
 	// Retorna la discretización	
 	public Discretizacion getDiscretizacion()
 	{
 		return _discretizacion;
+	}
+	
+	// Log
+	private void log(String texto)
+	{
+		if( _verbose == true )
+			System.out.println(texto);
+	}
+	
+	// Configuración
+	public static void setVerbose(boolean valor)
+	{
+		_verbose = valor;
 	}
 }

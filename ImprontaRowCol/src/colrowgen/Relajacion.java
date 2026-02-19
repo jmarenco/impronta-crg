@@ -29,11 +29,14 @@ public class Relajacion
 	private Map<Coordinate, IloRange> _constr;
 	private Solucion _solucion;
 	private double _objValue;
+	private long _start;
+	private double _time;
 	
 	private double _infinity = Double.POSITIVE_INFINITY;
-	private boolean _mostrarSolucion = true;
+	private boolean _mostrarSolucion = false;
 	private boolean _exportarModelo = false;
 	private boolean _entero = false;
+	private boolean _verbose = false;
 	
 	public Relajacion(Instancia instancia, List<Point> puntos, PadCache padCache)
 	{
@@ -64,6 +67,7 @@ public class Relajacion
 	{
 		_cplex = new IloCplex();
 		_solucion = null;
+		_start = System.currentTimeMillis();
 	}
 
 	private void crearVariables() throws IloException
@@ -121,6 +125,9 @@ public class Relajacion
 		if( _exportarModelo == true )
 			_cplex.exportModel("/home/javier/Escritorio/modelo.lp");
 		
+		if( _verbose == false )
+			_cplex.setOut(null);
+		
 		if( _cplex.solve() == true )
 		{
 			_solucion = new Solucion(_instancia);
@@ -141,6 +148,7 @@ public class Relajacion
 		if( _mostrarSolucion == true )
 			System.out.println("Cplex status: " + _cplex.getStatus());
 
+		_time = (System.currentTimeMillis() - _start) / 1000.0;
 		_cplex.end();
 	}
 	
@@ -167,5 +175,15 @@ public class Relajacion
 	public double getObjValue()
 	{
 		return _objValue;
+	}
+
+	public Solucion getSolucion()
+	{
+		return _solucion;
+	}
+	
+	public double getTime()
+	{
+		return _time;
 	}
 }

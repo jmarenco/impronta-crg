@@ -199,10 +199,16 @@ public class Viewer extends JPanel
     
     public static void show(Instancia instancia, Solucion solucion)
     {
+    	show(instancia, solucion, null);
+    }
+    
+    public static void show(Instancia instancia, Solucion solucion, ArrayList<Point> puntos)
+    {
         Viewer panel = new Viewer();
         addEnvelope(panel, instancia);
         addSolucion(panel, solucion);
         addRestricciones(panel, instancia);
+        addPuntos(panel, puntos);
         showFrame(instancia, panel, "Solución");
     }
 
@@ -226,13 +232,7 @@ public class Viewer extends JPanel
         panel.addDualCovering(covering);
         addEnvelope(panel, instancia);
         addRestricciones(panel, instancia);
-        
-        if( nuevos != null )
-        {
-        	for(Point point: nuevos)
-        		panel.addGeometry(point, Color.RED);
-        }
-
+        addPuntos(panel, nuevos);
         showFrame(instancia, panel, "Dual covering");
     }
 
@@ -279,6 +279,15 @@ public class Viewer extends JPanel
 
 			panel.addGeometry(new Pad(instancia, semilla, punto.getCoordinate()).getPerimetro(), color);
     	}
+	}
+
+	private static void addPuntos(Viewer panel, ArrayList<Point> puntos)
+	{
+		if( puntos != null )
+        {
+        	for(Point point: puntos)
+        		panel.addGeometry(point, Color.RED);
+        }
 	}
 
 	private static void showFrame(Instancia instancia, Viewer panel, String texto)

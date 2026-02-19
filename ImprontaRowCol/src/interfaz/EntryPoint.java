@@ -2,6 +2,7 @@ package interfaz;
 
 import colrowgen.DualCovering;
 import colrowgen.Dualizer;
+import colrowgen.Master;
 import colrowgen.PadCache;
 import colrowgen.Relajacion;
 import general.Instancia;
@@ -19,22 +20,29 @@ public class EntryPoint {
 		Goloso goloso = new Goloso(instancia);
 		Solucion solucion = goloso.resolver();
 		
-		Viewer.show(instancia, solucion);
-
-		Relajacion relajacion = new Relajacion(instancia, solucion.getCentros(), new PadCache(instancia));
-		Solucion modelo = relajacion.resolver();
+		System.out.println("Goloso: " + String.format("%.5f", solucion.areaCubierta()));
 		
-		Viewer.show(instancia, modelo);
+		Master master = new Master(instancia, solucion.getCentros());
+		master.solve();
 		
-		Dualizer dualizer = new Dualizer(relajacion);
-		dualizer.ejecutar();
+		Viewer.show(instancia, master.getSolucion(), master.getPoints());
 		
-		for(Semilla semilla: instancia.getSemillas())
-		{
-			DualCovering covering = new DualCovering(instancia, dualizer.getDualSolution(), semilla);
-
-			Viewer.show(instancia, dualizer.getDualSolution(), semilla);
-			Viewer.show(instancia, covering, dualizer.getNuevos());
-		}
+//		Viewer.show(instancia, solucion);
+//
+//		Relajacion relajacion = new Relajacion(instancia, solucion.getCentros(), new PadCache(instancia));
+//		Solucion modelo = relajacion.resolver();
+//		
+//		Viewer.show(instancia, modelo);
+//		
+//		Dualizer dualizer = new Dualizer(relajacion);
+//		dualizer.ejecutar();
+//		
+//		for(Semilla semilla: instancia.getSemillas())
+//		{
+//			DualCovering covering = new DualCovering(instancia, dualizer.getDualSolution(), semilla);
+//
+//			Viewer.show(instancia, dualizer.getDualSolution(), semilla);
+//			Viewer.show(instancia, covering, dualizer.getNuevos());
+//		}
 	}
 }

@@ -19,6 +19,9 @@ public class Dualizer
 	private double _target;
 	
 	private Map<Point, Double> _dualSolution;
+	private long _start;
+	private double _time;
+	private double _dualTime;
 	
 	private static boolean _mostrarPuntos = false;
 	
@@ -41,9 +44,12 @@ public class Dualizer
 	
 	public void ejecutar()
 	{
+		_start = System.currentTimeMillis();
+		
 		Dual dual = new Dual(_instancia, _puntos, _pads, _target);
 
 		_dualSolution = dual.resolver();
+		_dualTime = dual.getTime();
 		_nuevos = new ArrayList<Point>();
 		
 		for(Semilla semilla: _instancia.getSemillas())
@@ -56,6 +62,8 @@ public class Dualizer
 			for(Coordinate coord: uncovered.getCoordinates())
 				add(closestFeasible(uncovered, coord, semilla));
 		}
+		
+		_time = (System.currentTimeMillis() - _start) / 1000.0;
 	}
 	
 	public Map<Point, Double> getDualSolution()
@@ -132,5 +140,15 @@ public class Dualizer
 	private Point toPoint(Coordinate coord)
 	{
 		return _instancia.getFactory().createPoint(coord);
+	}
+	
+	public double getTotalTime()
+	{
+		return _time;
+	}
+	
+	public double getDualTime()
+	{
+		return _dualTime;
 	}
 }

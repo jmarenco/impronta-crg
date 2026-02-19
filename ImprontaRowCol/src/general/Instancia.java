@@ -32,6 +32,7 @@ public class Instancia
 	
 	public enum Formato { Nada, French, US };
 	private static Formato _formato = Formato.Nada;
+	private static boolean _verbose = false;
 	
 	// Constructor por defecto
 	public Instancia()
@@ -52,8 +53,7 @@ public class Instancia
 		_factory = new GeometryFactory();
 		_ogip = null;
 		
-		System.out.println("Leyendo instancia ...");
-		System.out.println();
+		log("Leyendo instancia ... \r\n");
 
 		try
 		{
@@ -126,7 +126,7 @@ public class Instancia
 				for(int i = 0; i < atributos.getLength(); ++i)
 				{
 					Node atributo = atributos.item(i);
-					System.out.println("  Atributo " + atributo.getNodeName() + ": " + atributo.getNodeValue());
+					log("  Atributo " + atributo.getNodeName() + ": " + atributo.getNodeValue());
 				}
 			}
 
@@ -203,8 +203,7 @@ public class Instancia
 			String yacimiento = nodo.getAttributes().getNamedItem("Capa").getNodeValue();
 			String id = nodo.getAttributes().getNamedItem("ID").getNodeValue();
 			
-			System.out.println("Yacimiento: " + yacimiento + " - ID: " + id);
-			System.out.println();
+			log("Yacimiento: " + yacimiento + " - ID: " + id + "\r\n");
 			
 			NodeList hijos = nodo.getChildNodes();
 
@@ -244,7 +243,7 @@ public class Instancia
 			String x = hijos.item(i).getAttributes().getNamedItem("X").getNodeValue();
 			String y = hijos.item(i).getAttributes().getNamedItem("Y").getNodeValue();
 			
-			System.out.println("  -> x = " + toDouble(x) + ", y = " + toDouble(y) + (envolvente ? " (+)" : " (-)"));
+			log("  -> x = " + toDouble(x) + ", y = " + toDouble(y) + (envolvente ? " (+)" : " (-)"));
 			coords[i] = new Coordinate(toDouble(x), toDouble(y));
 		}
 		
@@ -253,7 +252,7 @@ public class Instancia
 		else
 			_region.agregarAgujero(_factory.createPolygon(coords));
 
-		System.out.println();
+		log("");
 	}
 	
 	// Obtiene las semillas del archivo .xml
@@ -261,8 +260,7 @@ public class Instancia
 	{
 		try
 		{
-			System.out.println("Leyendo semillas");
-			System.out.println();
+			log("Leyendo semillas \r\n");
 			
 			NodeList hijos = nodo.getChildNodes();
 			for(int i = 0; i < hijos.getLength(); i++)
@@ -315,12 +313,12 @@ public class Instancia
 					nueva.setOffsetHorizontalLocacion(toDouble(offsetHorizontal));
 					nueva.setOffsetVerticalLocacion(toDouble(offsetVertical));
 				}
-					
-				nueva.mostrar();
+				
+				log("  -> " + nueva);
 				_semillas.add(nueva);
 			}
 
-			System.out.println();
+			log("");
 		}
 	    catch (Exception e)
 	    {
@@ -345,8 +343,7 @@ public class Instancia
 	{
 		try
 		{
-			System.out.println("Leyendo Restricciones");
-			System.out.println();
+			log("Leyendo Restricciones \r\n");
 			
 			String id = "";
 			String ring = "";
@@ -371,7 +368,7 @@ public class Instancia
 						coords[j] = new Coordinate(toDouble(x), toDouble(y));
 					}
 					
-					System.out.println("  -> Restriccion: ID " + id + ", Ring " + ring + " = " + coords.length + " puntos");
+					log("  -> Restriccion: ID " + id + ", Ring " + ring + " = " + coords.length + " puntos");
 					_restricciones.add(new Restriccion(id, ring, _factory.createPolygon(coords)));
 				}
 				catch(Exception e)
@@ -386,7 +383,7 @@ public class Instancia
 				ring = "";
 			}
 
-			System.out.println();
+			log("");
 		}
 	    catch (Exception e)
 	    {
@@ -407,10 +404,8 @@ public class Instancia
 			_pasoHorizontal = (int)toDouble(pasoHorizontal);
 			_pasoVertical = (int)toDouble(pasoVertical);
 			
-			System.out.println("Parametros de la optimizacion");
-			System.out.println();
-			System.out.println("  -> Delta x: " + _pasoHorizontal + ", Delta y: " + _pasoVertical + " (input)");
-			System.out.println();
+			log("Parametros de la optimizacion \r\n");
+			log("  -> Delta x: " + _pasoHorizontal + ", Delta y: " + _pasoVertical + " (input) \r\n");
 		}
 	    catch (Exception e)
 	    {
@@ -425,8 +420,7 @@ public class Instancia
 	{
 		try
 		{
-			System.out.println("Leyendo OGIP");
-			System.out.println();
+			log("Leyendo OGIP \r\n");
 			
 			_ogip = new OGIP();
 			
@@ -456,8 +450,7 @@ public class Instancia
 	    	e.printStackTrace();
 	    }
 		
-		System.out.println("  -> " + _ogip.getCantidad() + " mediciones leidas");
-		System.out.println();
+		log("  -> " + _ogip.getCantidad() + " mediciones leidas \r\n");
 	}	
 	
 	// Setters
@@ -559,10 +552,22 @@ public class Instancia
 		return ret;
 	}
 	
+	// Log
+	private void log(String texto)
+	{
+		if( _verbose == true )
+			System.out.println(texto);
+	}
+	
 	// Configuración
 	public static void set(Formato formato)
 	{
 		_formato = formato;
+	}
+	
+	public static void setVerbose(boolean valor)
+	{
+		_verbose = valor;
 	}
 	
 	// Obtiene un constructor de geometrías

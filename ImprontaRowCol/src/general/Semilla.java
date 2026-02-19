@@ -125,9 +125,8 @@ public class Semilla
 		this._coeficiente = _coeficiente;
 	}
 	
-	// Impresión por consola
-	public void mostrar()
+	@Override public String toString()
 	{
-		System.out.println("  -> " + _nombre + " - Pad = " + _largo + " x " + _ancho + " - Locacion: " + _largoLocacion + " x " + _anchoLocacion + " +/- " + _toleranciaLocacion + " - Offset locacion: (" + _offsetHorizontalLocacion + ", " + _offsetVerticalLocacion + ") - Coeficiente obj: " + _coeficiente);
+		return _nombre + " - Pad = " + _largo + " x " + _ancho + " - Locacion: " + _largoLocacion + " x " + _anchoLocacion + " +/- " + _toleranciaLocacion + " - Offset locacion: (" + _offsetHorizontalLocacion + ", " + _offsetVerticalLocacion + ") - Coeficiente obj: " + _coeficiente;
 	}
 }

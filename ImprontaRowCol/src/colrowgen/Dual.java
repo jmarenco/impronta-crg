@@ -28,10 +28,13 @@ public class Dual
 	private ArrayList<Boolean> _usada;
 	private Map<Pad, IloRange> _constr;
 	private Map<Point, Double> _solucion;
+	private long _start;
+	private double _time;
 
 	private double _infinity = Double.POSITIVE_INFINITY;
-	private boolean _mostrarSolucion = true;
+	private boolean _mostrarSolucion = false;
 	private boolean _exportarModelo = false;
+	private boolean _verbose = false;
 
 	public Dual(Instancia instancia, ArrayList<Point> puntos, PadCache padCache, double target)
 	{
@@ -64,6 +67,7 @@ public class Dual
 	{
 		_cplex = new IloCplex();
 		_solucion = null;
+		_start = System.currentTimeMillis();
 	}
 
 	private void crearVariables() throws IloException
@@ -135,6 +139,9 @@ public class Dual
 		if( _exportarModelo == true )
 			_cplex.exportModel("/home/javier/Escritorio/dual.lp");
 		
+		if( _verbose == false )
+			_cplex.setOut(null);
+		
 		if( _cplex.solve() == true )
 		{
 			_solucion = new HashMap<Point, Double>();
@@ -159,6 +166,12 @@ public class Dual
 		if( _mostrarSolucion == true )
 			System.out.println("Cplex status: " + _cplex.getStatus());
 		
+		_time = (System.currentTimeMillis() - _start) / 1000.0;
 		_cplex.end();
+	}
+	
+	public double getTime()
+	{
+		return _time;
 	}
 }
