@@ -1,5 +1,6 @@
 package colrowgen;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import com.vividsolutions.jts.geom.Point;
 
 import general.Instancia;
 import general.Semilla;
+import interfaz.Viewer;
 
 public class Dualizer 
 {
@@ -23,7 +25,11 @@ public class Dualizer
 	private double _time;
 	private double _dualTime;
 	
+	private static boolean _verbose = false;
 	private static boolean _mostrarPuntos = false;
+	private static boolean _mostrarBFS = false;
+	
+	private Viewer _panel;
 	
 	public Dualizer(Relajacion relajacion)
 	{
@@ -46,6 +52,7 @@ public class Dualizer
 	{
 		_start = System.currentTimeMillis();
 		
+		log("Resolviendo dual");
 		Dual dual = new Dual(_instancia, _puntos, _pads, _target);
 
 		_dualSolution = dual.resolver();
@@ -54,13 +61,20 @@ public class Dualizer
 		
 		for(Semilla semilla: _instancia.getSemillas())
 		{
+			log("Construyendo dual covering, semilla " + semilla);
 			DualCovering covering = new DualCovering(_instancia, _dualSolution, semilla);
 			Geometry uncovered = covering.uncovered();
+
+			if( _mostrarBFS == true )
+				_panel = interfaz.Viewer.show(_instancia); //, covering);
 			
-//			System.out.println("Calculando puntos no cubiertos para " + uncovered);
-			
+			for(int i=0; i<uncovered.getNumGeometries(); ++i)
+				add(uncovered.getGeometryN(i), Color.PINK);
+
+			log("Calculando puntos no cubiertos para " + uncovered);
 			for(Coordinate coord: uncovered.getCoordinates())
 				add(closestFeasible(uncovered, coord, semilla));
+
 		}
 		
 		_time = (System.currentTimeMillis() - _start) / 1000.0;
@@ -79,10 +93,7 @@ public class Dualizer
 	private void add(Point nuevo)
 	{
 		if( nuevo != null && _nuevos.contains(nuevo) == false )
-		{
 			_nuevos.add(nuevo);
-//			System.out.println(" - Agregando " + nuevo);
-		}
 	}
 
 	private void mostrarPuntos(Relajacion relajacion)
@@ -96,24 +107,28 @@ public class Dualizer
 	
 	private Point closestFeasible(Geometry uncovered, Coordinate start, Semilla semilla)
 	{
-//		System.out.println("Comenzando BFS desde " + start);
+		add(toPoint(start), Color.MAGENTA);
+
 		ArrayList<Point> pendientes = new ArrayList<Point>();
 		for(Coordinate vecino: _instancia.snappedNeighbors(start)) if( uncovered.contains(toPoint(vecino)) )
 		{
 			pendientes.add(toPoint(vecino));
-//			System.out.println(" - Agregado " + vecino + " a pendientes");
+			add(toPoint(vecino), Color.RED);
 		}
+		else
+			add(toPoint(vecino), Color.BLUE);
 
 		int i = 0;
 		while( i < pendientes.size() )
 		{
 			Point actual = pendientes.get(i);
-//			System.out.println(" - Inicio iteration " + i + ", actual = " + actual);
 			_pads.add(actual, semilla);
 
-//			System.out.println(" - _pads.contains(actual, semilla) = " + _pads.contains(actual, semilla));
 			if( _pads.contains(actual, semilla) )
+			{
+				add(actual, Color.GREEN);
 				return actual;
+			}
 			
 			add(uncovered, pendientes, actual, _instancia.getPasoHorizontal(), 0);
 			add(uncovered, pendientes, actual, -_instancia.getPasoHorizontal(), 0);
@@ -126,20 +141,32 @@ public class Dualizer
 		return null;
 	}
 	
-	private void add(Geometry uncovered, ArrayList<Point> points, Point point, int offsetx, int offsety)
+	private void add(Geometry uncovered, ArrayList<Point> pendientes, Point actual, int offsetx, int offsety)
 	{
-		Point nuevo = toPoint(new Coordinate(point.getX() + offsetx, point.getY() + offsety));
+		Point nuevo = toPoint(new Coordinate(actual.getX() + offsetx, actual.getY() + offsety));
 
-		if( points.contains(nuevo) == false && uncovered.contains(nuevo) )
-		{
-			points.add(nuevo);
-//			System.out.println(" - Added " + nuevo + " to pendientes");
-		}
+		if( pendientes.contains(nuevo) == false )
+			add(actual, uncovered.contains(nuevo) ? Color.RED : Color.BLUE);
+
+		if( pendientes.contains(nuevo) == false && uncovered.contains(nuevo) )
+			pendientes.add(nuevo);
 	}
 	
 	private Point toPoint(Coordinate coord)
 	{
 		return _instancia.getFactory().createPoint(coord);
+	}
+	
+	private void log(String texto)
+	{
+		if( _verbose == true )
+			System.out.println(texto);
+	}
+	
+	private void add(Geometry geom, Color color)
+	{
+		if( _panel != null )
+			_panel.addGeometry(geom, color);
 	}
 	
 	public double getTotalTime()

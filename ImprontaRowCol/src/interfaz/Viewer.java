@@ -189,12 +189,14 @@ public class Viewer extends JPanel
     	return -_margen + getHeight() - ((int)c.y - _miny) * (getHeight() - 2*_margen) / (_maxy - _miny);
     }
     
-    public static void show(Instancia instancia)
+    public static Viewer show(Instancia instancia)
     {
         Viewer panel = new Viewer();
         addEnvelope(panel, instancia);
         addRestricciones(panel, instancia);
         showFrame(instancia, panel, "Instancia");
+        
+        return panel;
     }
     
     public static void show(Instancia instancia, Solucion solucion)
@@ -221,12 +223,12 @@ public class Viewer extends JPanel
         showFrame(instancia, panel, "Solución dual");
     }
 
-    public static void show(Instancia instancia, DualCovering covering)
+    public static Viewer show(Instancia instancia, DualCovering covering)
     {
-    	show(instancia, covering, null);
+    	return show(instancia, covering, null);
     }
 
-    public static void show(Instancia instancia, DualCovering covering, ArrayList<Point> nuevos)
+    public static Viewer show(Instancia instancia, DualCovering covering, ArrayList<Point> nuevos)
     {
         Viewer panel = new Viewer();
         panel.addDualCovering(covering);
@@ -234,6 +236,8 @@ public class Viewer extends JPanel
         addRestricciones(panel, instancia);
         addPuntos(panel, nuevos);
         showFrame(instancia, panel, "Dual covering");
+        
+        return panel;
     }
 
     private static void addEnvelope(Viewer panel, Instancia instancia)
