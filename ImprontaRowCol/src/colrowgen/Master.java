@@ -43,7 +43,7 @@ public class Master
 			Dualizer dualizer = new Dualizer(relajacion);
 			dualizer.ejecutar();
 
-			log("Dualizer: " + dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", dualizer.getDualTime()) + " sec | ");
+			log("Dualizer: " + dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", dualizer.getDualTime()) + " sec | BFSs: " + dualizer.getIniciosBFS() + " | Expl: " + dualizer.getExplorados() + " | ");
 
 			int anteriores = _points.size();
 			for(Point point: dualizer.getNuevos()) if( _points.contains(point) == false )
@@ -51,7 +51,7 @@ public class Master
 			
 			agregados = _points.size() > anteriores;
 
-			log("New pts: " + _points.size() + " | Total: " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec \r\n");
+			log("New pts: " + dualizer.getNuevos().size() + " | Total: " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec \r\n");
 		}
 	}
 	

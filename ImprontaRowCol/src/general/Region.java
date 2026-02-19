@@ -2,8 +2,11 @@ package general;
 
 import java.util.ArrayList;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.Polygon;
 
 public class Region
@@ -59,6 +62,27 @@ public class Region
 			ret = ret.difference(agujero);
 		
 		return ret;
+	}
+	
+	// Obtiene los segmentos que definen las envolventes
+	public MultiLineString segmentosEnvolventes()
+	{
+		ArrayList<LineString> segmentos = new ArrayList<LineString>();
+		GeometryFactory factory = getFactory();
+		
+		for(Polygon envolvente: _envolventes)
+		{
+			Coordinate[] coords = envolvente.getCoordinates();
+			for(int i=0; i<coords.length-1; ++i)
+				segmentos.add(factory.createLineString(new Coordinate[] { coords[i], coords[i+1] }));
+		}
+
+		LineString[] ret = new LineString[segmentos.size()];
+		
+		for(int i=0; i<segmentos.size(); ++i)
+			ret[i] = segmentos.get(i);
+		
+		return factory.createMultiLineString(ret);
 	}
 	
 	// Obtiene un constructor de geometrías

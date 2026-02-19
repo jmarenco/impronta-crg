@@ -24,6 +24,8 @@ public class Dualizer
 	private long _start;
 	private double _time;
 	private double _dualTime;
+	private long _iniciados;
+	private long _explorados;
 	
 	private static boolean _verbose = false;
 	private static boolean _mostrarPuntos = false;
@@ -51,6 +53,8 @@ public class Dualizer
 	public void ejecutar()
 	{
 		_start = System.currentTimeMillis();
+		_iniciados = 0;
+		_explorados = 0;
 		
 		log("Resolviendo dual");
 		Dual dual = new Dual(_instancia, _puntos, _pads, _target);
@@ -66,15 +70,14 @@ public class Dualizer
 			Geometry uncovered = covering.uncovered();
 
 			if( _mostrarBFS == true )
-				_panel = interfaz.Viewer.show(_instancia); //, covering);
+				_panel = interfaz.Viewer.show(_instancia, covering);
 			
-			for(int i=0; i<uncovered.getNumGeometries(); ++i)
-				add(uncovered.getGeometryN(i), Color.PINK);
+//			for(int i=0; i<uncovered.getNumGeometries(); ++i)
+//				add(uncovered.getGeometryN(i), Color.PINK);
 
 			log("Calculando puntos no cubiertos para " + uncovered);
 			for(Coordinate coord: uncovered.getCoordinates())
-				add(closestFeasible(uncovered, coord, semilla));
-
+				add(closestFeasible(uncovered, coord, semilla, Long.MAX_VALUE));
 		}
 		
 		_time = (System.currentTimeMillis() - _start) / 1000.0;
@@ -105,13 +108,15 @@ public class Dualizer
 			System.out.println("ConstraintPoint " + coordinate);
 	}
 	
-	private Point closestFeasible(Geometry uncovered, Coordinate start, Semilla semilla)
+	private Point closestFeasible(Geometry uncovered, Coordinate start, Semilla semilla, long pointsLimit)
 	{
+		_iniciados += 1;
 		add(toPoint(start), Color.MAGENTA);
 
 		ArrayList<Point> pendientes = new ArrayList<Point>();
 		for(Coordinate vecino: _instancia.snappedNeighbors(start)) if( uncovered.contains(toPoint(vecino)) )
 		{
+			_explorados += 1;
 			pendientes.add(toPoint(vecino));
 			add(toPoint(vecino), Color.RED);
 		}
@@ -127,6 +132,8 @@ public class Dualizer
 			if( _pads.contains(actual, semilla) )
 			{
 				add(actual, Color.GREEN);
+				_explorados += pendientes.size();
+
 				return actual;
 			}
 			
@@ -135,9 +142,13 @@ public class Dualizer
 			add(uncovered, pendientes, actual, 0, _instancia.getPasoVertical());
 			add(uncovered, pendientes, actual, 0, -_instancia.getPasoVertical());
 			
+			if( pendientes.size() > pointsLimit )
+				return null;
+			
 			++i;
 		}
 
+		_explorados += pendientes.size();
 		return null;
 	}
 	
@@ -177,5 +188,15 @@ public class Dualizer
 	public double getDualTime()
 	{
 		return _dualTime;
+	}
+	
+	public long getIniciosBFS()
+	{
+		return _iniciados;
+	}
+	
+	public long getExplorados()
+	{
+		return _explorados;
 	}
 }
