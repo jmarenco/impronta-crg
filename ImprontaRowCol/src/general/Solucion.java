@@ -43,17 +43,20 @@ public class Solucion
 	// Area cubierta por la solución, en valor absoluto y en porcentaje del yacimiento
 	public double areaCubierta()
 	{
-		double ret = 0;
-		for(Pad pad: getPads())
-			ret += pad.getArea();
-		
-		return ret;
+		return getPads().stream().mapToDouble(p -> p.getArea()).sum();
 	}
 	public double porcentajeCubierto()
 	{
 		double total = _instancia.getRegion().getArea();
 		return total > 0 ? areaCubierta() * 100.0 / total : 0;
 	}
+	
+	// Valorizacion total
+	public double valorizacion()
+	{
+		return getPads().stream().mapToDouble(p -> p.getValorizacion()).sum();
+	}
+	
 	
 	// Centros de los pads de la solución
 	public List<Point> getCentros()

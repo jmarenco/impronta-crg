@@ -95,7 +95,7 @@ public class Relajacion
 		IloNumExpr obj = _cplex.linearNumExpr();
 		
 		for(IloNumVar var: _vars.keySet())
-			obj = _cplex.sum(obj, _cplex.prod(_vars.get(var).getArea(), var));
+			obj = _cplex.sum(obj, _cplex.prod(_vars.get(var).getValorizacion(), var));
 		
 		_cplex.addMaximize(obj);
 	}

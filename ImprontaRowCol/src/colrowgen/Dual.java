@@ -116,7 +116,7 @@ public class Dual
 				}
 				
 				lhs = _cplex.sum(lhs, _slacks.get(i));
-				IloRange constraint = _cplex.ge(lhs, pad.getArea());
+				IloRange constraint = _cplex.ge(lhs, pad.getValorizacion());
 	
 				_cplex.add(constraint);
 				_constr.put(pad, constraint);

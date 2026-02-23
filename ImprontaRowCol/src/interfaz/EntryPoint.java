@@ -2,6 +2,7 @@ package interfaz;
 
 import colrowgen.Master;
 import general.Instancia;
+import general.ModeloCompleto;
 import general.Solucion;
 import heuristicas.Goloso;
 
@@ -10,7 +11,12 @@ public class EntryPoint
 	public static void main(String[] args)
 	{
 		Instancia.set(Instancia.Formato.French);
-		Instancia instancia = new Instancia("instancias/sqr.01.xml");
+		Instancia instancia = new Instancia("instancias/sqr.00.xml");
+		
+//		ModeloCompleto modelo = new ModeloCompleto(instancia);
+//		Solucion completa = modelo.resolver();
+//		
+//		Viewer.show(instancia, completa);
 		
 		Goloso goloso = new Goloso(instancia);
 		Solucion golosa = goloso.resolver();
