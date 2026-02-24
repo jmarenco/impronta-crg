@@ -60,6 +60,8 @@ public class Dualizer
 		
 		for(Semilla semilla: _instancia.getSemillas())
 		{
+			log("Semilla " + semilla.getLargo() + " x " + semilla.getAncho());
+			
 			MultiBFS multiBFS = new MultiBFS(_instancia, _dualSolution, semilla, _pads);
 			multiBFS.ejecutar();
 			

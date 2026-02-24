@@ -34,6 +34,7 @@ public class MultiBFS
 	private int _explorados;
 	
 	private static boolean _mostrarBFS = false;
+	private static boolean _verbose = false;
 
 	public MultiBFS(Instancia instancia, Map<Point, Double> dualSolution, Semilla semilla, PadCache pads)
 	{
@@ -45,8 +46,12 @@ public class MultiBFS
 	
 	public void ejecutar()
 	{
+		long start = log(" - Construyendo dual covering");
+		
 		_covering = new DualCovering(_instancia, _dualSolution, _semilla);
 		_uncovered = _covering.uncovered();
+
+		log(" - Dual covering: ", start);
 
 		if( _mostrarBFS == true )
 			_panel = interfaz.Viewer.show(_instancia, _covering, _instancia.getRegionInterna(_semilla));
@@ -56,8 +61,12 @@ public class MultiBFS
 		_iniciados = 0;
 		_explorados = 0;
 		
+		start = log(" - Procesando coordenadas");
+		
 		for(Coordinate coord: _uncovered.getCoordinates())
 			addNuevo(closestFeasible(coord, Long.MAX_VALUE));
+
+		log(" - Proceso coordenadas: ", start);
 	}
 	
 	private Point closestFeasible(Coordinate start, long pointsLimit)
@@ -135,6 +144,20 @@ public class MultiBFS
 			_panel.addGeometry(geom, color);
 	}
 	
+	private long log(String texto)
+	{
+		if( _verbose == true )
+			System.out.println(texto);
+		
+		return System.currentTimeMillis();
+	}
+	
+	private void log(String texto, long start)
+	{
+		if( _verbose == true )
+			System.out.println(texto + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " seg.");
+	}
+
 	public ArrayList<Point> getNuevos()
 	{
 		return _nuevos;
