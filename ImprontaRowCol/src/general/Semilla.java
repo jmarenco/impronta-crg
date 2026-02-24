@@ -127,6 +127,15 @@ public class Semilla
 		this._coeficiente = _coeficiente;
 	}
 	
+	// Valorizacion del pad si no hay OGIP
+	public double getValorizacion()
+	{
+		double coeficiente = this.getCoeficiente() > 0 ? this.getCoeficiente() : 1.0;
+		double valor = this.getLargo() * this.getAncho() / 1e6;
+	
+		return valor / coeficiente;
+	}
+
 	@Override public String toString()
 	{
 		return _nombre + " - Pad = " + _largo + " x " + _ancho + " - Locacion: " + _largoLocacion + " x " + _anchoLocacion + " +/- " + _toleranciaLocacion + " - Offset locacion: (" + _offsetHorizontalLocacion + ", " + _offsetVerticalLocacion + ") - Coeficiente obj: " + _coeficiente;

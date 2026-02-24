@@ -1,12 +1,15 @@
 package general;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 public class Region
@@ -95,5 +98,25 @@ public class Region
 			return _agujeros.get(0).getFactory();
 		
 		throw new RuntimeException("Error: Region.getFactory(), no hay envolventes ni agujeros registrados en la region!");
+	}
+
+	public boolean incluye(Point nuevo)
+	{
+		return _envolventes.stream().anyMatch(e -> e.contains(nuevo)) && _agujeros.stream().allMatch(a -> !a.contains(nuevo));
+	}
+
+	public Set<Coordinate> getCoordinates()
+	{
+		Set<Coordinate> ret = new HashSet<Coordinate>();
+		
+		for(Polygon polygon: _envolventes)
+		for(Coordinate c: polygon.getCoordinates())
+			ret.add(c);
+		
+		for(Polygon polygon: _agujeros)
+		for(Coordinate c: polygon.getCoordinates())
+			ret.add(c);
+
+		return ret;
 	}
 }

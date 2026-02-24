@@ -10,7 +10,7 @@ public class EntryPoint
 	public static void main(String[] args)
 	{
 		Instancia.set(Instancia.Formato.French);
-		Instancia instancia = new Instancia("instancias/sqr.01.xml");
+		Instancia instancia = new Instancia("instancias/sqr.00.xml");
 		
 //		for(Semilla semilla: instancia.getSemillas())
 //			Viewer.show(instancia, RegionInterna.calcular(instancia, semilla));
