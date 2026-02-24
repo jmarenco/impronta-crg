@@ -1,5 +1,7 @@
 package general;
 
+import java.util.Objects;
+
 public class Semilla
 {
 	private String _nombre;
@@ -128,5 +130,35 @@ public class Semilla
 	@Override public String toString()
 	{
 		return _nombre + " - Pad = " + _largo + " x " + _ancho + " - Locacion: " + _largoLocacion + " x " + _anchoLocacion + " +/- " + _toleranciaLocacion + " - Offset locacion: (" + _offsetHorizontalLocacion + ", " + _offsetVerticalLocacion + ") - Coeficiente obj: " + _coeficiente;
+	}
+
+	@Override
+	public int hashCode() 
+	{
+		return Objects.hash(_ancho, _anchoLocacion, _coeficiente, _largo, _largoLocacion, _nombre,
+				_offsetHorizontalLocacion, _offsetVerticalLocacion, _toleranciaLocacion);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Semilla other = (Semilla) obj;
+		return Double.doubleToLongBits(_ancho) == Double.doubleToLongBits(other._ancho)
+				&& Double.doubleToLongBits(_anchoLocacion) == Double.doubleToLongBits(other._anchoLocacion)
+				&& Double.doubleToLongBits(_coeficiente) == Double.doubleToLongBits(other._coeficiente)
+				&& Double.doubleToLongBits(_largo) == Double.doubleToLongBits(other._largo)
+				&& Double.doubleToLongBits(_largoLocacion) == Double.doubleToLongBits(other._largoLocacion)
+				&& Objects.equals(_nombre, other._nombre)
+				&& Double.doubleToLongBits(_offsetHorizontalLocacion) == Double
+						.doubleToLongBits(other._offsetHorizontalLocacion)
+				&& Double.doubleToLongBits(_offsetVerticalLocacion) == Double
+						.doubleToLongBits(other._offsetVerticalLocacion)
+				&& Double.doubleToLongBits(_toleranciaLocacion) == Double.doubleToLongBits(other._toleranciaLocacion);
 	}
 }

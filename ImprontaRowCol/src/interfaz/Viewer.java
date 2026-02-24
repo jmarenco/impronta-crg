@@ -14,6 +14,7 @@ import general.Restriccion;
 import general.Semilla;
 import general.Solucion;
 import general.Pad;
+import general.Region;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -192,7 +193,18 @@ public class Viewer extends JPanel
     public static Viewer show(Instancia instancia)
     {
         Viewer panel = new Viewer();
-        addEnvelope(panel, instancia);
+        addRegion(panel, instancia);
+        addRestricciones(panel, instancia);
+        showFrame(instancia, panel, "Instancia");
+        
+        return panel;
+    }
+    
+    public static Viewer show(Instancia instancia, Region interna)
+    {
+        Viewer panel = new Viewer();
+        addRegion(panel, instancia);
+        addRegion(panel, interna, Color.BLUE);
         addRestricciones(panel, instancia);
         showFrame(instancia, panel, "Instancia");
         
@@ -207,7 +219,7 @@ public class Viewer extends JPanel
     public static void show(Instancia instancia, Solucion solucion, ArrayList<Point> puntos)
     {
         Viewer panel = new Viewer();
-        addEnvelope(panel, instancia);
+        addRegion(panel, instancia);
         addSolucion(panel, solucion);
         addRestricciones(panel, instancia);
         addPuntos(panel, puntos);
@@ -217,38 +229,46 @@ public class Viewer extends JPanel
     public static void show(Instancia instancia, Map<Point, Double> dual, Semilla semilla)
     {
         Viewer panel = new Viewer();
-        addEnvelope(panel, instancia);
+        addRegion(panel, instancia);
         addDual(panel, instancia, dual, semilla);
         addRestricciones(panel, instancia);
         showFrame(instancia, panel, "Solución dual");
     }
 
-    public static Viewer show(Instancia instancia, DualCovering covering)
-    {
-    	return show(instancia, covering, null);
-    }
-
-    public static Viewer show(Instancia instancia, DualCovering covering, ArrayList<Point> nuevos)
+    public static Viewer show(Instancia instancia, DualCovering covering, Region interna)
     {
         Viewer panel = new Viewer();
         panel.addDualCovering(covering);
-        addEnvelope(panel, instancia);
+        addRegion(panel, instancia);
+        addRegion(panel, interna, Color.BLUE);
         addRestricciones(panel, instancia);
-        addPuntos(panel, nuevos);
         showFrame(instancia, panel, "Dual covering");
         
         return panel;
     }
 
-    private static void addEnvelope(Viewer panel, Instancia instancia)
+    public static void show(Instancia instancia, DualCovering covering, ArrayList<Point> nuevos)
     {
-        for(Polygon envolvente: instancia.getRegion().getEnvolventes())
-        	panel.addGeometry(envolvente);
-        
-        for(Polygon agujero: instancia.getRegion().getAgujeros())
-        	panel.addGeometry(agujero);
+        Viewer panel = new Viewer();
+        panel.addDualCovering(covering);
+        addRegion(panel, instancia);
+        addRestricciones(panel, instancia);
+        addPuntos(panel, nuevos);
+        showFrame(instancia, panel, "Dual covering");
+    }
 
-//       	panel.addGeometry(solver.getDiscretizacion().getPuntos());
+    private static void addRegion(Viewer panel, Instancia instancia)
+    {
+    	addRegion(panel, instancia.getRegion(), Color.BLACK);
+    }
+
+    private static void addRegion(Viewer panel, Region region, Color color)
+    {
+        for(Polygon envolvente: region.getEnvolventes())
+        	panel.addGeometry(envolvente, color);
+        
+        for(Polygon agujero: region.getAgujeros())
+        	panel.addGeometry(agujero, color);
     }
     
     private static void addRestricciones(Viewer panel, Instancia instancia)

@@ -4,7 +4,9 @@ import java.io.File;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -27,6 +29,7 @@ public class Instancia
 	private ArrayList<Semilla> _semillas;
 	private ArrayList<Restriccion> _restricciones;
 	private OGIP _ogip;
+	private Map<Semilla,Region> _internas;
 	private GeometryFactory _factory;
 	private String _archivo = "";
 	
@@ -40,6 +43,7 @@ public class Instancia
 		_semillas = new ArrayList<Semilla>();
 		_restricciones = new ArrayList<Restriccion>();
 		_factory = new GeometryFactory();
+		_internas = new HashMap<Semilla,Region>();
 		_ogip = null;
 	}
 	
@@ -51,6 +55,7 @@ public class Instancia
 		_semillas = new ArrayList<Semilla>();
 		_restricciones = new ArrayList<Restriccion>();
 		_factory = new GeometryFactory();
+		_internas = new HashMap<Semilla,Region>();
 		_ogip = null;
 		
 		log("Leyendo instancia ... \r\n");
@@ -550,6 +555,15 @@ public class Instancia
 		ret.add(new Coordinate(bx - _pasoHorizontal, by + _pasoVertical));
 		
 		return ret;
+	}
+	
+	// Regiones internas
+	public Region getRegionInterna(Semilla semilla)
+	{
+		if( _internas.containsKey(semilla) == false )
+			_internas.put(semilla, RegionInterna.calcular(this, semilla));
+		
+		return _internas.get(semilla);
 	}
 	
 	// Log

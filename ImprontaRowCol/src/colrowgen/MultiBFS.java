@@ -49,7 +49,7 @@ public class MultiBFS
 		_uncovered = _covering.uncovered();
 
 		if( _mostrarBFS == true )
-			_panel = interfaz.Viewer.show(_instancia, _covering);
+			_panel = interfaz.Viewer.show(_instancia, _covering, _instancia.getRegionInterna(_semilla));
 		
 		_procesados = new ArrayList<Point>();
 		_nuevos = new ArrayList<Point>();

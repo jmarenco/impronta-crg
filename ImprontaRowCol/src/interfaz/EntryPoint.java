@@ -2,7 +2,6 @@ package interfaz;
 
 import colrowgen.Master;
 import general.Instancia;
-import general.ModeloCompleto;
 import general.Solucion;
 import heuristicas.Goloso;
 
@@ -12,6 +11,9 @@ public class EntryPoint
 	{
 		Instancia.set(Instancia.Formato.French);
 		Instancia instancia = new Instancia("instancias/sqr.00.xml");
+		
+//		for(Semilla semilla: instancia.getSemillas())
+//			Viewer.show(instancia, RegionInterna.calcular(instancia, semilla));
 		
 //		ModeloCompleto modelo = new ModeloCompleto(instancia);
 //		Solucion completa = modelo.resolver();

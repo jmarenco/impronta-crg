@@ -21,6 +21,9 @@ public class DualCovering
 	// Instancia y semilla
 	private Instancia _instancia;
 	private Semilla _semilla;
+	
+	// Determina si se usa la región interna
+	private static boolean _usarRegionInterna = true;
 
 	// Constructor
 	public DualCovering(Instancia instancia, Map<Point,Double> dualSolution, Semilla semilla)
@@ -80,7 +83,7 @@ public class DualCovering
 	
 	public Geometry uncovered()
 	{
-		Geometry ret = _instancia.getRegion().getGeometry();
+		Geometry ret = _usarRegionInterna ? _instancia.getRegionInterna(_semilla).getGeometry() : _instancia.getRegion().getGeometry();
 		
 		for(Geometry geom: this.getAreas())
 			ret = ret.difference(geom);
