@@ -100,9 +100,16 @@ public class Region
 		throw new RuntimeException("Error: Region.getFactory(), no hay envolventes ni agujeros registrados en la region!");
 	}
 
+	// Determina si el punto está en el interior de la región
 	public boolean incluye(Point nuevo)
 	{
 		return _envolventes.stream().anyMatch(e -> e.contains(nuevo)) && _agujeros.stream().allMatch(a -> !a.contains(nuevo));
+	}
+
+	// Determina si el punto está en el interior o en el borde de la región
+	public boolean cubre(Point nuevo)
+	{
+		return _envolventes.stream().anyMatch(e -> e.covers(nuevo)) && _agujeros.stream().allMatch(a -> !a.contains(nuevo));
 	}
 
 	public Set<Coordinate> getCoordinates()

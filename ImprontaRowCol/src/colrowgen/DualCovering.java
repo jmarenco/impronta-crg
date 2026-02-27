@@ -13,6 +13,7 @@ import general.Instancia;
 import general.Pad;
 import general.Semilla;
 
+@Deprecated
 public class DualCovering
 {
 	// Resultado final

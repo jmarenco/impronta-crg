@@ -38,10 +38,6 @@ public class Master
 			Relajacion relajacion = new Relajacion(_instancia, _points, _pads);
 			_solucion = relajacion.resolver();
 			
-			System.out.println("\r\nPuntos relajacion: ");
-			for(Point p: _points)
-				System.out.println(p);
-			
 			log("Rel: " + String.format("%.5f", relajacion.getObjValue()) + " | " + relajacion.varPoints().size() + " pts | " + String.format("%.2f", relajacion.getTime()) + " sec | ");
 			
 			Dualizer dualizer = new Dualizer(relajacion);
@@ -54,8 +50,6 @@ public class Master
 				_points.add(point);
 			
 			agregados = _points.size() > anteriores;
-
-			System.out.println("anteriores = " + anteriores + ", _points.size() ) " + _points.size());
 
 			log("New pts: " + dualizer.getNuevos().size() + " | Total: " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec \r\n");
 		}

@@ -15,6 +15,7 @@ import interfaz.Viewer;
 // El nombre de la clase no es el mejor. Representa la búsqueda de puntos factibles no cubiertos
 // por la solución dual asociada con una semilla particular
 
+@Deprecated
 public class MultiBFS
 {
 	private Instancia _instancia;

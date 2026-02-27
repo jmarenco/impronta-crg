@@ -62,10 +62,6 @@ public class Dualizer
 			_nuevos.addAll(multiBFS.getNuevos());
 			_iniciados += multiBFS.getIniciados();
 			_explorados += multiBFS.getExplorados();
-
-			System.out.println("\r\nPuntos nuevos semilla actual: ");
-			for(Point p: _nuevos)
-				System.out.println(p);
 		}
 
 		_time = (System.currentTimeMillis() - _start) / 1000.0;

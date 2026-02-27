@@ -120,10 +120,10 @@ public class SimpleBFS
 	{
 		Point nuevo = toPoint(new Coordinate(actual.getX() + offsetx, actual.getY() + offsety));
 		
-		if( !_interna.incluye(nuevo) )
+		if( !_interna.cubre(nuevo) )
 			add(actual, Color.RED);
 
-		if( !_interna.incluye(nuevo) || _procesados.contains(nuevo) || _pendientes.contains(nuevo) )
+		if( !_interna.cubre(nuevo) || _procesados.contains(nuevo) || _pendientes.contains(nuevo) )
 			return;
 		
 		if( _pendientes.contains(nuevo) == false && _procesados.contains(nuevo) == false && cubierto(nuevo) == false )
@@ -161,18 +161,10 @@ public class SimpleBFS
 				punto.getY() <= centro.getY() + _semilla.getAncho() / 2;
 	}
 	
-	private long log(String texto)
+	private void log(String texto)
 	{
 		if( _verbose == true )
 			System.out.println(texto);
-		
-		return System.currentTimeMillis();
-	}
-	
-	private void log(String texto, long start)
-	{
-		if( _verbose == true )
-			System.out.println(texto + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " seg.");
 	}
 
 	public ArrayList<Point> getNuevos()

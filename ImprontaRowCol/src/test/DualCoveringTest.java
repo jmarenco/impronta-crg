@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.HashMap;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -21,6 +22,7 @@ import general.Instancia;
 import general.Region;
 import general.Semilla;
 
+@Ignore
 public class DualCoveringTest
 {
 	private Instancia _instancia;

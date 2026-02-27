@@ -89,8 +89,9 @@ public class ModeloCompleto
 			
 			for(Pad pad: ret.getPads())
 				log(" - " + pad.getCentro() + " = " + ret.getValor(pad));
-
+			
 			cplex.close();
+			log("");
 		}
 		catch(Exception e)
 		{

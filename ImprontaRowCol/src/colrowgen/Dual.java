@@ -35,7 +35,7 @@ public class Dual
 	private double _objValue;
 
 	private double _infinity = Double.POSITIVE_INFINITY;
-	private boolean _mostrarSolucion = true;
+	private boolean _mostrarSolucion = false;
 	private boolean _exportarModelo = false;
 	private boolean _verbose = false;
 
@@ -79,14 +79,7 @@ public class Dual
 
 		int i = 1;
 		for(Coordinate coord: _primal.constraintPoints())
-		{
-			Point p = _factory.createPoint(coord);
-			
-			_vars.put(p, _cplex.numVar(0, _infinity, "y" + i));
-			System.out.println("Variable dual: y(" + i + ") = " + p);
-			
-			++i;
-		}
+			_vars.put(_factory.createPoint(coord), _cplex.numVar(0, _infinity, "y" + (i++)));
 	}
 
 	private void crearObjetivo() throws IloException
@@ -121,8 +114,6 @@ public class Dual
 	
 				_cplex.add(constraint);
 				_constr.put(pad, constraint);
-				
-				System.out.println("Restricción punto " + point + ": " + constraint);
 			}
 		}
 	}
