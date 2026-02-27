@@ -1,9 +1,12 @@
 package colrowgen;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import general.Instancia;
@@ -18,30 +21,30 @@ import ilog.cplex.IloCplex;
 public class Dual 
 {
 	private Instancia _instancia;
-	private ArrayList<Point> _puntos;
+	private Relajacion _primal;
 	private PadCache _pads;
-	private double _target;
+	private GeometryFactory _factory;
 
 	private IloCplex _cplex;
-	private ArrayList<IloNumVar> _vars;
-	private ArrayList<IloNumVar> _slacks;
-	private ArrayList<Boolean> _usada;
+	private Map<Point, IloNumVar> _vars;
 	private Map<Pad, IloRange> _constr;
+	private Set<Point> _usados;
 	private Map<Point, Double> _solucion;
 	private long _start;
 	private double _time;
+	private double _objValue;
 
 	private double _infinity = Double.POSITIVE_INFINITY;
-	private boolean _mostrarSolucion = false;
+	private boolean _mostrarSolucion = true;
 	private boolean _exportarModelo = false;
 	private boolean _verbose = false;
 
-	public Dual(Instancia instancia, ArrayList<Point> puntos, PadCache padCache, double target)
+	public Dual(Instancia instancia, Relajacion primal)
 	{
 		_instancia = instancia;
-		_puntos = puntos;
-		_pads = padCache;
-		_target = target;
+		_primal = primal;
+		_pads = primal.getPadCache();
+		_factory = _instancia.getFactory();
 	}
 	
 	public Map<Point, Double> resolver()
@@ -52,7 +55,6 @@ public class Dual
 			crearVariables();
 			crearObjetivo();
 			crearRestriccionesCubrimiento();
-			crearRestriccionTarget();
 			resolverModelo();
 		}
 		catch(Exception e)
@@ -72,15 +74,18 @@ public class Dual
 
 	private void crearVariables() throws IloException
 	{
-		_vars = new ArrayList<IloNumVar>();
-		_slacks = new ArrayList<IloNumVar>();
-		_usada = new ArrayList<Boolean>();
-		
-		for(int i=0; i<_puntos.size(); ++i)
+		_vars = new HashMap<Point, IloNumVar>();
+		_usados = new HashSet<Point>();
+
+		int i = 1;
+		for(Coordinate coord: _primal.constraintPoints())
 		{
-			_vars.add(_cplex.numVar(0, _infinity, "y" + (i+1)));
-			_slacks.add(_cplex.numVar(0, _infinity, "v" + (i+1)));
-			_usada.add(false);
+			Point p = _factory.createPoint(coord);
+			
+			_vars.put(p, _cplex.numVar(0, _infinity, "y" + i));
+			System.out.println("Variable dual: y(" + i + ") = " + p);
+			
+			++i;
 		}
 	}
 
@@ -88,7 +93,7 @@ public class Dual
 	{
 		IloNumExpr obj = _cplex.linearNumExpr();
 		
-		for(IloNumVar var: _slacks)
+		for(IloNumVar var: _vars.values())
 			obj = _cplex.sum(obj, var);
 		
 		_cplex.addMinimize(obj);
@@ -98,40 +103,28 @@ public class Dual
 	{
 		_constr = new HashMap<Pad, IloRange>();
 		
-		for(int i=0; i<_puntos.size(); ++i)
+		for(Point point: _primal.varPoints())
 		for(Semilla semilla: _instancia.getSemillas())
 		{
-			Point point = _puntos.get(i);
-			_pads.add(point, semilla);
-			
 			if( _pads.contains(point, semilla) )
 			{
 				Pad pad = _pads.get(point, semilla);
 				IloNumExpr lhs = _cplex.linearNumExpr();
 				
-				for(int j=0; j<_puntos.size(); ++j) if( pad.contiene(_puntos.get(j)) )
+				for(Point p: _vars.keySet()) if( pad.contiene(p) )
 				{
-					lhs = _cplex.sum(lhs, _vars.get(j));
-					_usada.set(j, true);
+					lhs = _cplex.sum(lhs, _vars.get(p));
+					_usados.add(p);
 				}
 				
-				lhs = _cplex.sum(lhs, _slacks.get(i));
 				IloRange constraint = _cplex.ge(lhs, pad.getValorizacion());
 	
 				_cplex.add(constraint);
 				_constr.put(pad, constraint);
+				
+				System.out.println("Restricción punto " + point + ": " + constraint);
 			}
 		}
-	}
-	
-	private void crearRestriccionTarget() throws IloException
-	{
-		IloNumExpr lhs = _cplex.linearNumExpr();
-				
-		for(IloNumVar var: _vars)
-			lhs = _cplex.sum(lhs, var);
-		
-		_cplex.add(_cplex.eq(lhs, _target));
 	}
 
 	private void resolverModelo() throws IloException
@@ -146,19 +139,20 @@ public class Dual
 		{
 			_solucion = new HashMap<Point, Double>();
 			
-			for(int i=0; i<_puntos.size(); ++i) if( _usada.get(i) == true )
+			for(Point p: _usados)
 			{
-				IloNumVar var = _vars.get(i);
+				IloNumVar var = _vars.get(p);
 				
 				if( _cplex.getValue(var) > 0.0000001 )
 				{
 					if( _mostrarSolucion == true )
-						System.out.println(var + " = " + _cplex.getValue(var) + " - " + _puntos.get(i));
+						System.out.println(var + " = " + _cplex.getValue(var) + " - " + p);
 				
-					_solucion.put(_puntos.get(i), _cplex.getValue(var));
+					_solucion.put(p, _cplex.getValue(var));
 				}
+				
 			}
-			
+
 			if( _mostrarSolucion == true )
 				System.out.println("Dual objective value: " + _cplex.getObjValue());
 		}
@@ -166,6 +160,7 @@ public class Dual
 		if( _mostrarSolucion == true )
 			System.out.println("Cplex status: " + _cplex.getStatus());
 		
+		_objValue = _cplex.getObjValue();
 		_time = (System.currentTimeMillis() - _start) / 1000.0;
 		_cplex.end();
 	}
@@ -173,5 +168,15 @@ public class Dual
 	public double getTime()
 	{
 		return _time;
+	}
+	
+	public double getObjValue()
+	{
+		return _objValue;
+	}
+	
+	public boolean onTarget()
+	{
+		return Math.abs(_objValue - _primal.getObjValue()) < 0.001;
 	}
 }

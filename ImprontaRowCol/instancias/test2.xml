@@ -9,9 +9,13 @@
     <Vértice X="0" Y="0" />
     <Vértice X="0" Y="150" />
   </Área>
-  <Semillas Cantidad="1">
+  <Semillas Cantidad="2">
     <Semilla ID="Semilla 1" Coeficiente="1" Coeficiente_original="0,4">
       <PAD Largo="50" Ancho="50" />
+      <LOCACION Largo="10" Ancho="10" Tolerancia="0" />
+    </Semilla>
+    <Semilla ID="Semilla 2" Coeficiente="1" Coeficiente_original="0,4">
+      <PAD Largo="60" Ancho="60" />
       <LOCACION Largo="10" Ancho="10" Tolerancia="0" />
     </Semilla>
   </Semillas>

@@ -10,18 +10,18 @@ import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 
-public class ModeloCompleto
+public class ModeloDiscretizado
 {
 	private Instancia _instancia;
 	private boolean _entero = true;
 	private boolean _verbose = true;
 	
-	public ModeloCompleto(Instancia instancia)
+	public ModeloDiscretizado(Instancia instancia)
 	{
 		_instancia = instancia;
 	}
 	
-	public ModeloCompleto(Instancia instancia, boolean entero)
+	public ModeloDiscretizado(Instancia instancia, boolean entero)
 	{
 		_instancia = instancia;
 		_entero = entero;
@@ -50,25 +50,20 @@ public class ModeloCompleto
 			
 			log("Construyendo restricciones");
 			int k = 0;
-			for(Pad pad: pads)
+			for(Coordinate c: discretizacion.getPuntos().getCoordinates())
 			{
-				for(Coordinate esquina: pad.getPerimetro().getCoordinates())
-				for(Coordinate c: _instancia.snappedNeighbors(esquina))
-				{
-					Point punto = _instancia.getFactory().createPoint(c);
-					
-					IloNumExpr lhs = cplex.linearNumExpr();
-					
-					for(int i=0; i<pads.size(); ++i) if( pads.get(i).contiene(punto) )
-						lhs = cplex.sum(lhs, x.get(i));
-					
-					cplex.add(cplex.le(lhs, 1));
-				}
+				Point punto = _instancia.getFactory().createPoint(c);
 				
+				IloNumExpr lhs = cplex.linearNumExpr();
+				
+				for(int i=0; i<pads.size(); ++i) if( pads.get(i).contiene(punto) )
+					lhs = cplex.sum(lhs, x.get(i));
+				
+				cplex.add(cplex.le(lhs, 1));
 				++k;
 				
 				if( k % 1000 == 0 )
-					log(" -> " + k + "/" + pads.size() + " pads procesados");
+					log(" -> " + k + "/" + discretizacion.getPuntos().getCoordinates().length + " restricciones");
 			}
 			
 			log("\r\nConstruyendo objetivo");
@@ -84,11 +79,8 @@ public class ModeloCompleto
 			for(int i=0; i<pads.size(); ++i) if( cplex.getValue(x.get(i)) > 0.01 )
 				ret.agregar(pads.get(i));
 			
-			log("Tiempo total: " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " seg. \r\n");
 			log("Solución óptima: " + String.format("%.5f", cplex.getObjValue()));
-			
-			for(Pad pad: ret.getPads())
-				log(" - " + pad.getCentro() + " = " + ret.getValor(pad));
+			log("Tiempo total: " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " seg. \r\n");
 
 			cplex.close();
 		}

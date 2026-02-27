@@ -50,7 +50,7 @@ public class SimpleBFS
 	public void ejecutar()
 	{
 		if( _mostrarBFS == true )
-			_panel = interfaz.Viewer.show(_instancia, _instancia.getRegionInterna(_semilla));
+			_panel = interfaz.Viewer.show(_instancia, _dualSolution, _semilla);
 
 		_procesados = new ArrayList<Point>();
 		_nuevos = new ArrayList<Point>();
@@ -120,6 +120,9 @@ public class SimpleBFS
 	{
 		Point nuevo = toPoint(new Coordinate(actual.getX() + offsetx, actual.getY() + offsety));
 		
+		if( !_interna.incluye(nuevo) )
+			add(actual, Color.RED);
+
 		if( !_interna.incluye(nuevo) || _procesados.contains(nuevo) || _pendientes.contains(nuevo) )
 			return;
 		

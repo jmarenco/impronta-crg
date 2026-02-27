@@ -33,8 +33,8 @@ public class MultiBFS
 	private int _iniciados;
 	private int _explorados;
 	
-	private static boolean _mostrarBFS = false;
-	private static boolean _verbose = false;
+	private static boolean _mostrarBFS = true;
+	private static boolean _verbose = true;
 
 	public MultiBFS(Instancia instancia, Map<Point, Double> dualSolution, Semilla semilla, PadCache pads)
 	{
@@ -71,6 +71,8 @@ public class MultiBFS
 	
 	private Point closestFeasible(Coordinate start, long pointsLimit)
 	{
+		log("   Iniciando desde: " + start);
+		
 		_iniciados += 1;
 		_pendientes = new ArrayList<Point>();
 		_indice = 0;
@@ -87,6 +89,8 @@ public class MultiBFS
 
 			if( _pads.contains(actual, _semilla) )
 			{
+				log("   Retornando: " + actual);
+				
 				add(actual, Color.GREEN);
 				_explorados += _pendientes.size();
 

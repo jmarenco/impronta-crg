@@ -223,16 +223,25 @@ public class Viewer extends JPanel
         addSolucion(panel, solucion);
         addRestricciones(panel, instancia);
         addPuntos(panel, puntos);
+
+//        addRegion(panel, instancia.getRegionInterna(instancia.getSemillas().get(0)), Color.BLUE);
+//        
+//        for(Coordinate c: instancia.getRegionInterna(instancia.getSemillas().get(0)).getCoordinates())
+//        	System.out.println("Region interna: " + c);
+        
         showFrame(instancia, panel, "Solución");
     }
 
-    public static void show(Instancia instancia, Map<Point, Double> dual, Semilla semilla)
+    public static Viewer show(Instancia instancia, Map<Point, Double> dual, Semilla semilla)
     {
         Viewer panel = new Viewer();
         addRegion(panel, instancia);
+        addRegion(panel, instancia.getRegionInterna(semilla), Color.BLUE);
         addDual(panel, instancia, dual, semilla);
         addRestricciones(panel, instancia);
         showFrame(instancia, panel, "Solución dual");
+
+        return panel;
     }
 
     public static Viewer show(Instancia instancia, DualCovering covering, Region interna)

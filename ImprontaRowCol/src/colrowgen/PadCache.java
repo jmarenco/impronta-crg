@@ -31,12 +31,14 @@ public class PadCache
 			
 			if( pad.factible() == true )
 				_map.put(point, semilla, pad);
+			else
+				_map.put(point, semilla, null);
 		}
 	}
 	
 	public boolean contains(Point point, Semilla semilla)
 	{
-		return _map.containsKey(point, semilla);
+		return _map.containsKey(point, semilla) && _map.get(point, semilla) != null;
 	}
 	
 	public Pad get(Point point, Semilla semilla)

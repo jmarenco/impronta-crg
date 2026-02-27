@@ -545,6 +545,7 @@ public class Instancia
 		int bx = _pasoHorizontal * (int)(snapx(point.x) / (double)_pasoHorizontal);
 		int by = _pasoVertical * (int)(snapy(point.y) / (double)_pasoVertical);
 
+		ret.add(new Coordinate(bx, by));
 		ret.add(new Coordinate(bx - _pasoHorizontal, by));
 		ret.add(new Coordinate(bx - _pasoHorizontal, by - _pasoVertical));
 		ret.add(new Coordinate(bx, by - _pasoVertical));

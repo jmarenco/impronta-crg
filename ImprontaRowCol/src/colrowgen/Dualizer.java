@@ -12,10 +12,9 @@ import general.Semilla;
 public class Dualizer 
 {
 	private Instancia _instancia;
-	private ArrayList<Point> _puntos;
+	private Relajacion _relajacion;
 	private ArrayList<Point> _nuevos;
 	private PadCache _pads;
-	private double _target;
 	
 	private Map<Point, Double> _dualSolution;
 	
@@ -30,16 +29,9 @@ public class Dualizer
 	
 	public Dualizer(Relajacion relajacion)
 	{
+		_relajacion = relajacion;
 		_instancia = relajacion.getInstancia();
 		_pads = relajacion.getPadCache();
-		_target = relajacion.getObjValue();
-		_puntos = new ArrayList<Point>();
-
-		for(Point point: relajacion.varPoints())
-			_puntos.add(point);
-
-		for(Coordinate coordinate: relajacion.constraintPoints())
-			_puntos.add(_instancia.getFactory().createPoint(coordinate));
 
 		if( _mostrarPuntos == true )
 			mostrarPuntos(relajacion);
@@ -52,11 +44,13 @@ public class Dualizer
 		_explorados = 0;
 		
 		log("Resolviendo dual");
-		Dual dual = new Dual(_instancia, _puntos, _pads, _target);
+		Dual dual = new Dual(_instancia, _relajacion);
 
 		_dualSolution = dual.resolver();
 		_dualTime = dual.getTime();
 		_nuevos = new ArrayList<Point>();
+
+		log("  Solucion: " + dual.getObjValue() + ", target primal: " + _relajacion.getObjValue());
 		
 		for(Semilla semilla: _instancia.getSemillas())
 		{
@@ -68,8 +62,12 @@ public class Dualizer
 			_nuevos.addAll(multiBFS.getNuevos());
 			_iniciados += multiBFS.getIniciados();
 			_explorados += multiBFS.getExplorados();
+
+			System.out.println("\r\nPuntos nuevos semilla actual: ");
+			for(Point p: _nuevos)
+				System.out.println(p);
 		}
-		
+
 		_time = (System.currentTimeMillis() - _start) / 1000.0;
 	}
 	
@@ -86,10 +84,10 @@ public class Dualizer
 	private void mostrarPuntos(Relajacion relajacion)
 	{
 		for(Point point: relajacion.varPoints())
-			System.out.println("VarPoint " + point);
+			System.out.println("Relajacion VarPoint " + point);
 
 		for(Coordinate coordinate: relajacion.constraintPoints())
-			System.out.println("ConstraintPoint " + coordinate);
+			System.out.println("Relajacion ConstraintPoint " + coordinate);
 	}
 	
 	private void log(String texto)
