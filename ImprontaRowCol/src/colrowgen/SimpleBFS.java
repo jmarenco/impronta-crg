@@ -2,7 +2,9 @@ package colrowgen;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -59,14 +61,17 @@ public class SimpleBFS
 		
 		log(" - Procesando coordenadas");
 		
-		for(Point centro: _dualSolution.keySet())
-		{
-			Polygon nuevo = new Pad(_instancia, _semilla, centro.getCoordinate()).getPerimetro();
-			for(Coordinate coord: nuevo.getCoordinates())
-				addNuevo(closestFeasible(coord, Long.MAX_VALUE));
-		}
-
-		for(Coordinate coord: _interna.getCoordinates())
+//		for(Point centro: _dualSolution.keySet())
+//		{
+//			Polygon nuevo = new Pad(_instancia, _semilla, centro.getCoordinate()).getPerimetro();
+//			for(Coordinate coord: nuevo.getCoordinates())
+//				addNuevo(closestFeasible(coord, Long.MAX_VALUE));
+//		}
+//
+//		for(Coordinate coord: _interna.getCoordinates())
+//			addNuevo(closestFeasible(coord, Long.MAX_VALUE));
+		
+		for(Coordinate coord: relevantCoordinates())
 			addNuevo(closestFeasible(coord, Long.MAX_VALUE));
 	}
 	
@@ -155,10 +160,31 @@ public class SimpleBFS
 	
 	private boolean incluye(Point centro, Point punto)
 	{
-		return punto.getX() >= centro.getX() - _semilla.getLargo() / 2 &&
-				punto.getX() <= centro.getX() + _semilla.getLargo() / 2 &&
-				punto.getY() >= centro.getY() - _semilla.getAncho() / 2 &&
-				punto.getY() <= centro.getY() + _semilla.getAncho() / 2;
+		return punto.getX() > centro.getX() - _semilla.getLargo() / 2 &&
+				punto.getX() < centro.getX() + _semilla.getLargo() / 2 &&
+				punto.getY() > centro.getY() - _semilla.getAncho() / 2 &&
+				punto.getY() < centro.getY() + _semilla.getAncho() / 2;
+	}
+	
+	private Set<Coordinate> relevantCoordinates()
+	{
+		ArrayList<Pad> pads = new ArrayList<Pad>();
+		Set<Coordinate> ret = new HashSet<Coordinate>();
+		
+		for(Point centro: _dualSolution.keySet())
+			pads.add(new Pad(_instancia, _semilla, centro.getCoordinate()));
+		
+		for(Pad pad: pads)
+		for(Coordinate c: pad.getPerimetro().getCoordinates())
+			ret.add(c);
+		
+		for(Pad primero: pads)
+		for(Pad segundo: pads)
+		for(Coordinate c: primero.getPerimetro().intersection(segundo.getPerimetro()).getCoordinates())
+			ret.add(c);
+		
+		ret.addAll(_interna.getCoordinates());
+		return ret;
 	}
 	
 	private void log(String texto)

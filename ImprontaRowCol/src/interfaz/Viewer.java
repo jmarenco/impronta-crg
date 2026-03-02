@@ -7,7 +7,6 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-import colrowgen.DualCovering;
 import general.Instancia;
 import general.OGIP;
 import general.Restriccion;
@@ -34,7 +33,8 @@ public class Viewer extends JPanel
 	private List<Geometry> geometries = new ArrayList<Geometry>();
 	private List<Color> colors = new ArrayList<Color>();
 	private OGIP ogip = null;
-	private DualCovering dualCovering = null;
+	private Map<Point, Double> dual = null;
+	private Instancia instancia = null; // Solo si hay una solución dual
   
     private int _minx = Integer.MAX_VALUE;
     private int _maxx = Integer.MIN_VALUE;
@@ -66,9 +66,10 @@ public class Viewer extends JPanel
     	ogip = obj;
     }
     
-    public void addDualCovering(DualCovering obj)
+    public void addDual(Instancia instance, Map<Point, Double> dualSolution)
     {
-    	dualCovering = obj;
+    	instancia = instance;
+    	dual = dualSolution;
     }
 
     @Override
@@ -77,7 +78,7 @@ public class Viewer extends JPanel
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         
-        if( dualCovering != null )
+        if( dual != null )
         	drawDualCovering(g2d);
 
         if (!geometries.isEmpty())
@@ -156,13 +157,11 @@ public class Viewer extends JPanel
     
     private void drawDualCovering(Graphics2D g2d)
     {
-		double targetArea = dualCovering.getSemilla().getAncho() * dualCovering.getSemilla().getLargo()/ 1e6;
-    	for(Geometry geom: dualCovering.getAreas())
+    	for(Semilla semilla: instancia.getSemillas())
+    	for(Point punto: dual.keySet())
 		{
-			double valor = Math.min(targetArea, dualCovering.get(geom));
-			int nivel = (int)(255 * (targetArea - valor) / targetArea);
-
-			Coordinate[] coords = geom.getCoordinates();
+   			Pad pad = new Pad(instancia, semilla, punto.getCoordinate());
+			Coordinate[] coords = pad.getPerimetro().getCoordinates();
 			
 			int[] x = new int[coords.length];
 			int[] y = new int[coords.length];
@@ -173,7 +172,11 @@ public class Viewer extends JPanel
 				y[i] = convy(coords[i]);
 			}
 			
-    		g2d.setColor(new Color(nivel, nivel, nivel));
+    		double targetArea = semilla.getAncho() * semilla.getLargo()/ 1e6;
+   			double valor = Math.min(targetArea, dual.get(punto));
+   			int nivel = (int)(255 * (targetArea - valor) / targetArea);
+
+   			g2d.setColor(new Color(nivel, nivel, nivel));
     		g2d.fillPolygon(x, y, x.length);
     		g2d.setColor(Color.DARK_GRAY);
     		g2d.drawPolygon(x, y, x.length);
@@ -235,35 +238,13 @@ public class Viewer extends JPanel
     public static Viewer show(Instancia instancia, Map<Point, Double> dual, Semilla semilla)
     {
         Viewer panel = new Viewer();
+        panel.addDual(instancia, dual);
         addRegion(panel, instancia);
         addRegion(panel, instancia.getRegionInterna(semilla), Color.BLUE);
-        addDual(panel, instancia, dual, semilla);
         addRestricciones(panel, instancia);
         showFrame(instancia, panel, "Solución dual");
 
         return panel;
-    }
-
-    public static Viewer show(Instancia instancia, DualCovering covering, Region interna)
-    {
-        Viewer panel = new Viewer();
-        panel.addDualCovering(covering);
-        addRegion(panel, instancia);
-        addRegion(panel, interna, Color.BLUE);
-        addRestricciones(panel, instancia);
-        showFrame(instancia, panel, "Dual covering");
-        
-        return panel;
-    }
-
-    public static void show(Instancia instancia, DualCovering covering, ArrayList<Point> nuevos)
-    {
-        Viewer panel = new Viewer();
-        panel.addDualCovering(covering);
-        addRegion(panel, instancia);
-        addRestricciones(panel, instancia);
-        addPuntos(panel, nuevos);
-        showFrame(instancia, panel, "Dual covering");
     }
 
     private static void addRegion(Viewer panel, Instancia instancia)
@@ -301,19 +282,6 @@ public class Viewer extends JPanel
 		}
 	}
 	
-	private static void addDual(Viewer panel, Instancia instancia, Map<Point, Double> dual, Semilla semilla)
-	{
-		double targetArea = semilla.getAncho() * semilla.getLargo()/ 1e6;
-    	for(Point punto: dual.keySet()) if( dual.get(punto) > 0 )
-    	{
-			double valor = Math.min(targetArea, dual.get(punto));
-			int nivel = (int)(255 * (targetArea - valor) / targetArea);
-			Color color = new Color(nivel, nivel, nivel);
-
-			panel.addGeometry(new Pad(instancia, semilla, punto.getCoordinate()).getPerimetro(), color);
-    	}
-	}
-
 	private static void addPuntos(Viewer panel, ArrayList<Point> puntos)
 	{
 		if( puntos != null )

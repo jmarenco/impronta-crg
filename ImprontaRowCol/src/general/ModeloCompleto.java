@@ -91,6 +91,11 @@ public class ModeloCompleto
 			for(Pad pad: ret.getPads())
 				log(" - " + pad.getCentro() + " = " + ret.getValor(pad));
 			
+			ArrayList<Point> centros = new ArrayList<Point>();
+			for(Pad pad: pads)
+				centros.add(pad.getCentro());
+			
+			Viewer.show(_instancia, ret, centros);
 			cplex.close();
 			log("");
 		}

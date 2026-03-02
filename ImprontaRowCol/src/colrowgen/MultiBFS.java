@@ -34,7 +34,6 @@ public class MultiBFS
 	private int _iniciados;
 	private int _explorados;
 	
-	private static boolean _mostrarBFS = true;
 	private static boolean _verbose = true;
 
 	public MultiBFS(Instancia instancia, Map<Point, Double> dualSolution, Semilla semilla, PadCache pads)
@@ -53,9 +52,6 @@ public class MultiBFS
 		_uncovered = _covering.uncovered();
 
 		log(" - Dual covering: ", start);
-
-		if( _mostrarBFS == true )
-			_panel = interfaz.Viewer.show(_instancia, _covering, _instancia.getRegionInterna(_semilla));
 		
 		_procesados = new ArrayList<Point>();
 		_nuevos = new ArrayList<Point>();
