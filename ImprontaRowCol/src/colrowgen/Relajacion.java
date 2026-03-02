@@ -132,7 +132,7 @@ public class Relajacion
 		{
 			_solucion = new Solucion(_instancia);
 			_objValue = _cplex.getObjValue();
-			
+
 			for(IloNumVar var: _vars.keySet()) if( _cplex.getValue(var) > 0.05 )
 			{
 				if( _mostrarSolucion == true )
