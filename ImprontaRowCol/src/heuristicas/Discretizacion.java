@@ -91,6 +91,16 @@ public class Discretizacion
 		return _puntos;
 	}
 	
+	public ArrayList<Point> asList()
+	{
+		ArrayList<Point> ret = new ArrayList<Point>();
+		
+		for(Coordinate c: _puntos.getCoordinates())
+			ret.add(_instancia.getFactory().createPoint(c));
+		
+		return ret;
+	}
+	
 	// Construye pads centrados en los puntos de la discretización
 	public ArrayList<Pad> construirPads()
 	{

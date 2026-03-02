@@ -3,15 +3,15 @@
   <!--Dirección ideal del esfuerzo horizontal mínimo y tolerancia-->
   <Esfuerzo_horizontal_mínimo Ángulo="0" Tolerancia="0" Nx="1" Ny="1"/>
   <Área Capa="Yacimiento" ID="1" Vértices="8">
-    <Vértice X="0" Y="300" />
-    <Vértice X="140" Y="300" />
-    <Vértice X="140" Y="0" />
+    <Vértice X="0" Y="80" />
+    <Vértice X="90" Y="80" />
+    <Vértice X="90" Y="0" />
     <Vértice X="0" Y="0" />
-    <Vértice X="0" Y="300" />
+    <Vértice X="0" Y="80" />
   </Área>
   <Semillas Cantidad="1">
     <Semilla ID="Semilla 1" Coeficiente="1" Coeficiente_original="0,4">
-      <PAD Largo="100" Ancho="100" />
+      <PAD Largo="70" Ancho="40" />
       <LOCACION Largo="10" Ancho="10" Tolerancia="0" />
     </Semilla>
   </Semillas>

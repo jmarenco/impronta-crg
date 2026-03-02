@@ -9,6 +9,7 @@ import heuristicas.Discretizacion;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
+import interfaz.Viewer;
 
 public class ModeloCompleto
 {
@@ -82,7 +83,7 @@ public class ModeloCompleto
 			cplex.solve();
 			
 			for(int i=0; i<pads.size(); ++i) if( cplex.getValue(x.get(i)) > 0.01 )
-				ret.agregar(pads.get(i));
+				ret.agregar(pads.get(i), cplex.getValue(x.get(i)));
 			
 			log("Tiempo total: " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " seg. \r\n");
 			log("Solución óptima: " + String.format("%.5f", cplex.getObjValue()));

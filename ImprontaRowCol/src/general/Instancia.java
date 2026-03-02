@@ -563,6 +563,7 @@ public class Instancia
 	{
 		if( _internas.containsKey(semilla) == false )
 			_internas.put(semilla, RegionInterna.calcular(this, semilla));
+//			_internas.put(semilla, _region);
 		
 		return _internas.get(semilla);
 	}

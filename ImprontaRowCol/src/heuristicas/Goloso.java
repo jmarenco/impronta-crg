@@ -195,8 +195,8 @@ public class Goloso
 			
 			_grafo.agregarClique(vertices);
 			
-			if( (++k) % (_discretizacion.getPuntos().getNumPoints() / 20) == 0 )
-				log("  -> Grafo " + Math.round(k * 100.0 / _discretizacion.getPuntos().getNumPoints()) + "% construido" );
+//			if( (++k) % (_discretizacion.getPuntos().getNumPoints() / 20) == 0 )
+//				log("  -> Grafo " + Math.round(k * 100.0 / _discretizacion.getPuntos().getNumPoints()) + "% construido" );
 		}
 
 		log("");

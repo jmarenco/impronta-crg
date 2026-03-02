@@ -35,7 +35,7 @@ public class SimpleBFS
 	private int _iniciados;
 	private int _explorados;
 	
-	private static boolean _mostrarBFS = true;
+	private static boolean _mostrarBFS = false;
 	private static boolean _verbose = false;
 
 	public SimpleBFS(Instancia instancia, Map<Point, Double> dualSolution, Semilla semilla, PadCache pads)
