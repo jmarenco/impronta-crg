@@ -14,14 +14,15 @@ public class Master
 {
 	private Instancia _instancia;
 	private ArrayList<Point> _points;
-	private Map<Point, Integer> _nonzeroIterations;
+	private Map<Point, Integer> _nullIterations;
 	private PadCache _pads;
 
 	private Solucion _solucion;
 	
 	private static boolean _verbose = true;
 	private static boolean _eliminarPuntos = false;
-	private static int _umbralEliminacion = 3;
+	private static boolean _eliminacionPrimal = true;
+	private static int _umbralEliminacion = 10;
 	
 	public Master(Instancia instancia, List<Point> iniciales)
 	{
@@ -30,7 +31,7 @@ public class Master
 		_pads = new PadCache(instancia);
 		
 		if( _eliminarPuntos == true )
-			_nonzeroIterations = new HashMap<Point, Integer>();
+			_nullIterations = new HashMap<Point, Integer>();
 	}
 	
 	public void solve()
@@ -54,7 +55,7 @@ public class Master
 			log("Dualizer: " + dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", dualizer.getDualTime()) + " sec | BFSs: " + dualizer.getIniciosBFS() + " | Expl: " + dualizer.getExplorados() + " | ");
 
 			if( _eliminarPuntos == true  )
-				eliminarPuntos();
+				eliminarPuntos(dualizer.getDualSolution());
 
 			int anteriores = _points.size();
 			for(Point point: dualizer.getNuevos()) if( _points.contains(point) == false )
@@ -66,22 +67,31 @@ public class Master
 		}
 	}
 	
-	private void eliminarPuntos()
+	private void eliminarPuntos(Map<Point,Double> dualSolution)
 	{
 		long start = System.currentTimeMillis();
 		
 		// Actualiza las iteraciones en cero
 		for(Point point: _points)
-			_nonzeroIterations.put(point, _nonzeroIterations.containsKey(point) ? _nonzeroIterations.get(point) + 1 : 1);
+			_nullIterations.put(point, _nullIterations.containsKey(point) ? _nullIterations.get(point) + 1 : 1);
 
-		for(Point point: _solucion.getCentros())
-			_nonzeroIterations.put(point, 0);
+		if( _eliminacionPrimal == true )
+		{
+			for(Point point: _solucion.getCentros())
+				_nullIterations.put(point, 0);
+		}
+		else
+		{
+			for(Point point: dualSolution.keySet()) if( dualSolution.get(point) > 0 )
+				_nullIterations.put(point, 0);
+		}
 		
 		// Elimina los puntos con varias iteraciones en cero
-		for(Point point: _nonzeroIterations.keySet()) if( _nonzeroIterations.get(point) > _umbralEliminacion )
+		int anterior = _points.size();
+		for(Point point: _nullIterations.keySet()) if( _nullIterations.get(point) > _umbralEliminacion )
 			_points.remove(point);
 		
-		log("EP: " + _points.size() + " pts | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | ");
+		log("EP: " + (anterior - _points.size()) + " rem | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | ");
 	}
 	
 	public Solucion getSolucion()
@@ -100,9 +110,10 @@ public class Master
 			System.out.print(texto);
 	}
 	
-	public static void eliminarPuntos(int umbral)
+	public static void eliminarPuntos(boolean primal, int umbral)
 	{
 		_eliminarPuntos = true;
+		_eliminacionPrimal = primal;
 		_umbralEliminacion = umbral;
 	}
 }

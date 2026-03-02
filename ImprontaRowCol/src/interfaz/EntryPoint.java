@@ -10,7 +10,7 @@ public class EntryPoint
 	public static void main(String[] args)
 	{
 		Instancia.set(Instancia.Formato.French);
-		Instancia instancia = new Instancia("instancias/sqr.01a.xml");
+		Instancia instancia = new Instancia("instancias/sqr.00.xml");
 
 //		general.ModeloCompleto modelo = new general.ModeloCompleto(instancia, false);
 //		Solucion completa = modelo.resolver();
