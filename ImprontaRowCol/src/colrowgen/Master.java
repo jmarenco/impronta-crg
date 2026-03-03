@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.vividsolutions.jts.geom.Point;
 
@@ -20,9 +21,9 @@ public class Master
 	private Solucion _solucion;
 	
 	private static boolean _verbose = true;
-	private static boolean _eliminarPuntos = false;
 	private static boolean _eliminacionPrimal = true;
-	private static int _umbralEliminacion = 10;
+	private static boolean _eliminacionDual = true;
+	private static int _umbralEliminacion = 3;
 	
 	public Master(Instancia instancia, List<Point> iniciales)
 	{
@@ -30,8 +31,11 @@ public class Master
 		_points = new ArrayList<Point>(iniciales);
 		_pads = new PadCache(instancia);
 		
-		if( _eliminarPuntos == true )
+		if( _eliminacionPrimal || _eliminacionDual )
 			_nullIterations = new HashMap<Point, Integer>();
+
+		if( _eliminacionDual )
+			Dual.setRegistrarBindings(true);
 	}
 	
 	public void solve()
@@ -54,8 +58,8 @@ public class Master
 
 			log("Dualizer: " + dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", dualizer.getDualTime()) + " sec | BFSs: " + dualizer.getIniciosBFS() + " | Expl: " + dualizer.getExplorados() + " | ");
 
-			if( _eliminarPuntos == true  )
-				eliminarPuntos(dualizer.getDualSolution());
+			if( _eliminacionPrimal || _eliminacionDual )
+				eliminarPuntos(dualizer.getDualBindingConstraints());
 
 			int anteriores = _points.size();
 			for(Point point: dualizer.getNuevos()) if( _points.contains(point) == false )
@@ -67,7 +71,7 @@ public class Master
 		}
 	}
 	
-	private void eliminarPuntos(Map<Point,Double> dualSolution)
+	private void eliminarPuntos(Set<Point> dualBindingConstraints)
 	{
 		long start = System.currentTimeMillis();
 		
@@ -80,9 +84,10 @@ public class Master
 			for(Point point: _solucion.getCentros())
 				_nullIterations.put(point, 0);
 		}
-		else
+
+		if( _eliminacionDual == true )
 		{
-			for(Point point: dualSolution.keySet()) if( dualSolution.get(point) > 0 )
+			for(Point point: dualBindingConstraints)
 				_nullIterations.put(point, 0);
 		}
 		
@@ -110,10 +115,10 @@ public class Master
 			System.out.print(texto);
 	}
 	
-	public static void eliminarPuntos(boolean primal, int umbral)
+	public static void eliminarPuntos(boolean primal, boolean dual, int umbral)
 	{
-		_eliminarPuntos = true;
 		_eliminacionPrimal = primal;
+		_eliminacionDual = dual;
 		_umbralEliminacion = umbral;
 	}
 }

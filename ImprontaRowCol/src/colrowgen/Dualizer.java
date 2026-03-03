@@ -2,6 +2,7 @@ package colrowgen;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Point;
@@ -17,6 +18,7 @@ public class Dualizer
 	private PadCache _pads;
 	
 	private Map<Point, Double> _dualSolution;
+	private Set<Point> _dualBindingConstraints;
 	
 	private long _start;
 	private double _time;
@@ -48,6 +50,7 @@ public class Dualizer
 
 		_dualSolution = dual.resolver();
 		_dualTime = dual.getTime();
+		_dualBindingConstraints = dual.getBindingConstraints();
 		_nuevos = new ArrayList<Point>();
 
 		log("  Solucion: " + dual.getObjValue() + ", target primal: " + _relajacion.getObjValue());
@@ -70,6 +73,11 @@ public class Dualizer
 	public Map<Point, Double> getDualSolution()
 	{
 		return _dualSolution;
+	}
+	
+	public Set<Point> getDualBindingConstraints()
+	{
+		return _dualBindingConstraints;
 	}
 	
 	public ArrayList<Point> getNuevos()

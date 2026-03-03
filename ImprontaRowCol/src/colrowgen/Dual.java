@@ -29,15 +29,17 @@ public class Dual
 	private Map<Point, IloNumVar> _vars;
 	private Map<Pad, IloRange> _constr;
 	private Set<Point> _usados;
+	private Set<Point> _bindingConstraints = null;
 	private Map<Point, Double> _solucion;
 	private long _start;
 	private double _time;
 	private double _objValue;
 
-	private double _infinity = Double.POSITIVE_INFINITY;
-	private boolean _mostrarSolucion = false;
-	private boolean _exportarModelo = false;
-	private boolean _verbose = false;
+	private static double _infinity = Double.POSITIVE_INFINITY;
+	private static boolean _mostrarSolucion = false;
+	private static boolean _exportarModelo = false;
+	private static boolean _verbose = false;
+	private static boolean _registrarBindings = true;
 
 	public Dual(Instancia instancia, Relajacion primal)
 	{
@@ -146,6 +148,18 @@ public class Dual
 
 			if( _mostrarSolucion == true )
 				System.out.println("Dual objective value: " + _cplex.getObjValue());
+			
+			if( _registrarBindings == true )
+			{
+				_bindingConstraints = new HashSet<Point>();
+				for(Pad pad: _constr.keySet()) if( Math.abs(_cplex.getSlack(_constr.get(pad))) <= 0.00001 )
+					_bindingConstraints.add(pad.getCentro());
+//				else
+//					System.out.println(_cplex.getSlack(_constr.get(pad)) + " | " + _cplex.getValue(_constr.get(pad).getExpr()) + " <- " + _constr.get(pad));
+
+//				for(Pad pad: _constr.keySet())
+//					System.out.println(_cplex.getSlack(_constr.get(pad)) + " | " + _cplex.getValue(_constr.get(pad).getExpr()) + " <- " + _constr.get(pad));
+			}
 		}
 		
 		if( _mostrarSolucion == true )
@@ -169,5 +183,15 @@ public class Dual
 	public boolean onTarget()
 	{
 		return Math.abs(_objValue - _primal.getObjValue()) < 0.001;
+	}
+	
+	public Set<Point> getBindingConstraints()
+	{
+		return _bindingConstraints;
+	}
+	
+	public static void setRegistrarBindings(boolean valor)
+	{
+		_registrarBindings = valor;
 	}
 }
