@@ -8,29 +8,27 @@ import heuristicas.Goloso;
 
 public class EntryPoint
 {
-	public static String version()
-	{
-		return "0.10";
-	}
+	private static String _version = "0.11";
+	private static ArgMap _args;
 	
 	public static void main(String[] args)
 	{
-		ArgMap argmap = new ArgMap(args);
-		procesarParametros(argmap);
+		_args = new ArgMap(args);
+		procesarParametros();
 		
 		Instancia.set(Instancia.Formato.French);
-		Instancia instancia = new Instancia(argmap.stringArg("-inst", "instancias/sqr.00.xml"));
+		Instancia instancia = new Instancia(_args.stringArg("-inst", "instancias/sqr.00.xml"));
 		
-		if( argmap.containsArg("-model") )
+		if( _args.containsArg("-model") )
 		{
 			ModeloCompleto modelo = new ModeloCompleto(instancia, false);
 			Solucion completa = modelo.resolver();
 		
-			if( argmap.containsArg("-show") )
+			if( _args.containsArg("-show") )
 				Viewer.show(instancia, completa);
 		}
 
-		if( argmap.containsArg("-master") )
+		if( _args.containsArg("-master") )
 		{
 			Goloso goloso = new Goloso(instancia);
 			Solucion golosa = goloso.resolver();
@@ -38,14 +36,14 @@ public class EntryPoint
 			Master master = new Master(instancia, golosa.getCentros());
 			master.solve();
 			
-			if( argmap.containsArg("-show") )
+			if( _args.containsArg("-show") )
 				Viewer.show(instancia, master.getSolucion(), master.getPoints());
 		}
 	}
 	
-	private static void procesarParametros(ArgMap argmap)
+	private static void procesarParametros()
 	{
-		if( argmap.containsArg("-help") )
+		if( _args.containsArg("-help") )
 		{
 			System.out.println("-inst [s]		Instancia a resolver");
 			System.out.println("-model			Ejecutar el modelo completo");
@@ -61,14 +59,24 @@ public class EntryPoint
 			System.out.println("-show			Muestra la solucion");
 		}
 
-		Master.eliminarPuntos(argmap.containsArg("-pe") || argmap.containsArg("-pde"), argmap.containsArg("-de") || argmap.containsArg("-pde"), Math.max(Math.max(argmap.intArg("-pe", 0), argmap.intArg("-de", 0)), argmap.intArg("-pde", 0)));
-		ModeloCompleto.setTimeLimit(argmap.doubleArg("-time", 3600));
-		Master.setTimeLimit(argmap.doubleArg("-time", 3600));
-		ModeloCompleto.setVerbose(!argmap.containsArg("-silent"));
-		Master.setVerbose(!argmap.containsArg("-silent"));
-		Goloso.setSemilla(argmap.intArg("-sg", 0));
-		Goloso.setIntentos(argmap.intArg("-ig", 100));
-		Goloso.setFactorPasoHorizontal(argmap.intArg("-fg", 20));
-		Goloso.setFactorPasoVertical(argmap.intArg("-fg", 20));
+		Master.eliminarPuntos(_args.containsArg("-pe") || _args.containsArg("-pde"), _args.containsArg("-de") || _args.containsArg("-pde"), Math.max(Math.max(_args.intArg("-pe", 0), _args.intArg("-de", 0)), _args.intArg("-pde", 0)));
+		ModeloCompleto.setTimeLimit(_args.doubleArg("-time", 3600));
+		Master.setTimeLimit(_args.doubleArg("-time", 3600));
+		ModeloCompleto.setVerbose(!_args.containsArg("-silent"));
+		Master.setVerbose(!_args.containsArg("-silent"));
+		Goloso.setSemilla(_args.intArg("-sg", 0));
+		Goloso.setIntentos(_args.intArg("-ig", 100));
+		Goloso.setFactorPasoHorizontal(_args.intArg("-fg", 20));
+		Goloso.setFactorPasoVertical(_args.intArg("-fg", 20));
+	}
+
+	public static String version()
+	{
+		return _version;
+	}
+	
+	public static ArgMap args()
+	{
+		return _args;
 	}
 }

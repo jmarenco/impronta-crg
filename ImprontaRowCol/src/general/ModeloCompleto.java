@@ -9,6 +9,7 @@ import heuristicas.Discretizacion;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
+import interfaz.EntryPoint;
 
 public class ModeloCompleto
 {
@@ -39,6 +40,9 @@ public class ModeloCompleto
 		{
 			IloCplex cplex = new IloCplex();
 			cplex.setParam(IloCplex.IntParam.TimeLimit, _timeLimit);
+			
+			if( _verbose == false )
+				cplex.setOut(null);
 			
 			log("Construyendo discretizacion");
 			Discretizacion discretizacion = new Discretizacion(_instancia);
@@ -96,7 +100,7 @@ public class ModeloCompleto
 				log(" - " + pad.getCentro() + " = " + ret.getValor(pad));
 
 			if( _resumen == true )
-				System.out.println("\r\nComplete | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " sec | Obj: " + String.format("%.5f", cplex.getObjValue()) + " | | " + discretizacion.asList().size() + " pts | " + x.size() + " pvars | " + constraints + " pcons | | | \r\n");
+				System.out.println("\r\nComplete | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " sec | Obj: " + String.format("%.5f", cplex.getObjValue()) + " | | " + discretizacion.asList().size() + " pts | " + x.size() + " pvars | " + constraints + " pcons | | | | " + EntryPoint.args() + "\r\n");
 
 			cplex.close();
 			log("");

@@ -10,6 +10,7 @@ import com.vividsolutions.jts.geom.Point;
 
 import general.Instancia;
 import general.Solucion;
+import interfaz.EntryPoint;
 
 public class Master
 {
@@ -81,7 +82,7 @@ public class Master
 		}
 		
 		if( _resumen == true )
-			System.out.println("\r\nMaster | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | Obj: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + (iteracion-1) + " its | " + _relajacion.varPoints().size() + " pts | " + _relajacion.getNumVariables() + " pvars | " + _relajacion.getNumConstraints() + " pcons | BFSs: " + _BFSs + " | Expl: " + String.format("%.2f", _BFSs > 0 ? _explorados / (double)_BFSs : 0) + " prom | " + _eliminados + " rem \r\n");
+			System.out.println("\r\nMaster | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | Obj: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + (iteracion-1) + " its | " + _relajacion.varPoints().size() + " pts | " + _relajacion.getNumVariables() + " pvars | " + _relajacion.getNumConstraints() + " pcons | BFSs: " + _BFSs + " | Expl: " + String.format("%.2f", _BFSs > 0 ? _explorados / (double)_BFSs : 0) + " prom | " + _eliminados + " rem | " + EntryPoint.args() + "\r\n");
 	}
 	
 	private void eliminarPuntos(Set<Point> dualBindingConstraints)
