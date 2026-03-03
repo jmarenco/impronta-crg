@@ -32,11 +32,12 @@ public class Relajacion
 	private long _start;
 	private double _time;
 	
-	private double _infinity = Double.POSITIVE_INFINITY;
-	private boolean _mostrarSolucion = false;
-	private boolean _exportarModelo = false;
-	private boolean _entero = false;
-	private boolean _verbose = false;
+	private static double _infinity = Double.POSITIVE_INFINITY;
+	private static double _timeLimit = 3600;
+	private static boolean _mostrarSolucion = false;
+	private static boolean _exportarModelo = false;
+	private static boolean _entero = false;
+	private static boolean _verbose = false;
 	
 	public Relajacion(Instancia instancia, List<Point> puntos, PadCache padCache)
 	{
@@ -66,6 +67,7 @@ public class Relajacion
 	private void crearModelo() throws IloException
 	{
 		_cplex = new IloCplex();
+		_cplex.setParam(IloCplex.IntParam.TimeLimit, _timeLimit);
 		_solucion = null;
 		_start = System.currentTimeMillis();
 	}
@@ -185,5 +187,15 @@ public class Relajacion
 	public double getTime()
 	{
 		return _time;
+	}
+
+	public int getNumVariables()
+	{
+		return _vars.size();
+	}
+
+	public int getNumConstraints()
+	{
+		return _constr.size();
 	}
 }

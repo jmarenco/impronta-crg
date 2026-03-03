@@ -18,11 +18,19 @@ public class Master
 	private Map<Point, Integer> _nullIterations;
 	private PadCache _pads;
 
+	private Relajacion _relajacion;
+	private Dualizer _dualizer;
 	private Solucion _solucion;
 	
+	private int _eliminados = 0;
+	private int _BFSs = 0;
+	private int _explorados = 0;
+	
+	private static double _timeLimit = 3600;
 	private static boolean _verbose = true;
-	private static boolean _eliminacionPrimal = true;
-	private static boolean _eliminacionDual = true;
+	private static boolean _resumen = true;
+	private static boolean _eliminacionPrimal = false;
+	private static boolean _eliminacionDual = false;
 	private static int _umbralEliminacion = 3;
 	
 	public Master(Instancia instancia, List<Point> iniciales)
@@ -44,31 +52,36 @@ public class Master
 		long start = System.currentTimeMillis();
 		boolean agregados = true;
 
-		while( agregados == true )
+		while( agregados == true && (System.currentTimeMillis() - start) / 1000.0 <= _timeLimit)
 		{
 			log("It: " + (iteracion++) + " | ");
 			
-			Relajacion relajacion = new Relajacion(_instancia, _points, _pads);
-			_solucion = relajacion.resolver();
+			_relajacion = new Relajacion(_instancia, _points, _pads);
+			_solucion = _relajacion.resolver();
 			
-			log("Rel: " + String.format("%.5f", relajacion.getObjValue()) + " | " + relajacion.varPoints().size() + " pts | " + String.format("%.2f", relajacion.getTime()) + " sec | ");
+			log("Rel: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + _relajacion.varPoints().size() + " pts | " + String.format("%.2f", _relajacion.getTime()) + " sec | ");
 			
-			Dualizer dualizer = new Dualizer(relajacion);
-			dualizer.ejecutar();
+			_dualizer = new Dualizer(_relajacion);
+			_dualizer.ejecutar();
 
-			log("Dualizer: " + dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", dualizer.getDualTime()) + " sec | BFSs: " + dualizer.getIniciosBFS() + " | Expl: " + dualizer.getExplorados() + " | ");
+			log("Dualizer: " + _dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", _dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec | BFSs: " + _dualizer.getIniciosBFS() + " | Expl: " + _dualizer.getExplorados() + " | ");
 
 			if( _eliminacionPrimal || _eliminacionDual )
-				eliminarPuntos(dualizer.getDualBindingConstraints());
+				eliminarPuntos(_dualizer.getDualBindingConstraints());
 
 			int anteriores = _points.size();
-			for(Point point: dualizer.getNuevos()) if( _points.contains(point) == false )
+			for(Point point: _dualizer.getNuevos()) if( _points.contains(point) == false )
 				_points.add(point);
 			
 			agregados = _points.size() > anteriores;
+			_BFSs += _dualizer.getIniciosBFS();
+			_explorados += _dualizer.getExplorados();
 
-			log("New pts: " + dualizer.getNuevos().size() + " | Total: " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec \r\n");
+			log("New pts: " + _dualizer.getNuevos().size() + " | Total: " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec \r\n");
 		}
+		
+		if( _resumen == true )
+			System.out.println("\r\nMaster | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | Obj: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + (iteracion-1) + " its | " + _relajacion.varPoints().size() + " pts | " + _relajacion.getNumVariables() + " pvars | " + _relajacion.getNumConstraints() + " pcons | BFSs: " + _BFSs + " | Expl: " + String.format("%.2f", _BFSs > 0 ? _explorados / (double)_BFSs : 0) + " prom | " + _eliminados + " rem \r\n");
 	}
 	
 	private void eliminarPuntos(Set<Point> dualBindingConstraints)
@@ -95,6 +108,8 @@ public class Master
 		int anterior = _points.size();
 		for(Point point: _nullIterations.keySet()) if( _nullIterations.get(point) > _umbralEliminacion )
 			_points.remove(point);
+		
+		_eliminados += anterior - _points.size();
 		
 		log("EP: " + (anterior - _points.size()) + " rem | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | ");
 	}

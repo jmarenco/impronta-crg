@@ -12,10 +12,10 @@ public class EntryPoint
 		Instancia.set(Instancia.Formato.French);
 		Instancia instancia = new Instancia("instancias/sqr.00.xml");
 
-//		general.ModeloCompleto modelo = new general.ModeloCompleto(instancia, false);
-//		Solucion completa = modelo.resolver();
-//		
-//		Viewer.show(instancia, completa);
+		general.ModeloCompleto modelo = new general.ModeloCompleto(instancia, false);
+		Solucion completa = modelo.resolver();
+		
+		Viewer.show(instancia, completa);
 
 		Goloso goloso = new Goloso(instancia);
 		Solucion golosa = goloso.resolver();

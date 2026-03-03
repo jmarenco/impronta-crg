@@ -36,10 +36,11 @@ public class Dual
 	private double _objValue;
 
 	private static double _infinity = Double.POSITIVE_INFINITY;
+	private static double _timeLimit = 3600;
 	private static boolean _mostrarSolucion = false;
 	private static boolean _exportarModelo = false;
 	private static boolean _verbose = false;
-	private static boolean _registrarBindings = true;
+	private static boolean _registrarBindings = false;
 
 	public Dual(Instancia instancia, Relajacion primal)
 	{
@@ -70,6 +71,7 @@ public class Dual
 	private void crearModelo() throws IloException
 	{
 		_cplex = new IloCplex();
+		_cplex.setParam(IloCplex.IntParam.TimeLimit, _timeLimit);
 		_solucion = null;
 		_start = System.currentTimeMillis();
 	}

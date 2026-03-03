@@ -9,13 +9,15 @@ import heuristicas.Discretizacion;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
-import interfaz.Viewer;
 
 public class ModeloCompleto
 {
 	private Instancia _instancia;
 	private boolean _entero = true;
-	private boolean _verbose = true;
+
+	private static boolean _verbose = true;
+	private static boolean _resumen = true;
+	private static double _timeLimit = 3600;
 	
 	public ModeloCompleto(Instancia instancia)
 	{
@@ -36,6 +38,7 @@ public class ModeloCompleto
 		try
 		{
 			IloCplex cplex = new IloCplex();
+			cplex.setParam(IloCplex.IntParam.TimeLimit, _timeLimit);
 			
 			log("Construyendo discretizacion");
 			Discretizacion discretizacion = new Discretizacion(_instancia);
@@ -50,7 +53,7 @@ public class ModeloCompleto
 				x.add(_entero ? cplex.boolVar() : cplex.numVar(0,1));
 			
 			log("Construyendo restricciones");
-			int k = 0;
+			int k = 0, constraints = 0;
 			for(Pad pad: pads)
 			{
 				for(Coordinate esquina: pad.getPerimetro().getCoordinates())
@@ -64,6 +67,7 @@ public class ModeloCompleto
 						lhs = cplex.sum(lhs, x.get(i));
 					
 					cplex.add(cplex.le(lhs, 1));
+					++constraints;
 				}
 				
 				++k;
@@ -90,12 +94,10 @@ public class ModeloCompleto
 			
 			for(Pad pad: ret.getPads())
 				log(" - " + pad.getCentro() + " = " + ret.getValor(pad));
-			
-			ArrayList<Point> centros = new ArrayList<Point>();
-			for(Pad pad: pads)
-				centros.add(pad.getCentro());
-			
-			Viewer.show(_instancia, ret, centros);
+
+			if( _resumen == true )
+				System.out.println("\r\nComplete | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " sec | Obj: " + String.format("%.5f", cplex.getObjValue()) + " | | " + discretizacion.asList().size() + " pts | " + x.size() + " pvars | " + constraints + " pcons | | | \r\n");
+
 			cplex.close();
 			log("");
 		}
