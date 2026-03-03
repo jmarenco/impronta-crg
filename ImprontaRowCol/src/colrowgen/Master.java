@@ -29,8 +29,8 @@ public class Master
 	private static double _timeLimit = 3600;
 	private static boolean _verbose = true;
 	private static boolean _resumen = true;
-	private static boolean _eliminacionPrimal = false;
-	private static boolean _eliminacionDual = false;
+	private static boolean _eliminacionPrimal = true;
+	private static boolean _eliminacionDual = true;
 	private static int _umbralEliminacion = 3;
 	
 	public Master(Instancia instancia, List<Point> iniciales)
@@ -135,5 +135,15 @@ public class Master
 		_eliminacionPrimal = primal;
 		_eliminacionDual = dual;
 		_umbralEliminacion = umbral;
+	}
+	
+	public static void setVerbose(boolean value)
+	{
+		_verbose = value;
+	}
+	
+	public static void setTimeLimit(double value)
+	{
+		_timeLimit = value;
 	}
 }

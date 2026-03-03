@@ -57,7 +57,6 @@ public class Solucion
 		return getPads().stream().mapToDouble(p -> p.getValorizacion()).sum();
 	}
 	
-	
 	// Centros de los pads de la solución
 	public List<Point> getCentros()
 	{

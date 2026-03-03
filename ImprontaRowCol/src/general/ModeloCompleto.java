@@ -114,4 +114,14 @@ public class ModeloCompleto
 		if( _verbose == true )
 			System.out.println(texto);
 	}
+	
+	public static void setVerbose(boolean value)
+	{
+		_verbose = value;
+	}
+	
+	public static void setTimeLimit(double value)
+	{
+		_timeLimit = value;
+	}
 }

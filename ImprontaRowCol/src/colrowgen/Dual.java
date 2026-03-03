@@ -196,4 +196,9 @@ public class Dual
 	{
 		_registrarBindings = valor;
 	}
+	
+	public static void setVerbose(boolean value)
+	{
+		_verbose = value;
+	}
 }

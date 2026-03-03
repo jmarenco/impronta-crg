@@ -198,4 +198,9 @@ public class Relajacion
 	{
 		return _constr.size();
 	}
+	
+	public static void setVerbose(boolean value)
+	{
+		_verbose = value;
+	}
 }

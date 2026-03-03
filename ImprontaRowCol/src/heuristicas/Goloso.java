@@ -30,6 +30,7 @@ public class Goloso
 	private static int _factorPasoHorizontal = 20;
 	private static int _factorPasoVertical = 20;
 	private static boolean _verbose = false;
+	private static boolean _resumen = true;
 
 	// Constructor
 	public Goloso(Instancia instancia)
@@ -42,11 +43,17 @@ public class Goloso
 	// Resuelve la instancia
 	public Solucion resolver()
 	{
+		long start = System.currentTimeMillis();
+		
 		construirDiscretizacion();
 		generarPads();
 		construirGrafo();
+		Solucion ret = construirSolucion();
+		
+		if( _resumen == true )
+			System.out.println("Goloso | Obj: " + String.format("%.5f", ret.valorizacion()) + " | Area: " + String.format("%.5f", ret.areaCubierta()) + " | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec");
 
-		return construirSolucion();
+		return ret;
 	}
 	
 	// Construye una solución en forma golosa y semi-aleatoria
@@ -195,8 +202,8 @@ public class Goloso
 			
 			_grafo.agregarClique(vertices);
 			
-//			if( (++k) % (_discretizacion.getPuntos().getNumPoints() / 20) == 0 )
-//				log("  -> Grafo " + Math.round(k * 100.0 / _discretizacion.getPuntos().getNumPoints()) + "% construido" );
+			if( _discretizacion.getPuntos().getNumPoints() / 20 > 0 && (++k) % (_discretizacion.getPuntos().getNumPoints() / 20) == 0 )
+				log("  -> Grafo " + Math.round(k * 100.0 / _discretizacion.getPuntos().getNumPoints()) + "% construido" );
 		}
 
 		log("");
@@ -219,5 +226,25 @@ public class Goloso
 	public static void setVerbose(boolean valor)
 	{
 		_verbose = valor;
+	}
+	
+	public static void setSemilla(int valor)
+	{
+		_semilla = valor;
+	}
+	
+	public static void setIntentos(int valor)
+	{
+		_intentos = valor;
+	}
+	
+	public static void setFactorPasoHorizontal(int valor)
+	{
+		_factorPasoHorizontal = valor;
+	}
+	
+	public static void setFactorPasoVertical(int valor)
+	{
+		_factorPasoVertical = valor;
 	}
 }

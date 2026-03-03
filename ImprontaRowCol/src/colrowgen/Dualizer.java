@@ -119,4 +119,9 @@ public class Dualizer
 	{
 		return _explorados;
 	}
+	
+	public static void setVerbose(boolean value)
+	{
+		_verbose = value;
+	}
 }
