@@ -154,13 +154,21 @@ public class Dual
 			if( _registrarBindings == true )
 			{
 				_bindingConstraints = new HashSet<Point>();
-				for(Pad pad: _constr.keySet()) if( Math.abs(_cplex.getSlack(_constr.get(pad))) <= 0.00001 )
-					_bindingConstraints.add(pad.getCentro());
-//				else
-//					System.out.println(_cplex.getSlack(_constr.get(pad)) + " | " + _cplex.getValue(_constr.get(pad).getExpr()) + " <- " + _constr.get(pad));
+				
+//				for(Pad pad: _constr.keySet()) if( Math.abs(_cplex.getSlack(_constr.get(pad))) <= 0.00001 )
+//					_bindingConstraints.add(pad.getCentro());
+				
+				for(Pad pad: _constr.keySet())
+				{
+					boolean algunaPositiva = false;
 
-//				for(Pad pad: _constr.keySet())
-//					System.out.println(_cplex.getSlack(_constr.get(pad)) + " | " + _cplex.getValue(_constr.get(pad).getExpr()) + " <- " + _constr.get(pad));
+					for(Coordinate esquina: pad.getPerimetro().getCoordinates())
+					for(Coordinate coord: _instancia.snappedNeighbors(esquina)) if( _vars.containsKey(_factory.createPoint(coord)) && _cplex.getValue(_vars.get(_factory.createPoint(coord))) > 0.0001 )
+						algunaPositiva = true;
+					
+					if( algunaPositiva == false )
+						_bindingConstraints.add(pad.getCentro());
+				}
 			}
 		}
 		
