@@ -2,6 +2,8 @@ package general;
 
 import java.util.Objects;
 
+import com.vividsolutions.jts.geom.Coordinate;
+
 public class Punto
 {
 	private double _x;
@@ -41,5 +43,15 @@ public class Punto
 		Punto other = (Punto) obj;
 		return Double.doubleToLongBits(_x) == Double.doubleToLongBits(other._x)
 				&& Double.doubleToLongBits(_y) == Double.doubleToLongBits(other._y);
+	}
+	
+	public static Punto fromCoordinate(Coordinate coordinate)
+	{
+		return new Punto(coordinate.x, coordinate.y);
+	}
+	
+	public Coordinate asCoordinate()
+	{
+		return new Coordinate(_x, _y);
 	}
 }

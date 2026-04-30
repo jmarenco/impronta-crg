@@ -4,21 +4,19 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Point;
-
 import general.Instancia;
+import general.Punto;
 import general.Semilla;
 
 public class Dualizer 
 {
 	private Instancia _instancia;
 	private Relajacion _relajacion;
-	private ArrayList<Point> _nuevos;
+	private ArrayList<Punto> _nuevos;
 	private PadCache _pads;
 	
-	private Map<Point, Double> _dualSolution;
-	private Set<Point> _dualBindingConstraints;
+	private Map<Punto, Double> _dualSolution;
+	private Set<Punto> _dualBindingConstraints;
 	
 	private long _start;
 	private double _time;
@@ -51,7 +49,7 @@ public class Dualizer
 		_dualSolution = dual.resolver();
 		_dualTime = dual.getTime();
 		_dualBindingConstraints = dual.getBindingConstraints();
-		_nuevos = new ArrayList<Point>();
+		_nuevos = new ArrayList<Punto>();
 
 		log("  Solucion: " + dual.getObjValue() + ", target primal: " + _relajacion.getObjValue());
 		
@@ -59,38 +57,38 @@ public class Dualizer
 		{
 			log("Semilla " + semilla.getLargo() + " x " + semilla.getAncho());
 			
-			SimpleBFS multiBFS = new SimpleBFS(_instancia, _dualSolution, semilla, _pads);
-			multiBFS.ejecutar();
+			SimpleBFS bfs = new SimpleBFS(_instancia, _dualSolution, semilla, _pads);
+			bfs.ejecutar();
 			
-			_nuevos.addAll(multiBFS.getNuevos());
-			_iniciados += multiBFS.getIniciados();
-			_explorados += multiBFS.getExplorados();
+			_nuevos.addAll(bfs.getNuevos());
+			_iniciados += bfs.getIniciados();
+			_explorados += bfs.getExplorados();
 		}
 
 		_time = (System.currentTimeMillis() - _start) / 1000.0;
 	}
 	
-	public Map<Point, Double> getDualSolution()
+	public Map<Punto, Double> getDualSolution()
 	{
 		return _dualSolution;
 	}
 	
-	public Set<Point> getDualBindingConstraints()
+	public Set<Punto> getDualBindingConstraints()
 	{
 		return _dualBindingConstraints;
 	}
 	
-	public ArrayList<Point> getNuevos()
+	public ArrayList<Punto> getNuevos()
 	{
 		return _nuevos;
 	}
 
 	private void mostrarPuntos(Relajacion relajacion)
 	{
-		for(Point point: relajacion.varPoints())
+		for(Punto point: relajacion.varPoints())
 			System.out.println("Relajacion VarPoint " + point);
 
-		for(Coordinate coordinate: relajacion.constraintPoints())
+		for(Punto coordinate: relajacion.constraintPoints())
 			System.out.println("Relajacion ConstraintPoint " + coordinate);
 	}
 	

@@ -1,6 +1,7 @@
 package heuristicas;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -9,6 +10,7 @@ import com.vividsolutions.jts.geom.Point;
 
 import general.Instancia;
 import general.Pad;
+import general.Punto;
 import general.Semilla;
 
 // Representa una discretización de la región
@@ -27,7 +29,7 @@ public class Discretizacion
 	private double _radio;
 	
 	// Puntos de la discretización
-	private MultiPoint _puntos;
+	private ArrayList<Punto> _puntos;
 	
 	// Genera la discretización
 	public Discretizacion(Instancia instancia)
@@ -55,7 +57,11 @@ public class Discretizacion
 		if( puntos.getClass().getName().equals( rotados.getClass().getName()) == false )
 			throw new RuntimeException("Error! La intersección de la región con un MultiPoint no retornó un MultiPoint. Se recibió: " + puntos.getClass().getName() );
 		
-		_puntos = (MultiPoint)puntos;
+		_puntos = new ArrayList<Punto>();
+		
+		for(int i=0; i<puntos.getNumGeometries(); ++i)
+		for(var coord: puntos.getGeometryN(i).getCoordinates())
+			_puntos.add(Punto.fromCoordinate(coord));
 	}
 	
 	// Calcula la distancia del centroide al punto más lejano
@@ -86,19 +92,14 @@ public class Discretizacion
 	}
 	
 	// Obtiene los puntos
-	public MultiPoint getPuntos()
+	public List<Punto> getPuntos()
 	{
 		return _puntos;
 	}
 	
-	public ArrayList<Point> asList()
+	public int size()
 	{
-		ArrayList<Point> ret = new ArrayList<Point>();
-		
-		for(Coordinate c: _puntos.getCoordinates())
-			ret.add(_instancia.getFactory().createPoint(c));
-		
-		return ret;
+		return _puntos.size();
 	}
 	
 	// Construye pads centrados en los puntos de la discretización
@@ -107,9 +108,9 @@ public class Discretizacion
 		ArrayList<Pad> ret = new ArrayList<Pad>();
 	
 		for(Semilla s: _instancia.getSemillas())
-		for(Coordinate c: _puntos.getCoordinates())
+		for(Punto p: _puntos)
 		{
-			Pad pad = new Pad(_instancia, s, c);
+			Pad pad = new Pad(_instancia, s, p);
 			if( _yacimiento.contains( pad.getPerimetro() ) && _yacimiento.contains( pad.getLocacion() ) && pad.factible() )
 				ret.add(pad);
 		}

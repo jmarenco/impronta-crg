@@ -1,44 +1,61 @@
 package general;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 public class Pad
 {
 	// Datos privados
 	private Instancia _instancia;
-	private OGIP _ogip;
 	private Semilla _semilla;
-	private Coordinate _centroPad;
-	private Coordinate _centroLocacion;
+	private Punto _centroPad;
+	private Punto _centroLocacion;
+	
+	// Datos calculados
+	private ArrayList<Punto> _vertices; // Del perimetro
+	private int _izquierda;
+	private int _derecha;
+	private int _arriba;
+	private int _abajo;
 	
 	// Extremos
 	private Polygon _perimetro;
 	private Polygon _locacion;
 	
 	// Constructor
-	public Pad(Instancia instancia, Semilla semilla, Coordinate centro)
+	public Pad(Instancia instancia, Semilla semilla, Punto centro)
 	{
 		_instancia = instancia;
-		_ogip = _instancia.getOGIP();
 		_semilla = semilla;
 		_centroPad = centro;
+
+		_izquierda = (int)(_centroPad.getx() - _semilla.getLargo()/2);
+		_derecha = (int)(_centroPad.getx() + _semilla.getLargo()/2);
+		_arriba = (int)(_centroPad.gety() - _semilla.getAncho()/2);
+		_abajo = (int)(_centroPad.gety() + _semilla.getAncho()/2);
+		
+		_vertices = new ArrayList<Punto>();
+		_vertices.add(new Punto(_izquierda, _arriba));
+		_vertices.add(new Punto(_izquierda, _abajo));
+		_vertices.add(new Punto(_derecha, _abajo));
+		_vertices.add(new Punto(_derecha, _arriba));
 		
 		// Construye los puntos del perímetro
 		Coordinate[] perimetro = new Coordinate[5];
-		perimetro[0] = new Coordinate((int)(_centroPad.x - _semilla.getLargo()/2), (int)(_centroPad.y - _semilla.getAncho()/2));
-		perimetro[1] = new Coordinate((int)(_centroPad.x - _semilla.getLargo()/2), (int)(_centroPad.y + _semilla.getAncho()/2));
-		perimetro[2] = new Coordinate((int)(_centroPad.x + _semilla.getLargo()/2), (int)(_centroPad.y + _semilla.getAncho()/2));
-		perimetro[3] = new Coordinate((int)(_centroPad.x + _semilla.getLargo()/2), (int)(_centroPad.y - _semilla.getAncho()/2));
-		perimetro[4] = new Coordinate((int)(_centroPad.x - _semilla.getLargo()/2), (int)(_centroPad.y - _semilla.getAncho()/2));
+		perimetro[0] = new Coordinate(_izquierda, _arriba);
+		perimetro[1] = new Coordinate(_izquierda, _abajo);
+		perimetro[2] = new Coordinate(_derecha, _abajo);
+		perimetro[3] = new Coordinate(_derecha, _arriba);
+		perimetro[4] = new Coordinate(_izquierda, _arriba);
 		
 		_perimetro = _instancia.getFactory().createPolygon(perimetro);
 		
 		// Candidatos a centros de la locación
-		Coordinate centroLocacion = new Coordinate((int)(_centroPad.x - _semilla.getLargo()/2 + _semilla.getOffsetHorizontalLocacion()), (int)(_centroPad.y - _semilla.getAncho()/2 + _semilla.getOffsetVerticalLocacion()));
+		Coordinate centroLocacion = new Coordinate((int)(_centroPad.getx() - _semilla.getLargo()/2 + _semilla.getOffsetHorizontalLocacion()), (int)(_centroPad.gety() - _semilla.getAncho()/2 + _semilla.getOffsetVerticalLocacion()));
 
 		int tol = (int)semilla.getToleranciaLocacion();
 		double raiz2 = Math.sqrt(2);
@@ -66,11 +83,29 @@ public class Pad
 			locacion[4] = new Coordinate((int)(c.x - _semilla.getLargoLocacion()/2), (int)(c.y - _semilla.getAnchoLocacion()/2));
 		
 			_locacion = _instancia.getFactory().createPolygon(locacion);
-			_centroLocacion = c;
+			_centroLocacion = new Punto(c.x, c.y);
 			
 			if( factible() == true )
 				break;
 		}
+	}
+	
+	// Getters de los datos
+	public Punto getCentro()
+	{
+		return _centroPad;
+	}
+	public Punto getCentroLocacion()
+	{
+		return _centroLocacion;
+	}
+	public Semilla getSemilla()
+	{
+		return _semilla;
+	}
+	public List<Punto> getVertices()
+	{
+		return _vertices;
 	}
 	
 	// Getters de las geometrías
@@ -82,40 +117,17 @@ public class Pad
 	{
 		return _locacion;
 	}
-	public Point getCentro()
-	{
-		return _instancia.getFactory().createPoint(_centroPad);
-	}
-	public Point getCentroLocacion()
-	{
-		return _instancia.getFactory().createPoint(_centroLocacion);
-	}
-	public Semilla getSemilla()
-	{
-		return _semilla;
-	}
 	
-	// Determina si el pad contiene al punto
-	public boolean contiene(Point punto)
+	// Determina si el pad contiene (estrictamente) al punto
+	public boolean contiene(Punto punto)
 	{
-		return _perimetro.contains(punto);
-	}
-	public boolean contiene(Coordinate coordinate)
-	{
-		return contiene(_instancia.getFactory().createPoint(coordinate));
-	}
-	
-	// Determina si los pads se intersecan
-	public boolean interseca(Pad otro)
-	{
-		return _perimetro.intersects(otro._perimetro);
+		return _izquierda + 0.01 <= punto.getx() && punto.getx() <= _derecha - 0.01 && _arriba + 0.01 <= punto.gety() && punto.gety() <= _abajo - 0.01;
 	}
 	
 	// Área del perímetro
 	public double getArea()
 	{
 		return _semilla.getLargo() * _semilla.getAncho() / 1e6;
-//		return _perimetro.getArea() / 1e6;
 	}
 	
 	// Determina si la locación se interseca con el área restringida
@@ -142,17 +154,47 @@ public class Pad
 		return true;		
 	}
 	
+	// Interseccion de pads
+	public List<Punto> verticesInterseccion(Pad otro)
+	{
+		ArrayList<Punto> ret = new ArrayList<Punto>();
+		for(Coordinate coord: this.getPerimetro().intersection(otro.getPerimetro()).getCoordinates())
+			ret.add(Punto.fromCoordinate(coord));
+		
+		return ret;
+	}
+	
 	// Valorizacion del pad
 	public double getValorizacion()
 	{
 		double coeficiente = _semilla.getCoeficiente() > 0 ? _semilla.getCoeficiente() : 1.0;
-		double valor = _ogip == null ? getArea() : _ogip.valor(_perimetro);
-
-		return valor / coeficiente;
+		return getArea() / coeficiente;
 	}
 	
 	@Override public String toString()
 	{
 		return _perimetro.toString();
 	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(_centroLocacion, _centroPad, _semilla);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Pad other = (Pad) obj;
+		return Objects.equals(_centroLocacion, other._centroLocacion) && Objects.equals(_centroPad, other._centroPad)
+				&& Objects.equals(_semilla, other._semilla);
+	}
+	
+	
 }

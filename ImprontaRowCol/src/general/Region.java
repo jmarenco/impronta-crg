@@ -2,6 +2,7 @@ package general;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -16,6 +17,7 @@ public class Region
 {
 	private ArrayList<Polygon> _envolventes;
 	private ArrayList<Polygon> _agujeros;
+	private ArrayList<Punto> _vertices; // Cache
 	
 	public Region()
 	{
@@ -101,29 +103,39 @@ public class Region
 	}
 
 	// Determina si el punto está en el interior de la región
-	public boolean incluye(Point nuevo)
+	public boolean incluye(Punto punto)
 	{
+		Point nuevo = getFactory().createPoint(punto.asCoordinate());
 		return _envolventes.stream().anyMatch(e -> e.contains(nuevo)) && _agujeros.stream().allMatch(a -> !a.contains(nuevo));
 	}
 
 	// Determina si el punto está en el interior o en el borde de la región
-	public boolean cubre(Point nuevo)
+	public boolean cubre(Punto punto)
 	{
+		Point nuevo = getFactory().createPoint(punto.asCoordinate());
 		return _envolventes.stream().anyMatch(e -> e.covers(nuevo)) && _agujeros.stream().allMatch(a -> !a.contains(nuevo));
 	}
 
-	public Set<Coordinate> getCoordinates()
+	// Vertices de la region
+	public List<Punto> getVertices()
 	{
-		Set<Coordinate> ret = new HashSet<Coordinate>();
-		
-		for(Polygon polygon: _envolventes)
-		for(Coordinate c: polygon.getCoordinates())
-			ret.add(c);
-		
-		for(Polygon polygon: _agujeros)
-		for(Coordinate c: polygon.getCoordinates())
-			ret.add(c);
+		if( _vertices == null )
+		{
+			Set<Coordinate> set = new HashSet<Coordinate>();
+			
+			for(Polygon polygon: _envolventes)
+			for(Coordinate c: polygon.getCoordinates())
+				set.add(c);
+			
+			for(Polygon polygon: _agujeros)
+			for(Coordinate c: polygon.getCoordinates())
+				set.add(c);
+			
+			_vertices = new ArrayList<Punto>();
+			for(Coordinate c: set)
+				_vertices.add(Punto.fromCoordinate(c));
+		}
 
-		return ret;
+		return _vertices;
 	}
 }

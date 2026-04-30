@@ -2,6 +2,7 @@ package colrowgen;
 
 import general.Instancia;
 import general.Pad;
+import general.Punto;
 import general.Semilla;
 import general.Solucion;
 import ilog.concert.IloException;
@@ -15,18 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Point;
-
 public class Relajacion
 {
 	private Instancia _instancia;
-	private List<Point> _puntos;
+	private List<Punto> _puntos;
 	private PadCache _pads;
 	
 	private IloCplex _cplex;
 	private Map<IloNumVar, Pad> _vars;
-	private Map<Coordinate, IloRange> _constr;
+	private Map<Punto, IloRange> _constr;
 	private Solucion _solucion;
 	private double _objValue;
 	private long _start;
@@ -39,7 +37,7 @@ public class Relajacion
 	private static boolean _entero = false;
 	private static boolean _verbose = false;
 	
-	public Relajacion(Instancia instancia, List<Point> puntos, PadCache padCache)
+	public Relajacion(Instancia instancia, List<Punto> puntos, PadCache padCache)
 	{
 		_instancia = instancia;
 		_puntos = puntos;
@@ -77,7 +75,7 @@ public class Relajacion
 		_vars = new HashMap<IloNumVar, Pad>();
 		
 		int i = 1;
-		for(Point point: _puntos)
+		for(Punto point: _puntos)
 		for(Semilla semilla: _instancia.getSemillas())
 		{
 			_pads.add(point, semilla); // No se agrega si el pad no es factible
@@ -104,11 +102,11 @@ public class Relajacion
 
 	private void crearRestricciones() throws IloException
 	{
-		_constr = new HashMap<Coordinate, IloRange>();
+		_constr = new HashMap<Punto, IloRange>();
 		
 		for(IloNumVar var: _vars.keySet())
-		for(Coordinate esquina: _vars.get(var).getPerimetro().getCoordinates())
-		for(Coordinate coord: _instancia.snappedNeighbors(esquina)) if( _vars.get(var).contiene(coord) && !_constr.containsKey(coord) )
+		for(Punto esquina: _vars.get(var).getVertices())
+		for(Punto coord: _instancia.snappedNeighbors(esquina)) if( _vars.get(var).contiene(coord) && !_constr.containsKey(coord) )
 		{
 			IloNumExpr lhs = _cplex.linearNumExpr();
 
@@ -154,12 +152,12 @@ public class Relajacion
 		_cplex.end();
 	}
 	
-	public List<Point> varPoints()
+	public List<Punto> varPoints()
 	{
 		return _puntos;
 	}
 	
-	public Set<Coordinate> constraintPoints()
+	public Set<Punto> constraintPoints()
 	{
 		return _constr.keySet();
 	}

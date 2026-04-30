@@ -5,11 +5,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Point;
-
 import general.Instancia;
 import general.Pad;
+import general.Punto;
 import general.Solucion;
 import heuristicas.Grafo.Clique;
 import interfaz.EntryPoint;
@@ -52,7 +50,7 @@ public class Goloso
 		Solucion ret = construirSolucion();
 		
 		if( _resumen == true )
-			System.out.println("Goloso | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | Obj: " + String.format("%.5f", ret.valorizacion()) + " | Area: " + String.format("%.5f", ret.areaCubierta()) + " | " + _discretizacion.asList().size() + " pts | | | | | | " + EntryPoint.args() + "\r\n");
+			System.out.println("Goloso | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | Obj: " + String.format("%.5f", ret.valorizacion()) + " | Area: " + String.format("%.5f", ret.areaCubierta()) + " | " + _discretizacion.size() + " pts | | | | | | " + EntryPoint.args() + "\r\n");
 
 		return ret;
 	}
@@ -171,7 +169,7 @@ public class Goloso
 
 		_discretizacion = new Discretizacion(_instancia, _pasoHorizontal, _pasoVertical);
 
-		log("  -> " + _discretizacion.getPuntos().getCoordinates().length + " puntos generados \r\n");
+		log("  -> " + _discretizacion.size() + " puntos generados \r\n");
 	}
 
 	// Genera todos los pads factibles
@@ -193,9 +191,8 @@ public class Goloso
 			_grafo.setPeso(i, _pads.get(i).getValorizacion());
 		
 		int k = 0;
-		for(Coordinate c: _discretizacion.getPuntos().getCoordinates())
+		for(Punto punto: _discretizacion.getPuntos())
 		{
-			Point punto = _instancia.getFactory().createPoint(c);
 			HashSet<Integer> vertices = new HashSet<Integer>();
 			
 			for(int i=0; i<_pads.size(); ++i) if( _pads.get(i).contiene(punto) )
@@ -203,8 +200,8 @@ public class Goloso
 			
 			_grafo.agregarClique(vertices);
 			
-			if( _discretizacion.getPuntos().getNumPoints() / 20 > 0 && (++k) % (_discretizacion.getPuntos().getNumPoints() / 20) == 0 )
-				log("  -> Grafo " + Math.round(k * 100.0 / _discretizacion.getPuntos().getNumPoints()) + "% construido" );
+			if( _discretizacion.size() / 20 > 0 && (++k) % (_discretizacion.size() / 20) == 0 )
+				log("  -> Grafo " + Math.round(k * 100.0 / _discretizacion.size()) + "% construido" );
 		}
 
 		log("");

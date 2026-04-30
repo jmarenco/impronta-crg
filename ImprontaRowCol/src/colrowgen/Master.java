@@ -6,17 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.vividsolutions.jts.geom.Point;
-
 import general.Instancia;
+import general.Punto;
 import general.Solucion;
 import interfaz.EntryPoint;
 
 public class Master
 {
 	private Instancia _instancia;
-	private ArrayList<Point> _points;
-	private Map<Point, Integer> _nullIterations;
+	private ArrayList<Punto> _points;
+	private Map<Punto, Integer> _nullIterations;
 	private PadCache _pads;
 
 	private Relajacion _relajacion;
@@ -34,14 +33,14 @@ public class Master
 	private static boolean _eliminacionDual = true;
 	private static int _umbralEliminacion = 3;
 	
-	public Master(Instancia instancia, List<Point> iniciales)
+	public Master(Instancia instancia, List<Punto> iniciales)
 	{
 		_instancia = instancia;
-		_points = new ArrayList<Point>(iniciales);
+		_points = new ArrayList<Punto>(iniciales);
 		_pads = new PadCache(instancia);
 		
 		if( _eliminacionPrimal || _eliminacionDual )
-			_nullIterations = new HashMap<Point, Integer>();
+			_nullIterations = new HashMap<Punto, Integer>();
 
 		if( _eliminacionDual )
 			Dual.setRegistrarBindings(true);
@@ -71,7 +70,7 @@ public class Master
 				eliminarPuntos(_dualizer.getDualBindingConstraints());
 
 			int anteriores = _points.size();
-			for(Point point: _dualizer.getNuevos()) if( _points.contains(point) == false )
+			for(Punto point: _dualizer.getNuevos()) if( _points.contains(point) == false )
 				_points.add(point);
 			
 			agregados = _points.size() > anteriores;
@@ -85,29 +84,29 @@ public class Master
 			System.out.println("\r\nMaster | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | Obj: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + (iteracion-1) + " its | " + _relajacion.varPoints().size() + " pts | " + _relajacion.getNumVariables() + " pvars | " + _relajacion.getNumConstraints() + " pcons | BFSs: " + _BFSs + " | Expl: " + String.format("%.2f", _BFSs > 0 ? _explorados / (double)_BFSs : 0) + " prom | " + _eliminados + " rem | " + EntryPoint.args() + "\r\n");
 	}
 	
-	private void eliminarPuntos(Set<Point> dualBindingConstraints)
+	private void eliminarPuntos(Set<Punto> dualBindingConstraints)
 	{
 		long start = System.currentTimeMillis();
 		
 		// Actualiza las iteraciones en cero
-		for(Point point: _points)
+		for(Punto point: _points)
 			_nullIterations.put(point, _nullIterations.containsKey(point) ? _nullIterations.get(point) + 1 : 1);
 
 		if( _eliminacionPrimal == true )
 		{
-			for(Point point: _solucion.getCentros())
+			for(Punto point: _solucion.getCentros())
 				_nullIterations.put(point, 0);
 		}
 
 		if( _eliminacionDual == true )
 		{
-			for(Point point: dualBindingConstraints)
+			for(Punto point: dualBindingConstraints)
 				_nullIterations.put(point, 0);
 		}
 		
 		// Elimina los puntos con varias iteraciones en cero
 		int anterior = _points.size();
-		for(Point point: _nullIterations.keySet()) if( _nullIterations.get(point) > _umbralEliminacion )
+		for(Punto point: _nullIterations.keySet()) if( _nullIterations.get(point) > _umbralEliminacion )
 			_points.remove(point);
 		
 		_eliminados += anterior - _points.size();
@@ -120,7 +119,7 @@ public class Master
 		return _solucion;
 	}
 	
-	public ArrayList<Point> getPoints()
+	public ArrayList<Punto> getPoints()
 	{
 		return _points;
 	}

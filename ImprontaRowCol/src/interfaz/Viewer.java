@@ -8,12 +8,12 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import general.Instancia;
-import general.OGIP;
 import general.Restriccion;
 import general.Semilla;
 import general.Solucion;
 import general.Pad;
 import general.Region;
+import general.Punto;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -32,8 +32,7 @@ public class Viewer extends JPanel
 
 	private List<Geometry> geometries = new ArrayList<Geometry>();
 	private List<Color> colors = new ArrayList<Color>();
-	private OGIP ogip = null;
-	private Map<Point, Double> dual = null;
+	private Map<Punto, Double> dual = null;
 	private Instancia instancia = null; // Solo si hay una solución dual
   
     private int _minx = Integer.MAX_VALUE;
@@ -61,12 +60,7 @@ public class Viewer extends JPanel
         }
     }
     
-    public void addOGIP(OGIP obj)
-    {
-    	ogip = obj;
-    }
-    
-    public void addDual(Instancia instance, Map<Point, Double> dualSolution)
+    public void addDual(Instancia instance, Map<Punto, Double> dualSolution)
     {
     	instancia = instance;
     	dual = dualSolution;
@@ -101,9 +95,6 @@ public class Viewer extends JPanel
             		drawPoint((Point)geom, g2d);
             }
         }
-        
-        if( ogip != null )
-        	drawOGIP(g2d);
     }
 
     private void drawPolygon(Polygon polygon, Graphics2D g2d)
@@ -137,30 +128,12 @@ public class Viewer extends JPanel
    		g2d.fill(circle);
     }
     
-    private void drawOGIP(Graphics2D g2d)
-    {
-    	double min = ogip.minMedicion();
-    	double max = ogip.maxMedicion();
-    	
-    	if( max <= min )
-    		return;
-    	
-    	for(Coordinate c: ogip.getPuntos())
-    	{
-    		int nivel = 255 - (int)((ogip.getValor(c) - min) * 255 / (max - min));
-    		g2d.setColor(new Color(nivel, nivel, nivel));
-    		
-    		Ellipse2D.Double circle = new Ellipse2D.Double(convx(c), convy(c), 3, 3);
-    		g2d.fill(circle);
-    	}
-    }
-    
     private void drawDualCovering(Graphics2D g2d)
     {
     	for(Semilla semilla: instancia.getSemillas())
-    	for(Point punto: dual.keySet())
+    	for(Punto punto: dual.keySet())
 		{
-   			Pad pad = new Pad(instancia, semilla, punto.getCoordinate());
+   			Pad pad = new Pad(instancia, semilla, punto);
 			Coordinate[] coords = pad.getPerimetro().getCoordinates();
 			
 			int[] x = new int[coords.length];
@@ -219,13 +192,13 @@ public class Viewer extends JPanel
     	show(instancia, solucion, null);
     }
     
-    public static void show(Instancia instancia, Solucion solucion, ArrayList<Point> puntos)
+    public static void show(Instancia instancia, Solucion solucion, ArrayList<Punto> puntos)
     {
         Viewer panel = new Viewer();
         addRegion(panel, instancia);
         addSolucion(panel, solucion);
         addRestricciones(panel, instancia);
-        addPuntos(panel, puntos);
+        addPuntos(panel, instancia, puntos);
 
 //        addRegion(panel, instancia.getRegionInterna(instancia.getSemillas().get(0)), Color.BLUE);
 //        
@@ -235,7 +208,7 @@ public class Viewer extends JPanel
         showFrame(instancia, panel, "Solución");
     }
 
-    public static Viewer show(Instancia instancia, Map<Point, Double> dual, Semilla semilla)
+    public static Viewer show(Instancia instancia, Map<Punto, Double> dual, Semilla semilla)
     {
         Viewer panel = new Viewer();
         panel.addDual(instancia, dual);
@@ -265,8 +238,6 @@ public class Viewer extends JPanel
     {
         for(Restriccion restriccion: instancia.getRestricciones())
         	panel.addGeometry(restriccion.getPolygon());
-
-       	panel.addOGIP(instancia.getOGIP());
     }
 
 	private static void addSolucion(Viewer panel, Solucion solucion)
@@ -278,16 +249,16 @@ public class Viewer extends JPanel
 
 			panel.addGeometry(pad.getPerimetro(), color);
 		    panel.addGeometry(pad.getLocacion(), color);
-		    panel.addGeometry(pad.getCentro(), color);
+		    panel.addGeometry(solucion.getInstancia().getFactory().createPoint(pad.getCentro().asCoordinate()), color);
 		}
 	}
 	
-	private static void addPuntos(Viewer panel, ArrayList<Point> puntos)
+	private static void addPuntos(Viewer panel, Instancia instancia, ArrayList<Punto> puntos)
 	{
 		if( puntos != null )
         {
-        	for(Point point: puntos)
-        		panel.addGeometry(point, Color.RED);
+        	for(Punto point: puntos)
+        		panel.addGeometry(instancia.getFactory().createPoint(point.asCoordinate()), Color.RED);
         }
 	}
 

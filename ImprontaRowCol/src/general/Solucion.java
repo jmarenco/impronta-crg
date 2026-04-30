@@ -6,8 +6,6 @@ import java.util.Set;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-import com.vividsolutions.jts.geom.Point;
-
 // Representa una solución
 public class Solucion
 {
@@ -58,8 +56,13 @@ public class Solucion
 	}
 	
 	// Centros de los pads de la solución
-	public List<Point> getCentros()
+	public List<Punto> getCentros()
 	{
 		return _pads.keySet().stream().map(p -> p.getCentro()).collect(Collectors.toList());
+	}
+	
+	public Instancia getInstancia()
+	{
+		return _instancia;
 	}
 }

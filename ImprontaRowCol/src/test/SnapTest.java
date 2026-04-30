@@ -8,6 +8,7 @@ import org.junit.Test;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import general.Instancia;
+import general.Punto;
 
 public class SnapTest
 {
@@ -35,32 +36,32 @@ public class SnapTest
 	@Test
 	public void multiSnapTest()
 	{
-		Coordinate c1 = new Coordinate(10,8);
-		Coordinate c2 = new Coordinate(20,8);
-		Coordinate c3 = new Coordinate(10,16);
-		Coordinate c4 = new Coordinate(10,16);
-		Coordinate[] expected = new Coordinate[] { c1, c2, c3, c4 };
+		Punto c1 = new Punto(10,8);
+		Punto c2 = new Punto(20,8);
+		Punto c3 = new Punto(10,16);
+		Punto c4 = new Punto(10,16);
+		Punto[] expected = new Punto[] { c1, c2, c3, c4 };
 
-		Asserts.equal(_instancia.multisnap(new Coordinate(15,14)), expected);
+		Asserts.equal(_instancia.multisnap(new Punto(15,14)), expected);
 	}
 
 	@Test
 	public void snappedNeighborsTest()
 	{
-		Coordinate c1 = new Coordinate(0,8);
-		Coordinate c2 = new Coordinate(0,16);
-		Coordinate c3 = new Coordinate(0,24);
-		Coordinate c4 = new Coordinate(10,8);
-		Coordinate c5 = new Coordinate(10,24);
-		Coordinate c6 = new Coordinate(20,8);
-		Coordinate c7 = new Coordinate(20,16);
-		Coordinate c8 = new Coordinate(20,24);
-		Coordinate[] expected = new Coordinate[] { c1, c2, c3, c4, c5, c6, c7, c8 };
+		Punto c1 = new Punto(0,8);
+		Punto c2 = new Punto(0,16);
+		Punto c3 = new Punto(0,24);
+		Punto c4 = new Punto(10,8);
+		Punto c5 = new Punto(10,24);
+		Punto c6 = new Punto(20,8);
+		Punto c7 = new Punto(20,16);
+		Punto c8 = new Punto(20,24);
+		Punto[] expected = new Punto[] { c1, c2, c3, c4, c5, c6, c7, c8 };
 
-		Asserts.equal(_instancia.snappedNeighbors(new Coordinate(10,16)), expected);
-		Asserts.equal(_instancia.snappedNeighbors(new Coordinate(9,15)), expected);
-		Asserts.equal(_instancia.snappedNeighbors(new Coordinate(9,17)), expected);
-		Asserts.equal(_instancia.snappedNeighbors(new Coordinate(11,15)), expected);
-		Asserts.equal(_instancia.snappedNeighbors(new Coordinate(11,17)), expected);
+		Asserts.equal(_instancia.snappedNeighbors(new Punto(10,16)), expected);
+		Asserts.equal(_instancia.snappedNeighbors(new Punto(9,15)), expected);
+		Asserts.equal(_instancia.snappedNeighbors(new Punto(9,17)), expected);
+		Asserts.equal(_instancia.snappedNeighbors(new Punto(11,15)), expected);
+		Asserts.equal(_instancia.snappedNeighbors(new Punto(11,17)), expected);
 	}
 }

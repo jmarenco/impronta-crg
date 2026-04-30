@@ -8,7 +8,7 @@ import heuristicas.Goloso;
 
 public class EntryPoint
 {
-	private static String _version = "0.11";
+	private static String _version = "0.12";
 	private static ArgMap _args;
 	
 	public static void main(String[] args)

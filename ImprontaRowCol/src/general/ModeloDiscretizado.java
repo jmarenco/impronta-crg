@@ -2,9 +2,6 @@ package general;
 
 import java.util.ArrayList;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Point;
-
 import heuristicas.Discretizacion;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
@@ -39,7 +36,7 @@ public class ModeloDiscretizado
 			log("Construyendo discretizacion");
 			Discretizacion discretizacion = new Discretizacion(_instancia);
 
-			log(" -> " + discretizacion.getPuntos().getCoordinates().length + " puntos\r\n\r\nConstruyendo pads");
+			log(" -> " + discretizacion.size() + " puntos\r\n\r\nConstruyendo pads");
 			ArrayList<Pad> pads = discretizacion.construirPads();
 			log(" -> " + pads.size() + " pads\r\n\r\nConstruyendo variables");
 			
@@ -50,10 +47,8 @@ public class ModeloDiscretizado
 			
 			log("Construyendo restricciones");
 			int k = 0;
-			for(Coordinate c: discretizacion.getPuntos().getCoordinates())
+			for(Punto punto: discretizacion.getPuntos())
 			{
-				Point punto = _instancia.getFactory().createPoint(c);
-				
 				IloNumExpr lhs = cplex.linearNumExpr();
 				
 				for(int i=0; i<pads.size(); ++i) if( pads.get(i).contiene(punto) )
@@ -63,7 +58,7 @@ public class ModeloDiscretizado
 				++k;
 				
 				if( k % 1000 == 0 )
-					log(" -> " + k + "/" + discretizacion.getPuntos().getCoordinates().length + " restricciones");
+					log(" -> " + k + "/" + discretizacion.size() + " restricciones");
 			}
 			
 			log("\r\nConstruyendo objetivo");

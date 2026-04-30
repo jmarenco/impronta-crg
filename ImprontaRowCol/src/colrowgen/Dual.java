@@ -5,12 +5,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-
 import general.Instancia;
 import general.Pad;
+import general.Punto;
 import general.Semilla;
 import ilog.concert.IloException;
 import ilog.concert.IloNumExpr;
@@ -23,14 +20,13 @@ public class Dual
 	private Instancia _instancia;
 	private Relajacion _primal;
 	private PadCache _pads;
-	private GeometryFactory _factory;
 
 	private IloCplex _cplex;
-	private Map<Point, IloNumVar> _vars;
+	private Map<Punto, IloNumVar> _vars;
 	private Map<Pad, IloRange> _constr;
-	private Set<Point> _usados;
-	private Set<Point> _bindingConstraints = null;
-	private Map<Point, Double> _solucion;
+	private Set<Punto> _usados;
+	private Set<Punto> _bindingConstraints = null;
+	private Map<Punto, Double> _solucion;
 	private long _start;
 	private double _time;
 	private double _objValue;
@@ -47,10 +43,9 @@ public class Dual
 		_instancia = instancia;
 		_primal = primal;
 		_pads = primal.getPadCache();
-		_factory = _instancia.getFactory();
 	}
 	
-	public Map<Point, Double> resolver()
+	public Map<Punto, Double> resolver()
 	{
 		try
 		{
@@ -78,12 +73,12 @@ public class Dual
 
 	private void crearVariables() throws IloException
 	{
-		_vars = new HashMap<Point, IloNumVar>();
-		_usados = new HashSet<Point>();
+		_vars = new HashMap<Punto, IloNumVar>();
+		_usados = new HashSet<Punto>();
 
 		int i = 1;
-		for(Coordinate coord: _primal.constraintPoints())
-			_vars.put(_factory.createPoint(coord), _cplex.numVar(0, _infinity, "y" + (i++)));
+		for(Punto coord: _primal.constraintPoints())
+			_vars.put(coord, _cplex.numVar(0, _infinity, "y" + (i++)));
 	}
 
 	private void crearObjetivo() throws IloException
@@ -100,7 +95,7 @@ public class Dual
 	{
 		_constr = new HashMap<Pad, IloRange>();
 		
-		for(Point point: _primal.varPoints())
+		for(Punto point: _primal.varPoints())
 		for(Semilla semilla: _instancia.getSemillas())
 		{
 			if( _pads.contains(point, semilla) )
@@ -108,7 +103,7 @@ public class Dual
 				Pad pad = _pads.get(point, semilla);
 				IloNumExpr lhs = _cplex.linearNumExpr();
 				
-				for(Point p: _vars.keySet()) if( pad.contiene(p) )
+				for(Punto p: _vars.keySet()) if( pad.contiene(p) )
 				{
 					lhs = _cplex.sum(lhs, _vars.get(p));
 					_usados.add(p);
@@ -132,9 +127,9 @@ public class Dual
 		
 		if( _cplex.solve() == true )
 		{
-			_solucion = new HashMap<Point, Double>();
+			_solucion = new HashMap<Punto, Double>();
 			
-			for(Point p: _usados)
+			for(Punto p: _usados)
 			{
 				IloNumVar var = _vars.get(p);
 				
@@ -153,7 +148,7 @@ public class Dual
 			
 			if( _registrarBindings == true )
 			{
-				_bindingConstraints = new HashSet<Point>();
+				_bindingConstraints = new HashSet<Punto>();
 				
 //				for(Pad pad: _constr.keySet()) if( Math.abs(_cplex.getSlack(_constr.get(pad))) <= 0.00001 )
 //					_bindingConstraints.add(pad.getCentro());
@@ -162,8 +157,8 @@ public class Dual
 				{
 					boolean algunaPositiva = false;
 
-					for(Coordinate esquina: pad.getPerimetro().getCoordinates())
-					for(Coordinate coord: _instancia.snappedNeighbors(esquina)) if( _vars.containsKey(_factory.createPoint(coord)) && _cplex.getValue(_vars.get(_factory.createPoint(coord))) > 0.0001 )
+					for(Punto esquina: pad.getVertices())
+					for(Punto coord: _instancia.snappedNeighbors(esquina)) if( _vars.containsKey(coord) && _cplex.getValue(_vars.get(coord)) > 0.0001 )
 						algunaPositiva = true;
 					
 					if( algunaPositiva == false )
@@ -195,7 +190,7 @@ public class Dual
 		return Math.abs(_objValue - _primal.getObjValue()) < 0.001;
 	}
 	
-	public Set<Point> getBindingConstraints()
+	public Set<Punto> getBindingConstraints()
 	{
 		return _bindingConstraints;
 	}

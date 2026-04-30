@@ -2,9 +2,6 @@ package general;
 
 import java.util.ArrayList;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Point;
-
 import heuristicas.Discretizacion;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
@@ -47,7 +44,7 @@ public class ModeloCompleto
 			log("Construyendo discretizacion");
 			Discretizacion discretizacion = new Discretizacion(_instancia);
 
-			log(" -> " + discretizacion.getPuntos().getCoordinates().length + " puntos\r\n\r\nConstruyendo pads");
+			log(" -> " + discretizacion.size() + " puntos\r\n\r\nConstruyendo pads");
 			ArrayList<Pad> pads = discretizacion.construirPads();
 			log(" -> " + pads.size() + " pads\r\n\r\nConstruyendo variables");
 			
@@ -60,11 +57,9 @@ public class ModeloCompleto
 			int k = 0, constraints = 0;
 			for(Pad pad: pads)
 			{
-				for(Coordinate esquina: pad.getPerimetro().getCoordinates())
-				for(Coordinate c: _instancia.snappedNeighbors(esquina))
+				for(Punto esquina: pad.getVertices())
+				for(Punto punto: _instancia.snappedNeighbors(esquina))
 				{
-					Point punto = _instancia.getFactory().createPoint(c);
-					
 					IloNumExpr lhs = cplex.linearNumExpr();
 					
 					for(int i=0; i<pads.size(); ++i) if( pads.get(i).contiene(punto) )
@@ -100,7 +95,7 @@ public class ModeloCompleto
 				log(" - " + pad.getCentro() + " = " + ret.getValor(pad));
 
 			if( _resumen == true )
-				System.out.println("\r\nComplete | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " sec | Obj: " + String.format("%.5f", cplex.getObjValue()) + " | | " + discretizacion.asList().size() + " pts | " + x.size() + " pvars | " + constraints + " pcons | | | | " + EntryPoint.args() + "\r\n");
+				System.out.println("\r\nComplete | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " sec | Obj: " + String.format("%.5f", cplex.getObjValue()) + " | | " + discretizacion.size() + " pts | " + x.size() + " pvars | " + constraints + " pcons | | | | " + EntryPoint.args() + "\r\n");
 
 			cplex.close();
 			log("");

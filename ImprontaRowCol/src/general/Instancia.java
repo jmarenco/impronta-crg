@@ -28,7 +28,6 @@ public class Instancia
 	private int _pasoVertical;
 	private ArrayList<Semilla> _semillas;
 	private ArrayList<Restriccion> _restricciones;
-	private OGIP _ogip;
 	private Map<Semilla,Region> _internas;
 	private GeometryFactory _factory;
 	private String _archivo = "";
@@ -44,7 +43,6 @@ public class Instancia
 		_restricciones = new ArrayList<Restriccion>();
 		_factory = new GeometryFactory();
 		_internas = new HashMap<Semilla,Region>();
-		_ogip = null;
 	}
 	
 	// Connstruye una instancia a partir de un archivo .xml
@@ -56,7 +54,6 @@ public class Instancia
 		_restricciones = new ArrayList<Restriccion>();
 		_factory = new GeometryFactory();
 		_internas = new HashMap<Semilla,Region>();
-		_ogip = null;
 		
 		log("Leyendo instancia ... \r\n");
 
@@ -102,9 +99,6 @@ public class Instancia
 
 				if( nodo.getNodeName() == "Esfuerzo_horizontal_mínimo" )
 					obtenerPasos(nodo);
-
-				if( nodo.getNodeName() == "Ogip" )
-					obtenerOGIP(nodo);
 			}
 			
 			// Calcula los pasos de la discretización, si corresponde
@@ -420,44 +414,6 @@ public class Instancia
 	    }
 	}	
 	
-	// Obtiene las mediciones de OGIP del archivo .xml
-	private void obtenerOGIP(Node nodo)
-	{
-		try
-		{
-			log("Leyendo OGIP \r\n");
-			
-			_ogip = new OGIP();
-			
-			NodeList hijos = nodo.getChildNodes();
-			for(int i = 0; i < hijos.getLength(); i++)
-			{
-				try
-				{
-					Node medicion = hijos.item(i);
-	
-					String x = medicion.getAttributes().getNamedItem("X").getNodeValue();
-					String y = medicion.getAttributes().getNamedItem("Y").getNodeValue();
-					String valor = medicion.getAttributes().getNamedItem("Valor").getNodeValue();
-					
-					_ogip.agregar(toDouble(x), toDouble(y), toDouble(valor));
-				}
-				catch(Exception e)
-				{
-					System.out.println("  -> Error al leer la medicion de OGIP numero " + i + ": " + e.getMessage());
-				}
-			}
-		}
-	    catch (Exception e)
-	    {
-	    	System.out.println("No se pudieron leer las mediciones de OGIP!");
-	    	System.out.println(e.getMessage());
-	    	e.printStackTrace();
-	    }
-		
-		log("  -> " + _ogip.getCantidad() + " mediciones leidas \r\n");
-	}	
-	
 	// Setters
 	public void setRegion(Region region)
 	{
@@ -498,10 +454,6 @@ public class Instancia
 	{
 		return _restricciones;
 	}
-	public OGIP getOGIP()
-	{
-		return _ogip;
-	}
 	public int getPasoHorizontal()
 	{
 		return _pasoHorizontal;
@@ -524,36 +476,36 @@ public class Instancia
 	{
 		return _pasoVertical * (int)(y / (double)_pasoVertical + 0.5);
 	}
-	public ArrayList<Coordinate> multisnap(Coordinate point)
+	public ArrayList<Punto> multisnap(Punto point)
 	{
-		ArrayList<Coordinate> ret = new ArrayList<Coordinate>();
+		ArrayList<Punto> ret = new ArrayList<Punto>();
 		
-		int bx = _pasoHorizontal * (int)(point.x / (double)_pasoHorizontal);
-		int by = _pasoVertical * (int)(point.y / (double)_pasoVertical);
+		int bx = _pasoHorizontal * (int)(point.getx() / (double)_pasoHorizontal);
+		int by = _pasoVertical * (int)(point.gety() / (double)_pasoVertical);
 
-		ret.add(new Coordinate(bx, by));
-		ret.add(new Coordinate(bx + _pasoHorizontal, by));
-		ret.add(new Coordinate(bx, by + _pasoVertical));
-		ret.add(new Coordinate(bx + _pasoHorizontal, by + _pasoVertical));
+		ret.add(new Punto(bx, by));
+		ret.add(new Punto(bx + _pasoHorizontal, by));
+		ret.add(new Punto(bx, by + _pasoVertical));
+		ret.add(new Punto(bx + _pasoHorizontal, by + _pasoVertical));
 		
 		return ret;
 	}
-	public ArrayList<Coordinate> snappedNeighbors(Coordinate point)
+	public ArrayList<Punto> snappedNeighbors(Punto point)
 	{
-		ArrayList<Coordinate> ret = new ArrayList<Coordinate>();
+		ArrayList<Punto> ret = new ArrayList<Punto>();
 		
-		int bx = _pasoHorizontal * (int)(snapx(point.x) / (double)_pasoHorizontal);
-		int by = _pasoVertical * (int)(snapy(point.y) / (double)_pasoVertical);
+		int bx = _pasoHorizontal * (int)(snapx(point.getx()) / (double)_pasoHorizontal);
+		int by = _pasoVertical * (int)(snapy(point.gety()) / (double)_pasoVertical);
 
-		ret.add(new Coordinate(bx, by));
-		ret.add(new Coordinate(bx - _pasoHorizontal, by));
-		ret.add(new Coordinate(bx - _pasoHorizontal, by - _pasoVertical));
-		ret.add(new Coordinate(bx, by - _pasoVertical));
-		ret.add(new Coordinate(bx + _pasoHorizontal, by - _pasoVertical));
-		ret.add(new Coordinate(bx + _pasoHorizontal, by));
-		ret.add(new Coordinate(bx + _pasoHorizontal, by + _pasoVertical));
-		ret.add(new Coordinate(bx, by + _pasoVertical));
-		ret.add(new Coordinate(bx - _pasoHorizontal, by + _pasoVertical));
+		ret.add(new Punto(bx, by));
+		ret.add(new Punto(bx - _pasoHorizontal, by));
+		ret.add(new Punto(bx - _pasoHorizontal, by - _pasoVertical));
+		ret.add(new Punto(bx, by - _pasoVertical));
+		ret.add(new Punto(bx + _pasoHorizontal, by - _pasoVertical));
+		ret.add(new Punto(bx + _pasoHorizontal, by));
+		ret.add(new Punto(bx + _pasoHorizontal, by + _pasoVertical));
+		ret.add(new Punto(bx, by + _pasoVertical));
+		ret.add(new Punto(bx - _pasoHorizontal, by + _pasoVertical));
 		
 		return ret;
 	}
@@ -563,7 +515,6 @@ public class Instancia
 	{
 		if( _internas.containsKey(semilla) == false )
 			_internas.put(semilla, RegionInterna.calcular(this, semilla));
-//			_internas.put(semilla, _region);
 		
 		return _internas.get(semilla);
 	}
