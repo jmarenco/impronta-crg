@@ -26,6 +26,7 @@ public class Dual
 	private Map<Pad, IloRange> _constr;
 	private Set<Punto> _usados;
 	private Set<Punto> _bindingConstraints = null;
+	private Set<Punto> _activeVariables = null;
 	private Map<Punto, Double> _solucion;
 	private long _start;
 	private double _time;
@@ -153,6 +154,8 @@ public class Dual
 				for(Pad pad: _constr.keySet()) if( Math.abs(_cplex.getSlack(_constr.get(pad))) <= 0.00001 )
 					_bindingConstraints.add(pad.getCentro());
 				
+				_activeVariables = new HashSet<Punto>();
+
 				for(Pad pad: _constr.keySet())
 				{
 					boolean algunaPositiva = false;
@@ -162,7 +165,7 @@ public class Dual
 						algunaPositiva = true;
 					
 					if( algunaPositiva == false )
-						_bindingConstraints.add(pad.getCentro());
+						_activeVariables.add(pad.getCentro());
 				}
 			}
 		}
@@ -191,6 +194,11 @@ public class Dual
 	}
 	
 	public Set<Punto> getBindingConstraints()
+	{
+		return _bindingConstraints;
+	}
+	
+	public Set<Punto> getActiveVariables()
 	{
 		return _bindingConstraints;
 	}

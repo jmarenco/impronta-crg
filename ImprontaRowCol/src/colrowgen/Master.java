@@ -17,6 +17,7 @@ public class Master
 	private ArrayList<Punto> _points;
 	private Map<Punto, Integer> _iterationsWithNullPrimalValue;
 	private Map<Punto, Integer> _iterationsWithNullDualValue;
+	private Map<Punto, Integer> _iterationsWithNullDualSlack;
 	private PadCache _pads;
 
 	private Relajacion _relajacion;
@@ -33,6 +34,7 @@ public class Master
 	private static int _umbralEliminacionPrimal = Integer.MAX_VALUE;
 	private static int _umbralEliminacionDual = Integer.MAX_VALUE;
 	private static int _umbralAnulacionPrimal = Integer.MAX_VALUE;
+//	private static int _umbralAnulacionDual = Integer.MAX_VALUE;
 	
 	public Master(Instancia instancia, List<Punto> iniciales)
 	{
@@ -46,6 +48,8 @@ public class Master
 		if( _umbralEliminacionDual < Integer.MAX_VALUE )
 		{
 			_iterationsWithNullDualValue = new HashMap<Punto, Integer>();
+			_iterationsWithNullDualSlack = new HashMap<Punto, Integer>();
+
 			Dual.setRegistrarBindings(true);
 		}
 	}
@@ -70,7 +74,7 @@ public class Master
 
 			log("Dualizer: " + _dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", _dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec | BFSs: " + _dualizer.getIniciosBFS() + " | Expl: " + _dualizer.getExplorados() + " | ");
 
-			eliminarPuntos(_dualizer.getDualBindingConstraints());
+			eliminarPuntos();
 
 			int anteriores = _points.size();
 			for(Punto point: _dualizer.getNuevos()) if( _points.contains(point) == false )
@@ -87,11 +91,11 @@ public class Master
 			System.out.println("\r\nMaster | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | Obj: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + (iteracion-1) + " its | " + _relajacion.varPoints().size() + " pts | " + _relajacion.getNumVariables() + " pvars | " + _relajacion.getNumConstraints() + " pcons | BFSs: " + _BFSs + " | Expl: " + String.format("%.2f", _BFSs > 0 ? _explorados / (double)_BFSs : 0) + " prom | " + _eliminados + " rem | " + EntryPoint.args() + "\r\n");
 	}
 	
-	private void eliminarPuntos(Set<Punto> dualBindingConstraints)
+	private void eliminarPuntos()
 	{
 		long start = System.currentTimeMillis();
 		
-		// Actualiza las iteraciones en cero
+		// Suma 1 a todos los puntos
 		for(Punto point: _points)
 		{
 			if( _iterationsWithNullPrimalValue != null )
@@ -99,7 +103,12 @@ public class Master
 
 			if( _iterationsWithNullDualValue != null )
 				_iterationsWithNullDualValue.put(point, _iterationsWithNullDualValue.containsKey(point) ? _iterationsWithNullDualValue.get(point) + 1 : 1);
+
+			if( _iterationsWithNullDualSlack != null )
+				_iterationsWithNullDualSlack.put(point, _iterationsWithNullDualSlack.containsKey(point) ? _iterationsWithNullDualSlack.get(point) + 1 : 1);
 		}
+		
+		// Pone en cero a los puntos activos
 
 		if( _iterationsWithNullPrimalValue != null )
 		{
@@ -109,8 +118,14 @@ public class Master
 
 		if( _iterationsWithNullDualValue != null )
 		{
-			for(Punto point: dualBindingConstraints)
+			for(Punto point: _dualizer.getActiveVariables())
 				_iterationsWithNullDualValue.put(point, 0);
+		}
+
+		if( _iterationsWithNullDualSlack != null )
+		{
+			for(Punto point: _dualizer.getBindingConstraints())
+				_iterationsWithNullDualSlack.put(point, 0);
 		}
 		
 		// Elimina los puntos con varias iteraciones en cero
@@ -118,7 +133,7 @@ public class Master
 		
 		if( _iterationsWithNullPrimalValue != null && _iterationsWithNullDualValue != null )
 		{
-			for(Punto point: _iterationsWithNullPrimalValue.keySet()) if( _iterationsWithNullDualValue.containsKey(point) && _iterationsWithNullPrimalValue.get(point) > _umbralEliminacionPrimal &&  _iterationsWithNullDualValue.get(point) > _umbralEliminacionDual )
+			for(Punto point: _iterationsWithNullPrimalValue.keySet()) if( _iterationsWithNullDualValue.containsKey(point) && _iterationsWithNullPrimalValue.get(point) > _umbralEliminacionPrimal && (_iterationsWithNullDualValue.get(point) > _umbralEliminacionDual || _iterationsWithNullDualSlack.get(point) > _umbralEliminacionDual) )
 				_points.remove(point);
 		}
 		else if( _iterationsWithNullPrimalValue != null )

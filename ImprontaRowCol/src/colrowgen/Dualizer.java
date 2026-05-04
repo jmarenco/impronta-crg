@@ -17,6 +17,7 @@ public class Dualizer
 	
 	private Map<Punto, Double> _dualSolution;
 	private Set<Punto> _dualBindingConstraints;
+	private Set<Punto> _dualActiveVariables;
 	
 	private long _start;
 	private double _time;
@@ -49,6 +50,7 @@ public class Dualizer
 		_dualSolution = dual.resolver();
 		_dualTime = dual.getTime();
 		_dualBindingConstraints = dual.getBindingConstraints();
+		_dualActiveVariables = dual.getActiveVariables();
 		_nuevos = new ArrayList<Punto>();
 
 		log("  Solucion: " + dual.getObjValue() + ", target primal: " + _relajacion.getObjValue());
@@ -73,9 +75,14 @@ public class Dualizer
 		return _dualSolution;
 	}
 	
-	public Set<Punto> getDualBindingConstraints()
+	public Set<Punto> getBindingConstraints()
 	{
 		return _dualBindingConstraints;
+	}
+	
+	public Set<Punto> getActiveVariables()
+	{
+		return _dualActiveVariables;
 	}
 	
 	public ArrayList<Punto> getNuevos()
