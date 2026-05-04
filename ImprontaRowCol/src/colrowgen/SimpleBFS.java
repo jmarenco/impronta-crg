@@ -67,7 +67,7 @@ public class SimpleBFS
 //		for(Coordinate coord: _interna.getCoordinates())
 //			addNuevo(closestFeasible(coord, Long.MAX_VALUE));
 		
-		for(Punto coord: relevantCoordinates())
+		for(Punto coord: relevantPoints())
 			addNuevo(closestFeasible(coord, Long.MAX_VALUE));
 	}
 	
@@ -141,7 +141,7 @@ public class SimpleBFS
 	private void add(Punto punto, Color color)
 	{
 		if( _panel != null )
-			_panel.addGeometry(_instancia.getFactory().createPoint(punto.asCoordinate()), color);
+			_panel.add(punto, color);
 	}
 	
 	private boolean cubierto(Punto punto)
@@ -157,7 +157,7 @@ public class SimpleBFS
 				punto.gety() < centro.gety() + _semilla.getAncho() / 2;
 	}
 	
-	private Set<Punto> relevantCoordinates()
+	private Set<Punto> relevantPoints()
 	{
 		ArrayList<Pad> pads = new ArrayList<Pad>();
 		Set<Punto> ret = new HashSet<Punto>();

@@ -24,6 +24,11 @@ public class Punto
 	{
 		return _y;
 	}
+	
+	public double distancia(Punto otro)
+	{
+		return Math.sqrt((this.getx() - otro.getx()) * (this.getx() - otro.getx()) + (this.gety() - otro.gety()) * (this.gety() - otro.gety()));
+	}
 
 	@Override
 	public int hashCode()

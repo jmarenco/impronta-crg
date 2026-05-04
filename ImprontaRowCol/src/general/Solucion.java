@@ -43,11 +43,6 @@ public class Solucion
 	{
 		return getPads().stream().mapToDouble(p -> p.getArea()).sum();
 	}
-	public double porcentajeCubierto()
-	{
-		double total = _instancia.getRegion().getArea();
-		return total > 0 ? areaCubierta() * 100.0 / total : 0;
-	}
 	
 	// Valorizacion total
 	public double valorizacion()

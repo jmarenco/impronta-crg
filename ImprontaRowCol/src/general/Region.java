@@ -5,115 +5,54 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-
 public class Region
 {
-	private ArrayList<Polygon> _envolventes;
-	private ArrayList<Polygon> _agujeros;
+	private ArrayList<Poligono> _envolventes;
+	private ArrayList<Poligono> _agujeros;
 	private ArrayList<Punto> _vertices; // Cache
 	
 	public Region()
 	{
-		_envolventes = new ArrayList<Polygon>();
-		_agujeros = new ArrayList<Polygon>();
+		_envolventes = new ArrayList<Poligono>();
+		_agujeros = new ArrayList<Poligono>();
 	}
 	
-	public void agregarEnvolvente(Polygon polygon)
+	public void agregarEnvolvente(Poligono polygon)
 	{
 		_envolventes.add(polygon);
 	}
 
-	public void agregarAgujero(Polygon polygon)
+	public void agregarAgujero(Poligono polygon)
 	{
 		_agujeros.add(polygon);
 	}
 	
-	public ArrayList<Polygon> getEnvolventes()
+	public ArrayList<Poligono> getEnvolventes()
 	{
 		return _envolventes;
 	}
 	
-	public ArrayList<Polygon> getAgujeros()
+	public ArrayList<Poligono> getAgujeros()
 	{
 		return _agujeros;
-	}
-	
-	public double getArea()
-	{
-		return getGeometry().getArea();
-	}
-	
-	// Obtiene la figura dada por la union de las envolventes menos la union de los agujeros
-	public Geometry getGeometry()
-	{
-		Geometry ret = null;
-
-		for(Polygon envolvente: _envolventes)
-		{
-			if( ret == null )
-				ret = envolvente;
-			else
-				ret = ret.union(envolvente);
-		}
-		
-		for(Polygon agujero: _agujeros)
-			ret = ret.difference(agujero);
-		
-		return ret;
-	}
-	
-	// Obtiene los segmentos que definen las envolventes
-	public MultiLineString segmentosEnvolventes()
-	{
-		ArrayList<LineString> segmentos = new ArrayList<LineString>();
-		GeometryFactory factory = getFactory();
-		
-		for(Polygon envolvente: _envolventes)
-		{
-			Coordinate[] coords = envolvente.getCoordinates();
-			for(int i=0; i<coords.length-1; ++i)
-				segmentos.add(factory.createLineString(new Coordinate[] { coords[i], coords[i+1] }));
-		}
-
-		LineString[] ret = new LineString[segmentos.size()];
-		
-		for(int i=0; i<segmentos.size(); ++i)
-			ret[i] = segmentos.get(i);
-		
-		return factory.createMultiLineString(ret);
-	}
-	
-	// Obtiene un constructor de geometrías
-	public GeometryFactory getFactory()
-	{
-		if( _envolventes.size() > 0 )
-			return _envolventes.get(0).getFactory();
-		
-		if( _agujeros.size() > 0 )
-			return _agujeros.get(0).getFactory();
-		
-		throw new RuntimeException("Error: Region.getFactory(), no hay envolventes ni agujeros registrados en la region!");
 	}
 
 	// Determina si el punto está en el interior de la región
 	public boolean incluye(Punto punto)
 	{
-		Point nuevo = getFactory().createPoint(punto.asCoordinate());
-		return _envolventes.stream().anyMatch(e -> e.contains(nuevo)) && _agujeros.stream().allMatch(a -> !a.contains(nuevo));
+		return _envolventes.stream().anyMatch(e -> e.contiene(punto)) && _agujeros.stream().allMatch(a -> !a.contiene(punto));
 	}
 
 	// Determina si el punto está en el interior o en el borde de la región
 	public boolean cubre(Punto punto)
 	{
-		Point nuevo = getFactory().createPoint(punto.asCoordinate());
-		return _envolventes.stream().anyMatch(e -> e.covers(nuevo)) && _agujeros.stream().allMatch(a -> !a.contains(nuevo));
+		return _envolventes.stream().anyMatch(e -> e.cubre(punto)) && _agujeros.stream().allMatch(a -> !a.cubre(punto));
+	}
+	
+	// Determina si contiene a los vértices del poligono
+	public boolean contiene(Poligono poligono)
+	{
+		return poligono.getVertices().stream().allMatch(v -> this.incluye(v));
 	}
 
 	// Vertices de la region
@@ -121,19 +60,19 @@ public class Region
 	{
 		if( _vertices == null )
 		{
-			Set<Coordinate> set = new HashSet<Coordinate>();
+			Set<Punto> set = new HashSet<Punto>();
 			
-			for(Polygon polygon: _envolventes)
-			for(Coordinate c: polygon.getCoordinates())
+			for(Poligono polygon: _envolventes)
+			for(Punto c: polygon.getVertices())
 				set.add(c);
 			
-			for(Polygon polygon: _agujeros)
-			for(Coordinate c: polygon.getCoordinates())
+			for(Poligono polygon: _agujeros)
+			for(Punto c: polygon.getVertices())
 				set.add(c);
 			
 			_vertices = new ArrayList<Punto>();
-			for(Coordinate c: set)
-				_vertices.add(Punto.fromCoordinate(c));
+			for(Punto c: set)
+				_vertices.add(c);
 		}
 
 		return _vertices;

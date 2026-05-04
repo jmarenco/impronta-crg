@@ -2,6 +2,7 @@ package interfaz;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
@@ -12,6 +13,7 @@ import general.Restriccion;
 import general.Semilla;
 import general.Solucion;
 import general.Pad;
+import general.Poligono;
 import general.Region;
 import general.Punto;
 
@@ -30,6 +32,7 @@ public class Viewer extends JPanel
 {
 	private static final long serialVersionUID = 1L;
 
+	private GeometryFactory _factory = new GeometryFactory();
 	private List<Geometry> geometries = new ArrayList<Geometry>();
 	private List<Color> colors = new ArrayList<Color>();
 	private Map<Punto, Double> dual = null;
@@ -46,7 +49,22 @@ public class Viewer extends JPanel
     	addGeometry(geom, Color.BLACK);
     }
     
-    public void addGeometry(Geometry geom, Color color)
+    public void add(Punto punto, Color color)
+    {
+    	addGeometry(_factory.createPoint(punto.asCoordinate()), color);
+    }
+
+    public void add(Poligono poligono, Color color)
+    {
+		Coordinate[] coords = new Coordinate[poligono.getVertices().size()];
+		
+		for(int i=0; i<poligono.getVertices().size(); ++i)
+			coords[i] = poligono.getVertices().get(i).asCoordinate();
+		
+		addGeometry(_factory.createPolygon(coords), color);
+    }
+
+    private void addGeometry(Geometry geom, Color color)
     {
         geometries.add(geom);
         colors.add(color);
@@ -134,7 +152,11 @@ public class Viewer extends JPanel
     	for(Punto punto: dual.keySet())
 		{
    			Pad pad = new Pad(instancia, semilla, punto);
-			Coordinate[] coords = pad.getPerimetro().getCoordinates();
+   			ArrayList<Punto> vertices = pad.getPerimetro().getVertices();
+			Coordinate[] coords = new Coordinate[vertices.size()];
+
+			for(int i=0; i<vertices.size(); ++i)
+				coords[i] = vertices.get(i).asCoordinate();
 			
 			int[] x = new int[coords.length];
 			int[] y = new int[coords.length];
@@ -227,17 +249,17 @@ public class Viewer extends JPanel
 
     private static void addRegion(Viewer panel, Region region, Color color)
     {
-        for(Polygon envolvente: region.getEnvolventes())
-        	panel.addGeometry(envolvente, color);
+        for(Poligono envolvente: region.getEnvolventes())
+        	panel.add(envolvente, color);
         
-        for(Polygon agujero: region.getAgujeros())
-        	panel.addGeometry(agujero, color);
+        for(Poligono agujero: region.getAgujeros())
+        	panel.add(agujero, color);
     }
     
     private static void addRestricciones(Viewer panel, Instancia instancia)
     {
         for(Restriccion restriccion: instancia.getRestricciones())
-        	panel.addGeometry(restriccion.getPolygon());
+        	panel.add(restriccion.getPolygon(), Color.BLACK);
     }
 
 	private static void addSolucion(Viewer panel, Solucion solucion)
@@ -247,9 +269,9 @@ public class Viewer extends JPanel
 			int nivel = 255 - (int)(255 * solucion.getValor(pad));
 			Color color = new Color(nivel, nivel, nivel);
 
-			panel.addGeometry(pad.getPerimetro(), color);
-		    panel.addGeometry(pad.getLocacion(), color);
-		    panel.addGeometry(solucion.getInstancia().getFactory().createPoint(pad.getCentro().asCoordinate()), color);
+			panel.add(pad.getPerimetro(), color);
+		    panel.add(pad.getLocacion(), color);
+		    panel.add(pad.getCentro(), color);
 		}
 	}
 	
@@ -258,7 +280,7 @@ public class Viewer extends JPanel
 		if( puntos != null )
         {
         	for(Punto point: puntos)
-        		panel.addGeometry(instancia.getFactory().createPoint(point.asCoordinate()), Color.RED);
+        		panel.add(point, Color.RED);
         }
 	}
 

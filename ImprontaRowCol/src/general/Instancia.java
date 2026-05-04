@@ -17,9 +17,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-
 // Representa una instancia del problema
 public class Instancia
 {
@@ -29,7 +26,6 @@ public class Instancia
 	private ArrayList<Semilla> _semillas;
 	private ArrayList<Restriccion> _restricciones;
 	private Map<Semilla,Region> _internas;
-	private GeometryFactory _factory;
 	private String _archivo = "";
 	
 	public enum Formato { Nada, French, US };
@@ -41,7 +37,6 @@ public class Instancia
 	{
 		_semillas = new ArrayList<Semilla>();
 		_restricciones = new ArrayList<Restriccion>();
-		_factory = new GeometryFactory();
 		_internas = new HashMap<Semilla,Region>();
 	}
 	
@@ -52,7 +47,6 @@ public class Instancia
 		_region = new Region();
 		_semillas = new ArrayList<Semilla>();
 		_restricciones = new ArrayList<Restriccion>();
-		_factory = new GeometryFactory();
 		_internas = new HashMap<Semilla,Region>();
 		
 		log("Leyendo instancia ... \r\n");
@@ -235,7 +229,7 @@ public class Instancia
 	// Agrega una envolvente o un agujero a la región
 	private void leerPoligono(NodeList hijos, boolean envolvente) throws ParseException
 	{
-		Coordinate[] coords = new Coordinate[hijos.getLength()];
+		ArrayList<Punto> coords = new ArrayList<Punto>();
 		
 		for(int i = 0; i < hijos.getLength(); i++)
 		{
@@ -243,13 +237,13 @@ public class Instancia
 			String y = hijos.item(i).getAttributes().getNamedItem("Y").getNodeValue();
 			
 			log("  -> x = " + toDouble(x) + ", y = " + toDouble(y) + (envolvente ? " (+)" : " (-)"));
-			coords[i] = new Coordinate(toDouble(x), toDouble(y));
+			coords.add(new Punto(toDouble(x), toDouble(y)));
 		}
 		
 		if( envolvente == true )
-			_region.agregarEnvolvente(_factory.createPolygon(coords));
+			_region.agregarEnvolvente(new Poligono(coords));
 		else
-			_region.agregarAgujero(_factory.createPolygon(coords));
+			_region.agregarAgujero(new Poligono(coords));
 
 		log("");
 	}
@@ -354,7 +348,7 @@ public class Instancia
 				{
 					Node restriccion = hijos.item(i);
 					NodeList puntos = restriccion.getChildNodes();
-					Coordinate[] coords = new Coordinate[puntos.getLength()];
+					ArrayList<Punto> coords = new ArrayList<Punto>();
 	
 					id = restriccion.getAttributes().getNamedItem("ID").getNodeValue();
 					ring = restriccion.getAttributes().getNamedItem("Ring").getNodeValue();
@@ -364,11 +358,11 @@ public class Instancia
 						String x = puntos.item(j).getAttributes().getNamedItem("X").getNodeValue();
 						String y = puntos.item(j).getAttributes().getNamedItem("Y").getNodeValue();
 						
-						coords[j] = new Coordinate(toDouble(x), toDouble(y));
+						coords.add(new Punto(toDouble(x), toDouble(y)));
 					}
 					
-					log("  -> Restriccion: ID " + id + ", Ring " + ring + " = " + coords.length + " puntos");
-					_restricciones.add(new Restriccion(id, ring, _factory.createPolygon(coords)));
+					log("  -> Restriccion: ID " + id + ", Ring " + ring + " = " + coords.size() + " puntos");
+					_restricciones.add(new Restriccion(id, ring, new Poligono(coords)));
 				}
 				catch(Exception e)
 				{
@@ -535,11 +529,5 @@ public class Instancia
 	public static void setVerbose(boolean valor)
 	{
 		_verbose = valor;
-	}
-	
-	// Obtiene un constructor de geometrías
-	public GeometryFactory getFactory()
-	{
-		return _region.getFactory();
 	}
 }

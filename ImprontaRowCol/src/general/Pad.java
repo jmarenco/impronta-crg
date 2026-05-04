@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Polygon;
-
 public class Pad
 {
 	// Datos privados
@@ -23,8 +20,8 @@ public class Pad
 	private int _abajo;
 	
 	// Extremos
-	private Polygon _perimetro;
-	private Polygon _locacion;
+	private Poligono _perimetro;
+	private Poligono _locacion;
 	
 	// Constructor
 	public Pad(Instancia instancia, Semilla semilla, Punto centro)
@@ -45,45 +42,42 @@ public class Pad
 		_vertices.add(new Punto(_derecha, _arriba));
 		
 		// Construye los puntos del perímetro
-		Coordinate[] perimetro = new Coordinate[5];
-		perimetro[0] = new Coordinate(_izquierda, _arriba);
-		perimetro[1] = new Coordinate(_izquierda, _abajo);
-		perimetro[2] = new Coordinate(_derecha, _abajo);
-		perimetro[3] = new Coordinate(_derecha, _arriba);
-		perimetro[4] = new Coordinate(_izquierda, _arriba);
-		
-		_perimetro = _instancia.getFactory().createPolygon(perimetro);
+		_perimetro = new Poligono();
+		_perimetro.add(new Punto(_izquierda, _arriba));
+		_perimetro.add(new Punto(_izquierda, _abajo));
+		_perimetro.add(new Punto(_derecha, _abajo));
+		_perimetro.add(new Punto(_derecha, _arriba));
+		_perimetro.add(new Punto(_izquierda, _arriba));
 		
 		// Candidatos a centros de la locación
-		Coordinate centroLocacion = new Coordinate((int)(_centroPad.getx() - _semilla.getLargo()/2 + _semilla.getOffsetHorizontalLocacion()), (int)(_centroPad.gety() - _semilla.getAncho()/2 + _semilla.getOffsetVerticalLocacion()));
+		Punto centroLocacion = new Punto((int)(_centroPad.getx() - _semilla.getLargo()/2 + _semilla.getOffsetHorizontalLocacion()), (int)(_centroPad.gety() - _semilla.getAncho()/2 + _semilla.getOffsetVerticalLocacion()));
 
 		int tol = (int)semilla.getToleranciaLocacion();
 		double raiz2 = Math.sqrt(2);
 
-		ArrayList<Coordinate> centrosPosibles = new ArrayList<Coordinate>();
-		centrosPosibles.add(new Coordinate(centroLocacion.x, centroLocacion.y));
-		centrosPosibles.add(new Coordinate(centroLocacion.x + tol, centroLocacion.y));
-		centrosPosibles.add(new Coordinate(centroLocacion.x + raiz2 * tol, centroLocacion.y + raiz2 * tol));
-		centrosPosibles.add(new Coordinate(centroLocacion.x, centroLocacion.y + tol));
-		centrosPosibles.add(new Coordinate(centroLocacion.x - raiz2 * tol, centroLocacion.y + raiz2 * tol));
-		centrosPosibles.add(new Coordinate(centroLocacion.x - tol, centroLocacion.y + tol));
-		centrosPosibles.add(new Coordinate(centroLocacion.x - raiz2 * tol, centroLocacion.y - raiz2 * tol));
-		centrosPosibles.add(new Coordinate(centroLocacion.x, centroLocacion.y - tol));
-		centrosPosibles.add(new Coordinate(centroLocacion.x + raiz2 * tol, centroLocacion.y - raiz2 * tol));
-		centrosPosibles.add(new Coordinate(centroLocacion.x, centroLocacion.y));
+		ArrayList<Punto> centrosPosibles = new ArrayList<Punto>();
+		centrosPosibles.add(new Punto(centroLocacion.getx(), centroLocacion.gety()));
+		centrosPosibles.add(new Punto(centroLocacion.getx() + tol, centroLocacion.gety()));
+		centrosPosibles.add(new Punto(centroLocacion.getx() + raiz2 * tol, centroLocacion.gety() + raiz2 * tol));
+		centrosPosibles.add(new Punto(centroLocacion.getx(), centroLocacion.gety() + tol));
+		centrosPosibles.add(new Punto(centroLocacion.getx() - raiz2 * tol, centroLocacion.gety() + raiz2 * tol));
+		centrosPosibles.add(new Punto(centroLocacion.getx() - tol, centroLocacion.gety() + tol));
+		centrosPosibles.add(new Punto(centroLocacion.getx() - raiz2 * tol, centroLocacion.gety() - raiz2 * tol));
+		centrosPosibles.add(new Punto(centroLocacion.getx(), centroLocacion.gety() - tol));
+		centrosPosibles.add(new Punto(centroLocacion.getx() + raiz2 * tol, centroLocacion.gety() - raiz2 * tol));
+		centrosPosibles.add(new Punto(centroLocacion.getx(), centroLocacion.gety()));
 		
-		for(Coordinate c: centrosPosibles)
+		for(Punto c: centrosPosibles)
 		{
 			// Construye los puntos de la instalación
-			Coordinate[] locacion = new Coordinate[5];
-			locacion[0] = new Coordinate((int)(c.x - _semilla.getLargoLocacion()/2), (int)(c.y - _semilla.getAnchoLocacion()/2));
-			locacion[1] = new Coordinate((int)(c.x - _semilla.getLargoLocacion()/2), (int)(c.y + _semilla.getAnchoLocacion()/2));
-			locacion[2] = new Coordinate((int)(c.x + _semilla.getLargoLocacion()/2), (int)(c.y + _semilla.getAnchoLocacion()/2));
-			locacion[3] = new Coordinate((int)(c.x + _semilla.getLargoLocacion()/2), (int)(c.y - _semilla.getAnchoLocacion()/2));
-			locacion[4] = new Coordinate((int)(c.x - _semilla.getLargoLocacion()/2), (int)(c.y - _semilla.getAnchoLocacion()/2));
+			_locacion = new Poligono();
+			_locacion.add(new Punto((int)(c.getx() - _semilla.getLargoLocacion()/2), (int)(c.gety() - _semilla.getAnchoLocacion()/2)));
+			_locacion.add(new Punto((int)(c.getx() - _semilla.getLargoLocacion()/2), (int)(c.gety() + _semilla.getAnchoLocacion()/2)));
+			_locacion.add(new Punto((int)(c.getx() + _semilla.getLargoLocacion()/2), (int)(c.gety() + _semilla.getAnchoLocacion()/2)));
+			_locacion.add(new Punto((int)(c.getx() + _semilla.getLargoLocacion()/2), (int)(c.gety() - _semilla.getAnchoLocacion()/2)));
+			_locacion.add(new Punto((int)(c.getx() - _semilla.getLargoLocacion()/2), (int)(c.gety() - _semilla.getAnchoLocacion()/2)));
 		
-			_locacion = _instancia.getFactory().createPolygon(locacion);
-			_centroLocacion = new Punto(c.x, c.y);
+			_centroLocacion = c;
 			
 			if( factible() == true )
 				break;
@@ -109,11 +103,11 @@ public class Pad
 	}
 	
 	// Getters de las geometrías
-	public Polygon getPerimetro()
+	public Poligono getPerimetro()
 	{
 		return _perimetro;
 	}
-	public Polygon getLocacion()
+	public Poligono getLocacion()
 	{
 		return _locacion;
 	}
@@ -130,24 +124,18 @@ public class Pad
 		return _semilla.getLargo() * _semilla.getAncho() / 1e6;
 	}
 	
-	// Determina si la locación se interseca con el área restringida
-	private boolean interseca(Restriccion restriccion)
-	{
-		return restriccion.interseca(_locacion);
-	}
-	
 	// Determina si la locacion se interseca con algún área restringida
 	public boolean factible()
 	{
-		if( _instancia.getRegion().getGeometry().contains(this.getPerimetro()) == false )
+		if( _instancia.getRegion().contiene(this.getPerimetro()) == false )
 			return false;
 		
-		if( _instancia.getRegion().getGeometry().contains(this.getLocacion()) == false )
+		if( _instancia.getRegion().contiene(this.getLocacion()) == false )
 			return false;
 		
 		for(Restriccion restriccion: _instancia.getRestricciones())
 		{
-			if( interseca(restriccion) )
+			if( restriccion.interseca(_locacion) )
 				return false;
 		}
 		
@@ -157,11 +145,50 @@ public class Pad
 	// Interseccion de pads
 	public List<Punto> verticesInterseccion(Pad otro)
 	{
-		ArrayList<Punto> ret = new ArrayList<Punto>();
-		for(Coordinate coord: this.getPerimetro().intersection(otro.getPerimetro()).getCoordinates())
-			ret.add(Punto.fromCoordinate(coord));
+		List<Punto> ret = new ArrayList<Punto>();
 		
+		if( this.getIzquierda() <= otro.getIzquierda() && this.getDerecha() >= otro.getIzquierda() && otro.getArriba() <= this.getArriba() && this.getArriba() <= otro.getAbajo() )
+			ret.add(new Punto(otro.getIzquierda(), this.getArriba()));
+		
+		if( this.getIzquierda() <= otro.getIzquierda() && this.getDerecha() >= otro.getIzquierda() && otro.getArriba() <= this.getAbajo() && this.getAbajo() <= otro.getAbajo() )
+			ret.add(new Punto(otro.getIzquierda(), this.getAbajo()));
+
+		if( this.getIzquierda() <= otro.getDerecha() && this.getDerecha() >= otro.getDerecha() && otro.getArriba() <= this.getArriba() && this.getArriba() <= otro.getAbajo() )
+			ret.add(new Punto(otro.getDerecha(), this.getArriba()));
+		
+		if( this.getIzquierda() <= otro.getDerecha() && this.getDerecha() >= otro.getDerecha() && otro.getArriba() <= this.getAbajo() && this.getAbajo() <= otro.getAbajo() )
+			ret.add(new Punto(otro.getDerecha(), this.getAbajo()));
+		
+		if( otro.getIzquierda() <= this.getIzquierda() && otro.getDerecha() >= this.getIzquierda() && this.getArriba() <= otro.getArriba() && otro.getArriba() <= this.getAbajo() )
+			ret.add(new Punto(this.getIzquierda(), otro.getArriba()));
+		
+		if( otro.getIzquierda() <= this.getIzquierda() && otro.getDerecha() >= this.getIzquierda() && this.getArriba() <= otro.getAbajo() && otro.getAbajo() <= this.getAbajo() )
+			ret.add(new Punto(this.getIzquierda(), otro.getAbajo()));
+
+		if( otro.getIzquierda() <= this.getDerecha() && otro.getDerecha() >= this.getDerecha() && this.getArriba() <= otro.getArriba() && otro.getArriba() <= this.getAbajo() )
+			ret.add(new Punto(this.getDerecha(), otro.getArriba()));
+		
+		if( otro.getIzquierda() <= this.getDerecha() && otro.getDerecha() >= this.getDerecha() && this.getArriba() <= otro.getAbajo() && otro.getAbajo() <= this.getAbajo() )
+			ret.add(new Punto(this.getDerecha(), otro.getAbajo()));
+
 		return ret;
+	}
+	
+	private double getIzquierda()
+	{
+		return _izquierda;
+	}
+	private double getDerecha()
+	{
+		return _derecha;
+	}
+	private double getArriba()
+	{
+		return _arriba;
+	}
+	private double getAbajo()
+	{
+		return _abajo;
 	}
 	
 	// Valorizacion del pad

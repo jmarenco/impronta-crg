@@ -5,11 +5,14 @@ import java.util.List;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 import general.Instancia;
 import general.Pad;
+import general.Poligono;
 import general.Punto;
 import general.Semilla;
 
@@ -18,6 +21,7 @@ public class Discretizacion
 {
 	// Instancia y región asociadas
 	private Instancia _instancia;
+	private GeometryFactory _factory;
 	private Geometry _yacimiento;
 	
 	// Pasos de la discretización
@@ -45,9 +49,10 @@ public class Discretizacion
 	private void construir(Instancia instancia, int pasoHorizontal, int pasoVertical)
 	{
 		_instancia = instancia;
+		_factory = new GeometryFactory();
 		_pasoHorizontal = pasoHorizontal;
 		_pasoVertical = pasoVertical;
-		_yacimiento = instancia.getRegion().getGeometry();
+		_yacimiento = geometriaRegion();
 	
 		calcularRadio();
 
@@ -62,6 +67,25 @@ public class Discretizacion
 		for(int i=0; i<puntos.getNumGeometries(); ++i)
 		for(var coord: puntos.getGeometryN(i).getCoordinates())
 			_puntos.add(Punto.fromCoordinate(coord));
+	}
+	
+	private Geometry geometriaRegion()
+	{
+		Geometry ret = null;
+
+		for(Poligono envolvente: _instancia.getRegion().getEnvolventes())
+		{
+			Polygon polygon = toPolygon(envolvente);
+			if( ret == null )
+				ret = polygon;
+			else
+				ret = ret.union(polygon);
+		}
+		
+		for(Poligono agujero: _instancia.getRegion().getAgujeros())
+			ret = ret.difference(toPolygon(agujero));
+		
+		return ret;		
 	}
 	
 	// Calcula la distancia del centroide al punto más lejano
@@ -111,10 +135,20 @@ public class Discretizacion
 		for(Punto p: _puntos)
 		{
 			Pad pad = new Pad(_instancia, s, p);
-			if( _yacimiento.contains( pad.getPerimetro() ) && _yacimiento.contains( pad.getLocacion() ) && pad.factible() )
+			if( _yacimiento.contains( toPolygon(pad.getPerimetro()) ) && _yacimiento.contains( toPolygon(pad.getLocacion()) ) && pad.factible() )
 				ret.add(pad);
 		}
 		
 		return ret;
+	}
+	
+	private Polygon toPolygon(Poligono poligono)
+	{
+		Coordinate[] coords = new Coordinate[poligono.getVertices().size()];
+		
+		for(int i=0; i<poligono.getVertices().size(); ++i)
+			coords[i] = poligono.getVertices().get(i).asCoordinate();
+		
+		return _factory.createPolygon(coords);
 	}
 }

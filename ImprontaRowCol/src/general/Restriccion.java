@@ -1,17 +1,15 @@
 package general;
 
-import com.vividsolutions.jts.geom.Polygon;
-
 // Representa una restriccion
 public class Restriccion
 {
 	// Datos privados
 	private String _id;
 	private String _ring;
-	private Polygon _poligono;
+	private Poligono _poligono;
 	
 	// Construye la region
-	public Restriccion(String id, String ring, Polygon poligono)
+	public Restriccion(String id, String ring, Poligono poligono)
 	{
 		_id = id;
 		_ring = ring;
@@ -19,9 +17,9 @@ public class Restriccion
 	}
 
 	// Determina si interseca el poligono especificado
-	public boolean interseca(Polygon poligono)
+	public boolean interseca(Poligono poligono)
 	{
-		return _poligono.intersects(poligono);
+		return poligono.getVertices().stream().anyMatch(v -> _poligono.contiene(v));
 	}
 	
 	// Obtiene un identificador
@@ -31,7 +29,7 @@ public class Restriccion
 	}
 
 	// Getter
-	public Polygon getPolygon()
+	public Poligono getPolygon()
 	{
 		return _poligono;
 	}
