@@ -11,6 +11,12 @@ public class Poligono
 		_puntos = new ArrayList<Punto>();
 	}
 	
+	public Poligono(Punto[] puntos)
+	{
+		for(Punto punto: puntos)
+			add(punto);
+	}
+	
 	public void add(Punto punto)
 	{
 		_puntos.add(punto);
