@@ -54,4 +54,9 @@ public class Punto
 	{
 		return new Coordinate(_x, _y);
 	}
+	
+	public Punto clonar()
+	{
+		return new Punto(_x, _y);
+	}
 }

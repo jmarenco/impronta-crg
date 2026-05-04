@@ -29,6 +29,8 @@ public class Relajacion
 	private double _objValue;
 	private long _start;
 	private double _time;
+	private int _numVariables;
+	private int _activeVariables;
 	
 	private static double _infinity = Double.POSITIVE_INFINITY;
 	private static double _timeLimit = 3600;
@@ -73,6 +75,7 @@ public class Relajacion
 	private void crearVariables() throws IloException
 	{
 		_vars = new HashMap<IloNumVar, Pad>();
+		_numVariables = 0;
 		
 		int i = 1;
 		for(Punto point: _puntos)
@@ -86,6 +89,8 @@ public class Relajacion
 					_vars.put(_cplex.numVar(0, _infinity, "x" + (i++)), _pads.get(point, semilla));
 				else
 					_vars.put(_cplex.boolVar("x" + (i++)), _pads.get(point, semilla));
+				
+				_numVariables++;
 			}
 		}
 	}
@@ -132,6 +137,7 @@ public class Relajacion
 		{
 			_solucion = new Solucion(_instancia);
 			_objValue = _cplex.getObjValue();
+			_activeVariables = 0;
 
 			for(IloNumVar var: _vars.keySet()) if( _cplex.getValue(var) > 0.05 )
 			{
@@ -139,6 +145,7 @@ public class Relajacion
 					System.out.println(var + " = " + _cplex.getValue(var) + " -> " + _vars.get(var));
 				
 				_solucion.agregar(_vars.get(var), _cplex.getValue(var));
+				_activeVariables++;
 			}
 			
 			if( _mostrarSolucion == true )
@@ -189,7 +196,12 @@ public class Relajacion
 
 	public int getNumVariables()
 	{
-		return _vars.size();
+		return _numVariables;
+	}
+	
+	public int getActiveVariables()
+	{
+		return _activeVariables;
 	}
 
 	public int getNumConstraints()

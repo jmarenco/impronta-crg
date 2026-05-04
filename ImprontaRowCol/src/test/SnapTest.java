@@ -5,8 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.vividsolutions.jts.geom.Coordinate;
-
 import general.Instancia;
 import general.Punto;
 

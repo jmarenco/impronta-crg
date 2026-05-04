@@ -195,6 +195,4 @@ public class Pad
 		return Objects.equals(_centroLocacion, other._centroLocacion) && Objects.equals(_centroPad, other._centroPad)
 				&& Objects.equals(_semilla, other._semilla);
 	}
-	
-	
 }
