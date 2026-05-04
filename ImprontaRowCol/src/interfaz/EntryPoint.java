@@ -8,7 +8,7 @@ import heuristicas.Goloso;
 
 public class EntryPoint
 {
-	private static String _version = "0.12";
+	private static String _version = "0.13";
 	private static ArgMap _args;
 	
 	public static void main(String[] args)
@@ -48,9 +48,9 @@ public class EntryPoint
 			System.out.println("-inst [s]		Instancia a resolver");
 			System.out.println("-model			Ejecutar el modelo completo");
 			System.out.println("-master			Ejecutar el master");
-			System.out.println("-pde [n]		Eliminacion primal y dual de puntos con n rondas inactivos");
-			System.out.println("-pe [n]			Eliminacion primal de puntos con n rondas inactivos");
-			System.out.println("-de [n]			Eliminacion dual de puntos con n rondas inactivos");
+//			System.out.println("-pde [n]		Eliminacion primal y dual de puntos con n rondas inactivos");
+//			System.out.println("-pe [n]			Eliminacion primal de puntos con n rondas inactivos");
+//			System.out.println("-de [n]			Eliminacion dual de puntos con n rondas inactivos");
 			System.out.println("-ig [n]			Intentos del algoritmo goloso");
 			System.out.println("-fg [n]			Factor de discretizacion del algoritmo goloso");
 			System.out.println("-sg [n]			Semilla del algoritmo goloso");
@@ -59,7 +59,6 @@ public class EntryPoint
 			System.out.println("-show			Muestra la solucion");
 		}
 
-		Master.eliminarPuntos(_args.containsArg("-pe") || _args.containsArg("-pde"), _args.containsArg("-de") || _args.containsArg("-pde"), Math.max(Math.max(_args.intArg("-pe", 0), _args.intArg("-de", 0)), _args.intArg("-pde", 0)));
 		ModeloCompleto.setTimeLimit(_args.doubleArg("-time", 3600));
 		Master.setTimeLimit(_args.doubleArg("-time", 3600));
 		ModeloCompleto.setVerbose(!_args.containsArg("-silent"));

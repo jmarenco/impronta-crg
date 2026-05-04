@@ -11,6 +11,7 @@ import ilog.concert.IloNumVar;
 import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ public class Relajacion
 {
 	private Instancia _instancia;
 	private List<Punto> _puntos;
+	private List<Punto> _anulados;
 	private PadCache _pads;
 	
 	private IloCplex _cplex;
@@ -43,6 +45,15 @@ public class Relajacion
 	{
 		_instancia = instancia;
 		_puntos = puntos;
+		_anulados = new ArrayList<Punto>();
+		_pads = padCache;
+	}
+	
+	public Relajacion(Instancia instancia, List<Punto> puntos, List<Punto> anulados, PadCache padCache)
+	{
+		_instancia = instancia;
+		_puntos = puntos;
+		_anulados = anulados;
 		_pads = padCache;
 	}
 	
@@ -86,7 +97,7 @@ public class Relajacion
 			if( _pads.contains(point, semilla) )
 			{
 				if( _entero == false )
-					_vars.put(_cplex.numVar(0, _infinity, "x" + (i++)), _pads.get(point, semilla));
+					_vars.put(_cplex.numVar(0, _anulados.contains(point) ? 0 : _infinity, "x" + (i++)), _pads.get(point, semilla));
 				else
 					_vars.put(_cplex.boolVar("x" + (i++)), _pads.get(point, semilla));
 				
@@ -207,6 +218,11 @@ public class Relajacion
 	public int getNumConstraints()
 	{
 		return _constr.size();
+	}
+	
+	public int getAnuladosPrimales()
+	{
+		return _anulados.size();
 	}
 	
 	public static void setVerbose(boolean value)

@@ -150,8 +150,8 @@ public class Dual
 			{
 				_bindingConstraints = new HashSet<Punto>();
 				
-//				for(Pad pad: _constr.keySet()) if( Math.abs(_cplex.getSlack(_constr.get(pad))) <= 0.00001 )
-//					_bindingConstraints.add(pad.getCentro());
+				for(Pad pad: _constr.keySet()) if( Math.abs(_cplex.getSlack(_constr.get(pad))) <= 0.00001 )
+					_bindingConstraints.add(pad.getCentro());
 				
 				for(Pad pad: _constr.keySet())
 				{

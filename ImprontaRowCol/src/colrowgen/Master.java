@@ -15,7 +15,8 @@ public class Master
 {
 	private Instancia _instancia;
 	private ArrayList<Punto> _points;
-	private Map<Punto, Integer> _nullIterations;
+	private Map<Punto, Integer> _iterationsWithNullPrimalValue;
+	private Map<Punto, Integer> _iterationsWithNullDualValue;
 	private PadCache _pads;
 
 	private Relajacion _relajacion;
@@ -29,9 +30,9 @@ public class Master
 	private static double _timeLimit = 3600;
 	private static boolean _verbose = true;
 	private static boolean _resumen = true;
-	private static boolean _eliminacionPrimal = true;
-	private static boolean _eliminacionDual = true;
-	private static int _umbralEliminacion = 3;
+	private static int _umbralEliminacionPrimal = 5;
+	private static int _umbralEliminacionDual = 5;
+	private static int _umbralAnulacionPrimal = 3;
 	
 	public Master(Instancia instancia, List<Punto> iniciales)
 	{
@@ -39,11 +40,14 @@ public class Master
 		_points = new ArrayList<Punto>(iniciales);
 		_pads = new PadCache(instancia);
 		
-		if( _eliminacionPrimal || _eliminacionDual )
-			_nullIterations = new HashMap<Punto, Integer>();
-
-		if( _eliminacionDual )
+		if( _umbralEliminacionPrimal < Integer.MAX_VALUE || _umbralAnulacionPrimal < Integer.MAX_VALUE )
+			_iterationsWithNullPrimalValue = new HashMap<Punto, Integer>();
+		
+		if( _umbralEliminacionDual < Integer.MAX_VALUE )
+		{
+			_iterationsWithNullDualValue = new HashMap<Punto, Integer>();
 			Dual.setRegistrarBindings(true);
+		}
 	}
 	
 	public void solve()
@@ -56,29 +60,17 @@ public class Master
 		{
 			log("It: " + (iteracion++) + " | ");
 			
-			_relajacion = new Relajacion(_instancia, _points, _pads);
+			_relajacion = new Relajacion(_instancia, _points, anuladosPrimales(), _pads);
 			_solucion = _relajacion.resolver();
 			
-			log("Rel: " + String.format("%.5f", _relajacion.getObjValue()) + " | ");
-			log(_relajacion.varPoints().size() + " pts | ");
-			log(_relajacion.getNumVariables() + " vars | ");
-			log(_relajacion.getActiveVariables() + " nz | ");
-			log(String.format("%.2f", _relajacion.getTime()) + " sec | ");
+			log("Rel: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + _relajacion.varPoints().size() + " pts | " + _relajacion.getNumVariables() + " vars | " + _relajacion.getAnuladosPrimales() + " ap | " + _relajacion.getActiveVariables() + " nz | " + String.format("%.2f", _relajacion.getTime()) + " sec | ");
 			
 			_dualizer = new Dualizer(_relajacion);
 			_dualizer.ejecutar();
 
-//			String str = "Dualizer: " + _dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", _dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec | BFSs: " + _dualizer.getIniciosBFS() + " | Expl: " + _dualizer.getExplorados() + " | ";
-//			System.out.println(str.length());
 			log("Dualizer: " + _dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", _dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec | BFSs: " + _dualizer.getIniciosBFS() + " | Expl: " + _dualizer.getExplorados() + " | ");
-//			log("Dualizer: " + _dualizer.getNuevos().size() + " new pts | ");
-//			log(String.format("%.2f", _dualizer.getTotalTime()) + " sec | ");
-//			log("Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec | ");
-//			log("BFSs: " + _dualizer.getIniciosBFS() + " | ");
-//			log("Expl: " + _dualizer.getExplorados() + " | ");
 
-			if( _eliminacionPrimal || _eliminacionDual )
-				eliminarPuntos(_dualizer.getDualBindingConstraints());
+			eliminarPuntos(_dualizer.getDualBindingConstraints());
 
 			int anteriores = _points.size();
 			for(Punto point: _dualizer.getNuevos()) if( _points.contains(point) == false )
@@ -101,30 +93,63 @@ public class Master
 		
 		// Actualiza las iteraciones en cero
 		for(Punto point: _points)
-			_nullIterations.put(point, _nullIterations.containsKey(point) ? _nullIterations.get(point) + 1 : 1);
-
-		if( _eliminacionPrimal == true )
 		{
-			for(Punto point: _solucion.getCentros())
-				_nullIterations.put(point, 0);
+			if( _iterationsWithNullPrimalValue != null )
+				_iterationsWithNullPrimalValue.put(point, _iterationsWithNullPrimalValue.containsKey(point) ? _iterationsWithNullPrimalValue.get(point) + 1 : 1);
+
+			if( _iterationsWithNullDualValue != null )
+				_iterationsWithNullDualValue.put(point, _iterationsWithNullDualValue.containsKey(point) ? _iterationsWithNullDualValue.get(point) + 1 : 1);
 		}
 
-		if( _eliminacionDual == true )
+		if( _iterationsWithNullPrimalValue != null )
+		{
+			for(Punto point: _solucion.getCentros())
+				_iterationsWithNullPrimalValue.put(point, 0);
+		}
+
+		if( _iterationsWithNullDualValue != null )
 		{
 			for(Punto point: dualBindingConstraints)
-				_nullIterations.put(point, 0);
+				_iterationsWithNullDualValue.put(point, 0);
 		}
 		
 		// Elimina los puntos con varias iteraciones en cero
 		int anterior = _points.size();
-		for(Punto point: _nullIterations.keySet()) if( _nullIterations.get(point) > _umbralEliminacion )
-			_points.remove(point);
+		
+		if( _iterationsWithNullPrimalValue != null && _iterationsWithNullDualValue != null )
+		{
+			for(Punto point: _iterationsWithNullPrimalValue.keySet()) if( _iterationsWithNullDualValue.containsKey(point) && _iterationsWithNullPrimalValue.get(point) > _umbralEliminacionPrimal &&  _iterationsWithNullDualValue.get(point) > _umbralEliminacionDual )
+				_points.remove(point);
+		}
+		else if( _iterationsWithNullPrimalValue != null )
+		{
+			for(Punto point: _iterationsWithNullPrimalValue.keySet()) if( _iterationsWithNullPrimalValue.get(point) > _umbralEliminacionPrimal )
+				_points.remove(point);
+		}
+		else if( _iterationsWithNullDualValue != null )
+		{
+			for(Punto point: _iterationsWithNullDualValue.keySet()) if( _iterationsWithNullDualValue.get(point) > _umbralEliminacionDual )
+				_points.remove(point);
+		}
 		
 		_eliminados += anterior - _points.size();
 		
 		log("EP: " + (anterior - _points.size()) + " rem | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | ");
 	}
 	
+	private List<Punto> anuladosPrimales()
+	{
+		List<Punto> ret = new ArrayList<Punto>();
+		
+		if( _iterationsWithNullPrimalValue != null )
+		{
+			for(Punto point: _iterationsWithNullPrimalValue.keySet()) if( _iterationsWithNullPrimalValue.get(point) > _umbralAnulacionPrimal )
+				ret.add(point);
+		}
+		
+		return ret;
+	}
+
 	public Solucion getSolucion()
 	{
 		return _solucion;
@@ -139,13 +164,6 @@ public class Master
 	{
 		if( _verbose == true )
 			System.out.print(texto);
-	}
-	
-	public static void eliminarPuntos(boolean primal, boolean dual, int umbral)
-	{
-		_eliminacionPrimal = primal;
-		_eliminacionDual = dual;
-		_umbralEliminacion = umbral;
 	}
 	
 	public static void setVerbose(boolean value)
