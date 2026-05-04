@@ -30,9 +30,9 @@ public class Master
 	private static double _timeLimit = 3600;
 	private static boolean _verbose = true;
 	private static boolean _resumen = true;
-	private static int _umbralEliminacionPrimal = 5;
-	private static int _umbralEliminacionDual = 5;
-	private static int _umbralAnulacionPrimal = 3;
+	private static int _umbralEliminacionPrimal = Integer.MAX_VALUE;
+	private static int _umbralEliminacionDual = Integer.MAX_VALUE;
+	private static int _umbralAnulacionPrimal = Integer.MAX_VALUE;
 	
 	public Master(Instancia instancia, List<Punto> iniciales)
 	{
@@ -174,5 +174,20 @@ public class Master
 	public static void setTimeLimit(double value)
 	{
 		_timeLimit = value;
+	}
+	
+	public static void setUmbralEliminacionPrimal(int umbral)
+	{
+		_umbralEliminacionPrimal = umbral;
+	}
+	
+	public static void setUmbralEliminacionDual(int umbral)
+	{
+		_umbralEliminacionDual = umbral;
+	}
+	
+	public static void setUmbralAnulacionPrimal(int umbral)
+	{
+		_umbralAnulacionPrimal = umbral;
 	}
 }

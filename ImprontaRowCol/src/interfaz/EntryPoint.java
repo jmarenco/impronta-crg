@@ -8,7 +8,7 @@ import heuristicas.Goloso;
 
 public class EntryPoint
 {
-	private static String _version = "0.13";
+	private static String _version = "0.14";
 	private static ArgMap _args;
 	
 	public static void main(String[] args)
@@ -48,9 +48,9 @@ public class EntryPoint
 			System.out.println("-inst [s]		Instancia a resolver");
 			System.out.println("-model			Ejecutar el modelo completo");
 			System.out.println("-master			Ejecutar el master");
-//			System.out.println("-pde [n]		Eliminacion primal y dual de puntos con n rondas inactivos");
-//			System.out.println("-pe [n]			Eliminacion primal de puntos con n rondas inactivos");
-//			System.out.println("-de [n]			Eliminacion dual de puntos con n rondas inactivos");
+			System.out.println("-ep [n]			Eliminacion primal de puntos con n rondas inactivos");
+			System.out.println("-ed [n]			Eliminacion dual de puntos con n rondas inactivos");
+			System.out.println("-ap [n]			Anulacion primal de puntos con n rondas inactivos");
 			System.out.println("-ig [n]			Intentos del algoritmo goloso");
 			System.out.println("-fg [n]			Factor de discretizacion del algoritmo goloso");
 			System.out.println("-sg [n]			Semilla del algoritmo goloso");
@@ -67,6 +67,15 @@ public class EntryPoint
 		Goloso.setIntentos(_args.intArg("-ig", 100));
 		Goloso.setFactorPasoHorizontal(_args.intArg("-fg", 20));
 		Goloso.setFactorPasoVertical(_args.intArg("-fg", 20));
+		
+		if( _args.containsArg("-ep"))
+			Master.setUmbralEliminacionPrimal(_args.intArg("-ep", Integer.MAX_VALUE));
+		
+		if( _args.containsArg("-ed"))
+			Master.setUmbralEliminacionDual(_args.intArg("-ed", Integer.MAX_VALUE));
+		
+		if( _args.containsArg("-ap"))
+			Master.setUmbralAnulacionPrimal(_args.intArg("-ap", Integer.MAX_VALUE));
 	}
 
 	public static String version()
