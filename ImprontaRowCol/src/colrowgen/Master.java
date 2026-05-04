@@ -59,12 +59,23 @@ public class Master
 			_relajacion = new Relajacion(_instancia, _points, _pads);
 			_solucion = _relajacion.resolver();
 			
-			log("Rel: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + _relajacion.varPoints().size() + " pts | " + String.format("%.2f", _relajacion.getTime()) + " sec | " + _relajacion.getActiveVariables() /*+ "/" + _relajacion.getNumVariables()*/ + " nz | ");
+			log("Rel: " + String.format("%.5f", _relajacion.getObjValue()) + " | ");
+			log(_relajacion.varPoints().size() + " pts | ");
+			log(_relajacion.getNumVariables() + " vars | ");
+			log(_relajacion.getActiveVariables() + " nz | ");
+			log(String.format("%.2f", _relajacion.getTime()) + " sec | ");
 			
 			_dualizer = new Dualizer(_relajacion);
 			_dualizer.ejecutar();
 
+//			String str = "Dualizer: " + _dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", _dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec | BFSs: " + _dualizer.getIniciosBFS() + " | Expl: " + _dualizer.getExplorados() + " | ";
+//			System.out.println(str.length());
 			log("Dualizer: " + _dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", _dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec | BFSs: " + _dualizer.getIniciosBFS() + " | Expl: " + _dualizer.getExplorados() + " | ");
+//			log("Dualizer: " + _dualizer.getNuevos().size() + " new pts | ");
+//			log(String.format("%.2f", _dualizer.getTotalTime()) + " sec | ");
+//			log("Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec | ");
+//			log("BFSs: " + _dualizer.getIniciosBFS() + " | ");
+//			log("Expl: " + _dualizer.getExplorados() + " | ");
 
 			if( _eliminacionPrimal || _eliminacionDual )
 				eliminarPuntos(_dualizer.getDualBindingConstraints());
