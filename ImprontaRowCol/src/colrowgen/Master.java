@@ -9,6 +9,7 @@ import java.util.Set;
 import com.vividsolutions.jts.geom.Point;
 
 import general.Instancia;
+import general.Pad;
 import general.Solucion;
 import interfaz.EntryPoint;
 
@@ -123,6 +124,11 @@ public class Master
 	public ArrayList<Point> getPoints()
 	{
 		return _points;
+	}
+	
+	public List<Pad> getPads()
+	{
+		return _pads.getPads();
 	}
 	
 	private void log(String texto)

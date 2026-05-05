@@ -38,6 +38,15 @@ public class EntryPoint
 			
 			if( _args.containsArg("-show") )
 				Viewer.show(instancia, master.getSolucion(), master.getPoints());
+			
+			if( _args.containsArg("-posth") )
+			{
+				ModeloCompleto modelo = new ModeloCompleto(instancia, master.getPads(), true);
+				Solucion heuristica = modelo.resolver();
+
+				if( _args.containsArg("-show") )
+					Viewer.show(instancia, heuristica);
+			}
 		}
 	}
 	
@@ -48,6 +57,7 @@ public class EntryPoint
 			System.out.println("-inst [s]		Instancia a resolver");
 			System.out.println("-model			Ejecutar el modelo completo");
 			System.out.println("-master			Ejecutar el master");
+			System.out.println("-posth			Heuristica con el modelo post-master");
 			System.out.println("-pde [n]		Eliminacion primal y dual de puntos con n rondas inactivos");
 			System.out.println("-pe [n]			Eliminacion primal de puntos con n rondas inactivos");
 			System.out.println("-de [n]			Eliminacion dual de puntos con n rondas inactivos");

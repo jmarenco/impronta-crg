@@ -1,5 +1,8 @@
 package colrowgen;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.vividsolutions.jts.geom.Point;
 
 import general.Instancia;
@@ -44,5 +47,10 @@ public class PadCache
 	public Pad get(Point point, Semilla semilla)
 	{
 		return _map.get(point, semilla);
+	}
+
+	public List<Pad> getPads()
+	{
+		return _map.valueSet().stream().filter(p -> p != null).collect(Collectors.toList());
 	}
 }

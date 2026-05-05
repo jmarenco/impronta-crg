@@ -1,7 +1,9 @@
 package colrowgen;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class DoubleMap<S,T,R>
 {
@@ -34,5 +36,16 @@ public class DoubleMap<S,T,R>
 	public boolean containsKey(S s, T t)
 	{
 		return _map.containsKey(s) ? _map.get(s).containsKey(t) : false;
+	}
+	
+	public Set<R> valueSet()
+	{
+		Set<R> ret = new HashSet<R>();
+		
+		for(S s: _map.keySet())
+		for(T t: _map.get(s).keySet())
+			ret.add(_map.get(s).get(t));
+		
+		return ret;
 	}
 }
