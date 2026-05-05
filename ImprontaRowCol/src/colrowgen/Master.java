@@ -61,8 +61,8 @@ public class Master
 			_relajacion = new Relajacion(_instancia, _points, _pads);
 			_solucion = _relajacion.resolver();
 			
-			log("Rel: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + _relajacion.varPoints().size() + " pts | " + String.format("%.2f", _relajacion.getTime()) + " sec | ");
-			
+			log("Rel: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + _relajacion.varPoints().size() + " pts | " + /*_relajacion.getActiveVariables() + " nz | " +*/ String.format("%.2f", _relajacion.getTime()) + " sec | ");
+
 			_dualizer = new Dualizer(_relajacion);
 			_dualizer.ejecutar();
 

@@ -207,4 +207,9 @@ public class SimpleBFS
 	{
 		return _explorados;
 	}
+	
+	public static void setMostrarBFS(boolean valor)
+	{
+		_mostrarBFS = valor;
+	}
 }
