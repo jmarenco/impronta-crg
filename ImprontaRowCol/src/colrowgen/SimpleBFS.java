@@ -7,9 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 
 import general.Instancia;
 import general.Pad;
@@ -31,6 +29,9 @@ public class SimpleBFS
 	private ArrayList<Point> _pendientes;
 	private ArrayList<Point> _procesados;
 	private ArrayList<Point> _nuevos;
+
+	private ArrayList<Point> _puntosImagen;
+	private ArrayList<Color> _coloresImagen;
 	private Viewer _panel;
 
 	private int _indice;
@@ -52,7 +53,10 @@ public class SimpleBFS
 	public void ejecutar()
 	{
 		if( _mostrarBFS == true )
-			_panel = interfaz.Viewer.show(_instancia, _dualSolution, _semilla);
+		{
+			_puntosImagen = new ArrayList<Point>();
+			_coloresImagen = new ArrayList<Color>();
+		}
 
 		_procesados = new ArrayList<Point>();
 		_nuevos = new ArrayList<Point>();
@@ -73,6 +77,14 @@ public class SimpleBFS
 		
 		for(Coordinate coord: relevantCoordinates())
 			addNuevo(closestFeasible(coord, Long.MAX_VALUE));
+		
+		if( _mostrarBFS == true )
+		{
+			_panel = interfaz.Viewer.show(_instancia, _dualSolution, _semilla);
+			
+			for(int i=0; i<_puntosImagen.size(); ++i)
+				_panel.addGeometry(_puntosImagen.get(i), _coloresImagen.get(i));
+		}
 	}
 	
 	private Point closestFeasible(Coordinate start, long pointsLimit)
@@ -147,10 +159,13 @@ public class SimpleBFS
 		return _instancia.getFactory().createPoint(coord);
 	}
 	
-	private void add(Geometry geom, Color color)
+	private void add(Point point, Color color)
 	{
-		if( _panel != null )
-			_panel.addGeometry(geom, color);
+		if( _mostrarBFS == true )
+		{
+			_puntosImagen.add(point);
+			_coloresImagen.add(color);
+		}
 	}
 	
 	private boolean cubierto(Point punto)
