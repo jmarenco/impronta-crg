@@ -10,7 +10,9 @@ import com.vividsolutions.jts.geom.Point;
 
 import general.Instancia;
 import general.Pad;
+import general.Semilla;
 import general.Solucion;
+import heuristicas.Discretizacion;
 import interfaz.EntryPoint;
 
 public class Master
@@ -31,6 +33,7 @@ public class Master
 	private static double _timeLimit = 3600;
 	private static boolean _verbose = true;
 	private static boolean _resumen = true;
+	private static boolean _discretizacionInicial = false;
 	private static boolean _eliminacionPrimal = true;
 	private static boolean _eliminacionDual = true;
 	private static int _umbralEliminacion = 3;
@@ -40,6 +43,9 @@ public class Master
 		_instancia = instancia;
 		_points = new ArrayList<Point>(iniciales);
 		_pads = new PadCache(instancia);
+		
+		if( _discretizacionInicial )
+			agregarIniciales();
 		
 		if( _eliminacionPrimal || _eliminacionDual )
 			_nullIterations = new HashMap<Point, Integer>();
@@ -114,6 +120,15 @@ public class Master
 		_eliminados += anterior - _points.size();
 		
 		log("EP: " + (anterior - _points.size()) + " rem | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | ");
+	}
+	
+	private void agregarIniciales()
+	{
+		Semilla semilla = _instancia.getSemillas().get(0);
+		Discretizacion discretizacion = new Discretizacion(_instancia, (int)(semilla.getLargo()/2), (int)(semilla.getAncho()/2));
+
+		for(Pad pad: discretizacion.construirPads()) if( _points.contains(pad.getCentro()) == false )
+			_points.add(pad.getCentro());
 	}
 	
 	public Solucion getSolucion()
