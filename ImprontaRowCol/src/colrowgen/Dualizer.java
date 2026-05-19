@@ -23,6 +23,8 @@ public class Dualizer
 	private long _start;
 	private double _time;
 	private double _dualTime;
+	private double _intersectionTime;
+	private double _bfsTime;
 	private long _iniciados;
 	private long _explorados;
 	
@@ -52,6 +54,8 @@ public class Dualizer
 		_dualTime = dual.getTime();
 		_dualBindingConstraints = dual.getBindingConstraints();
 		_nuevos = new ArrayList<Point>();
+		_intersectionTime = 0;
+		_bfsTime = 0;
 
 		log("  Solucion: " + dual.getObjValue() + ", target primal: " + _relajacion.getObjValue());
 		
@@ -65,6 +69,8 @@ public class Dualizer
 			_nuevos.addAll(multiBFS.getNuevos());
 			_iniciados += multiBFS.getIniciados();
 			_explorados += multiBFS.getExplorados();
+			_intersectionTime += multiBFS.getIntersectionTime();
+			_bfsTime += multiBFS.getBFSTime();
 		}
 
 		_time = (System.currentTimeMillis() - _start) / 1000.0;
@@ -118,6 +124,16 @@ public class Dualizer
 	public long getExplorados()
 	{
 		return _explorados;
+	}
+	
+	public double getIntersectionTime()
+	{
+		return _intersectionTime;
+	}
+	
+	public double getBFSTime()
+	{
+		return _bfsTime;
 	}
 	
 	public static void setVerbose(boolean value)

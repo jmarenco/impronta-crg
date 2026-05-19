@@ -38,6 +38,9 @@ public class SimpleBFS
 	private int _iniciados;
 	private int _explorados;
 	
+	private double _intersectionTime;
+	private double _bfsTime;
+	
 	private static boolean _mostrarBFS = false;
 	private static boolean _verbose = false;
 
@@ -75,8 +78,15 @@ public class SimpleBFS
 //		for(Coordinate coord: _interna.getCoordinates())
 //			addNuevo(closestFeasible(coord, Long.MAX_VALUE));
 		
-		for(Coordinate coord: relevantCoordinates())
+		long start = System.currentTimeMillis();
+		Set<Coordinate> coords = relevantCoordinates();
+		_intersectionTime = (System.currentTimeMillis() - start) / 1000.0;
+
+		start = System.currentTimeMillis();
+		for(Coordinate coord: coords)
 			addNuevo(closestFeasible(coord, Long.MAX_VALUE));
+
+		_bfsTime = (System.currentTimeMillis() - start) / 1000.0;
 		
 		if( _mostrarBFS == true )
 		{
@@ -193,9 +203,9 @@ public class SimpleBFS
 		for(Coordinate c: pad.getPerimetro().getCoordinates())
 			ret.add(c);
 		
-		for(Pad primero: pads)
-		for(Pad segundo: pads)
-		for(Coordinate c: primero.getPerimetro().intersection(segundo.getPerimetro()).getCoordinates())
+		for(int i=0; i<pads.size(); ++i)
+		for(int j=i+1; j<pads.size(); ++j)
+		for(Coordinate c: pads.get(i).getPerimetro().intersection(pads.get(j).getPerimetro()).getCoordinates())
 			ret.add(c);
 		
 		ret.addAll(_interna.getCoordinates());
@@ -221,6 +231,16 @@ public class SimpleBFS
 	public int getExplorados()
 	{
 		return _explorados;
+	}
+	
+	public double getIntersectionTime()
+	{
+		return _intersectionTime;
+	}
+	
+	public double getBFSTime()
+	{
+		return _bfsTime;
 	}
 	
 	public static void setMostrarBFS(boolean valor)

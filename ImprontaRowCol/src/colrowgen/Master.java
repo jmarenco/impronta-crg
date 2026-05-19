@@ -72,7 +72,7 @@ public class Master
 			_dualizer = new Dualizer(_relajacion);
 			_dualizer.ejecutar();
 
-			log("Dualizer: " + _dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", _dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec | BFSs: " + _dualizer.getIniciosBFS() + " | Expl: " + _dualizer.getExplorados() + " | ");
+			log("Dualizer: " + _dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", _dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec | BFSs: " + _dualizer.getIniciosBFS() + " | Expl: " + _dualizer.getExplorados() + " | "); // + "Int: " + String.format("%.2f", _dualizer.getIntersectionTime()) + " sec | BFS: " + String.format("%.2f", _dualizer.getBFSTime()) + " sec | ");
 
 			if( _eliminacionPrimal || _eliminacionDual )
 				eliminarPuntos(_dualizer.getDualBindingConstraints());
