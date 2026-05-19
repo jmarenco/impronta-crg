@@ -60,11 +60,12 @@ public class Master
 		long start = System.currentTimeMillis();
 		boolean agregados = true;
 
+		_relajacion = new Relajacion(_instancia, _points, _pads);
+
 		while( agregados == true && (System.currentTimeMillis() - start) / 1000.0 <= _timeLimit)
 		{
 			log("It: " + (iteracion++) + " | ");
 			
-			_relajacion = new Relajacion(_instancia, _points, _pads);
 			_solucion = _relajacion.resolver();
 			
 			log("Rel: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + _relajacion.varPoints().size() + " pts | " /*+ _relajacion.getActiveVariables() + " nz | "*/ + String.format("%.2f", _relajacion.getTime()) + " sec | ");

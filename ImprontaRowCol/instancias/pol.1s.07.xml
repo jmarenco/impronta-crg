@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Parámetros>
+  <!--Dirección ideal del esfuerzo horizontal mínimo y tolerancia-->
+  <Esfuerzo_horizontal_mínimo Ángulo="0" Tolerancia="0" MaxTiempoModelo="1200" MaxTiempoSolver="600" Nx="2" Ny="2"/>
+  <Área Capa="Yacimiento" ID="1" Vértices="9">
+    <Vértice X="100" Y="0" />
+    <Vértice X="0" Y="160" />
+    <Vértice X="0" Y="290" />
+    <Vértice X="120" Y="330" />
+    <Vértice X="330" Y="330" />
+    <Vértice X="460" Y="160" />
+    <Vértice X="460" Y="60" />
+    <Vértice X="380" Y="0" />
+    <Vértice X="100" Y="0" />
+  </Área>
+  <Semillas Cantidad="2">
+    <Semilla ID="Semilla 1" Coeficiente="1">
+      <PAD Largo="70" Ancho="40" />
+      <LOCACION Largo="20" Ancho="10" Tolerancia="0" />
+    </Semilla>
+  </Semillas>
+  <Restricciones Cantidad="7">
+    <Restricción ID="1" Vértices="7" Ring="1">
+      <Vértice X="90" Y="220" />
+      <Vértice X="90" Y="250" />
+      <Vértice X="120" Y="280" />
+      <Vértice X="160" Y="290" />
+      <Vértice X="170" Y="270" />
+      <Vértice X="120" Y="230" />
+      <Vértice X="90" Y="220" />
+    </Restricción>
+    <Restricción ID="2" Vértices="6" Ring="1">
+      <Vértice X="250" Y="220" />
+      <Vértice X="270" Y="250" />
+      <Vértice X="290" Y="270" />
+      <Vértice X="300" Y="250" />
+      <Vértice X="270" Y="210" />
+      <Vértice X="250" Y="220" />
+    </Restricción>
+    <Restricción ID="3" Vértices="6" Ring="1">
+      <Vértice X="250" Y="220" />
+      <Vértice X="270" Y="210" />
+      <Vértice X="290" Y="170" />
+      <Vértice X="275" Y="150" />
+      <Vértice X="250" Y="170" />
+      <Vértice X="250" Y="220" />
+    </Restricción>
+    <Restricción ID="3" Vértices="7" Ring="1">
+      <Vértice X="160" Y="110" />
+      <Vértice X="170" Y="130" />
+      <Vértice X="240" Y="80" />
+      <Vértice X="270" Y="50" />
+      <Vértice X="260" Y="40" />
+      <Vértice X="190" Y="70" />
+      <Vértice X="160" Y="110" />
+    </Restricción>
+    <Restricción ID="4" Vértices="5" Ring="1">
+      <Vértice X="200" Y="110" />
+      <Vértice X="210" Y="130" />
+      <Vértice X="170" Y="140" />
+      <Vértice X="180" Y="130" />
+      <Vértice X="200" Y="110" />
+    </Restricción>
+    <Restricción ID="5" Vértices="5" Ring="1">
+      <Vértice X="320" Y="110" />
+      <Vértice X="370" Y="130" />
+      <Vértice X="360" Y="140" />
+      <Vértice X="310" Y="130" />
+      <Vértice X="320" Y="110" />
+    </Restricción>
+    <Restricción ID="6" Vértices="5" Ring="1">
+      <Vértice X="340" Y="110" />
+      <Vértice X="410" Y="120" />
+      <Vértice X="420" Y="80" />
+      <Vértice X="330" Y="70" />
+      <Vértice X="340" Y="110" />
+    </Restricción>
+  </Restricciones>
+</Parámetros>
