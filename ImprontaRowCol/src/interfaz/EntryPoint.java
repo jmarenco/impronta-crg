@@ -57,6 +57,7 @@ public class EntryPoint
 	{
 		if( _args.containsArg("-help") )
 		{
+			System.out.println("UFO RowColGen - v" + _version);
 			System.out.println("-inst [s]		Instancia a resolver");
 			System.out.println("-step [n]		Paso de la discretizacion");
 			System.out.println("-model			Ejecutar el modelo completo");
