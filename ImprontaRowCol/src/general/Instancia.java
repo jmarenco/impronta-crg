@@ -480,6 +480,14 @@ public class Instancia
 
 		_pasoVertical = paso;
 	}
+	public void setPasos(int pasoHorizontal, int pasoVertical)
+	{
+		if( pasoHorizontal <= 0 || pasoVertical <= 0 )
+			throw new IllegalArgumentException();
+		
+		_pasoHorizontal = pasoHorizontal;
+		_pasoVertical = pasoVertical;
+	}
 	public void agregarSemilla(Semilla s)
 	{
 		_semillas.add(s);

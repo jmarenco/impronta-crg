@@ -8,7 +8,7 @@ import heuristicas.Goloso;
 
 public class EntryPoint
 {
-	private static String _version = "0.11";
+	private static String _version = "0.12";
 	private static ArgMap _args;
 	
 	public static void main(String[] args)
@@ -18,6 +18,9 @@ public class EntryPoint
 		
 		Instancia.set(Instancia.Formato.French);
 		Instancia instancia = new Instancia(_args.stringArg("-inst", "instancias/sqr.00.xml"));
+		
+		if( _args.containsArg("-step") )
+			instancia.setPasos(_args.intArg("-step", 1), _args.intArg("-step", 1));
 		
 		if( _args.containsArg("-model") )
 		{
@@ -55,6 +58,7 @@ public class EntryPoint
 		if( _args.containsArg("-help") )
 		{
 			System.out.println("-inst [s]		Instancia a resolver");
+			System.out.println("-step [n]		Paso de la discretizacion");
 			System.out.println("-model			Ejecutar el modelo completo");
 			System.out.println("-master			Ejecutar el master");
 			System.out.println("-posth			Heuristica con el modelo post-master");
