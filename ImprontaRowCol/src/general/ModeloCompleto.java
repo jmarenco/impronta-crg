@@ -113,7 +113,7 @@ public class ModeloCompleto
 			}
 
 			if( _resumen == true )
-				System.out.println("\r\nComplete | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " sec | Obj: " + String.format("%.5f", cplex.getObjValue()) + " | | " + _pads.size() + " vars | " + x.size() + " pvars | " + constraints + " pcons | | | | " + EntryPoint.args() + "\r\n");
+				System.out.println("\r\nv" + EntryPoint.version() + " | Complete" + (_entero ? "Int" : "") + " | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " sec | Obj: " + String.format("%.5f", cplex.getObjValue()) + " | | " + _pads.size() + " vars | " + x.size() + " pvars | " + constraints + " pcons | | | | " + EntryPoint.args() + "\r\n");
 
 			cplex.close();
 			log("");
