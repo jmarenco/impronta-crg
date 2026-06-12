@@ -1,6 +1,7 @@
 package interfaz;
 
 import colrowgen.Master;
+import colrowgen.SimpleBFS;
 import general.Instancia;
 import general.ModeloCompleto;
 import general.Solucion;
@@ -87,6 +88,7 @@ public class EntryPoint
 		Goloso.setIntentos(_args.intArg("-ig", 100));
 		Goloso.setFactorPasoHorizontal(_args.intArg("-fg", 20));
 		Goloso.setFactorPasoVertical(_args.intArg("-fg", 20));
+		SimpleBFS.setMostrarBFS(_args.containsArg("-showbfs"));
 		Viewer.setLatex(_args.containsArg("-latex"));
 	}
 

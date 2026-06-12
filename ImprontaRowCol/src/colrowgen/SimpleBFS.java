@@ -100,10 +100,12 @@ public class SimpleBFS
 		
 		if( _mostrarBFS == true )
 		{
-			_panel = interfaz.Viewer.show(_instancia, _dualSolution, _semilla);
+			_panel = interfaz.Viewer.construct(_instancia, _dualSolution, _semilla);
 			
 			for(int i=0; i<_puntosImagen.size(); ++i)
-				_panel.addGeometry(_puntosImagen.get(i), _coloresImagen.get(i));
+				_panel.addGeometry(_puntosImagen.get(i), _coloresImagen.get(i), _coloresImagen.get(i));
+			
+			Viewer.show(_instancia, _panel, "Solución dual");
 		}
 	}
 	
@@ -181,7 +183,7 @@ public class SimpleBFS
 	
 	private void add(Point point, Color color)
 	{
-		if( _mostrarBFS == true )
+		if( _mostrarBFS == true && _puntosImagen.contains(point) == false )
 		{
 			_puntosImagen.add(point);
 			_coloresImagen.add(color);

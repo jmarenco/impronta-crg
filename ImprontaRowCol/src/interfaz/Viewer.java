@@ -19,6 +19,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +44,16 @@ public class Viewer extends JPanel
     private int _miny = Integer.MAX_VALUE;
     private int _maxy = Integer.MIN_VALUE;
     private int _margen = 20;
+    private int _numero;
     
     private static boolean _latex = false;
+    private static int _export = 0;
 
+    public Viewer()
+    {
+    	_numero = _export++;
+    }
+    
     public void addGeometry(Geometry geom)
     {
     	addGeometry(geom, Color.BLACK);
@@ -136,6 +145,7 @@ public class Viewer extends JPanel
 
     private void drawLineString(LineString polygon, Graphics2D g2d)
     {
+    	System.exit(1);
     	Coordinate[] c = polygon.getCoordinates();
     	for(int i=0; i+1<c.length; ++i)
     		g2d.drawLine(convx(c[i]), convy(c[i]), convx(c[i+1]), convy(c[i+1]));
@@ -143,6 +153,7 @@ public class Viewer extends JPanel
 
     private void drawMultiPoint(MultiPoint points, Graphics2D g2d)
     {
+    	System.exit(1);
     	for(Coordinate c: points.getCoordinates())
     	{
     		Ellipse2D.Double circle = new Ellipse2D.Double(convx(c), convy(c), 2, 2);
@@ -224,98 +235,109 @@ public class Viewer extends JPanel
 
     public void printLatex()
     {
-		System.out.println("\\begin{figure}");
-		System.out.println("\\begin{center}");
-		System.out.println("\\begin{adjustbox}{max width=0.7\\textwidth}");
-		System.out.println("\\begin{tikzpicture}[scale=0.03]");
-
-		if( dual != null )
-        	printDualCoveringLatex();
-
-        if (!geometries.isEmpty())
-        {
-        	for(int i=0; i<geometries.size(); ++i)
-            {
-        		Geometry geom = geometries.get(i);
-        		
-            	if( geom.getClass().getName().contains("Polygon") )
-            		printPolygonLatex((Polygon)geom, colors.get(i), fills.get(i));
-
-            	if( geom.getClass().getName().contains("MultiPoint") )
-            		printMultiPointLatex((MultiPoint)geom, colors.get(i));
-
-            	if( geom.getClass().getName().contains("LineString") )
-            		printLineStringLatex((LineString)geom, colors.get(i));
-
-            	if( geom.getClass().getName().contains(".Point") )
-            		printPointLatex((Point)geom, colors.get(i));
-            }
-        }
-
-        System.out.println("\\end{tikzpicture}");
-		System.out.println("\\end{adjustbox}");
-		System.out.println("\\end{center}");
-		System.out.println("\\end{figure}");
+    	try
+    	{
+    		FileWriter writer = new FileWriter("grafico-" + _numero + ".tex");
+    		
+			writer.write("\\begin{figure}\r\n");
+			writer.write("\\begin{center}\r\n");
+			writer.write("\\begin{adjustbox}{max width=0.7\\textwidth}\r\n");
+			writer.write("\\begin{tikzpicture}[scale=0.03]\r\n");
+	
+			if( dual != null )
+	        	printDualCoveringLatex(writer);
+	
+	        if (!geometries.isEmpty())
+	        {
+	        	for(int i=0; i<geometries.size(); ++i)
+	            {
+	        		Geometry geom = geometries.get(i);
+	        		
+	            	if( geom.getClass().getName().contains("Polygon") )
+	            		printPolygonLatex(writer, (Polygon)geom, colors.get(i), fills.get(i));
+	
+//	            	if( geom.getClass().getName().contains("MultiPoint") )
+//	            		printMultiPointLatex((MultiPoint)geom, colors.get(i));
+//	
+//	            	if( geom.getClass().getName().contains("LineString") )
+//	            		printLineStringLatex((LineString)geom, colors.get(i));
+	
+	            	if( geom.getClass().getName().contains(".Point") )
+	            		printPointLatex(writer, (Point)geom, colors.get(i));
+	            }
+	        }
+	
+	        writer.write("\\end{tikzpicture}\r\n");
+	        writer.write("\\end{adjustbox}\r\n");
+	        writer.write("\\end{center}\r\n");
+	        writer.write("\\end{figure}\r\n");
+	        writer.close();
+    	}
+    	catch(Exception e)
+    	{
+    		e.printStackTrace();
+    	}
     }
     
-    private void printDualCoveringLatex()
+    private void printDualCoveringLatex(FileWriter writer) throws IOException
     {
+       	for(Semilla semilla: instancia.getSemillas())
+       	for(Point punto: dual.keySet())
+   		{
+       		double targetArea = semilla.getAncho() * semilla.getLargo()/ 1e6;
+   			double valor = Math.min(targetArea, dual.get(punto));
+   			int nivel = (int)(255 * (targetArea - valor) / targetArea);
+    		
+   			writer.write("\\draw[draw=gray,fill=" + toLatex(new Color(nivel, nivel, nivel)) + ",opacity=0.3]");
+
+   			Pad pad = new Pad(instancia, semilla, punto.getCoordinate());
+       		for(Coordinate c: pad.getPerimetro().getCoordinates())
+        		writer.write("(" + convxo(c) + "," + convyo(c) + ") -- ");
+       			
+        	writer.write("cycle;\r\n");
+        }
 	}
 
-	private void printPolygonLatex(Polygon geom, Color color, Color fill)
+	private void printPolygonLatex(FileWriter writer, Polygon geom, Color color, Color fill) throws IOException
 	{
-		System.out.print("\\draw[draw=" + toLatex(color));
+		writer.write("\\draw[draw=" + toLatex(color));
 		
 		if( fill != null)
-			System.out.print(",fill=" + toLatex(fill) + ",opacity=0.3");
+			writer.write(",fill=" + toLatex(fill) + ",opacity=0.3");
 			
-		System.out.print("] ");
+		writer.write("] ");
 		
     	Coordinate[] c = geom.getCoordinates();
     	for(int i=0; i<c.length; ++i)
-    		System.out.print("(" + convxo(c[i]) + "," + convyo(c[i]) + ") -- ");
+    		writer.write("(" + convxo(c[i]) + "," + convyo(c[i]) + ") -- ");
     	
-    	System.out.println("cycle;");
+    	writer.write("cycle;\r\n");
 	}
 
-	private void printMultiPointLatex(MultiPoint geom, Color color)
+	private void printPointLatex(FileWriter writer, Point point, Color color) throws IOException
 	{
-	}
-
-	private void printLineStringLatex(LineString geom, Color color)
-	{
-	}
-
-	private void printPointLatex(Point point, Color color)
-	{
-		System.out.println("\\draw[draw=" + toLatex(color) + ",fill=" + toLatex(color) +"] ("+ convxo(point.getCoordinate()) + "," + convyo(point.getCoordinate()) + ") circle (1);");
+		writer.write("\\draw[draw=" + toLatex(color) + ",fill=" + toLatex(color) +"] ("+ convxo(point.getCoordinate()) + "," + convyo(point.getCoordinate()) + ") circle (1);\r\n");
 	}
 	
 	private String toLatex(Color color)
 	{
+		if( color == Color.red || color == Color.RED )
+			return "red";
+		
+		if( color == Color.blue || color == Color.BLUE )
+			return "blue";
+		
+		if( color == Color.black || color == Color.BLACK )
+			return "black";
+		
+		if( color == Color.green || color == Color.GREEN )
+			return "green";
+		
+		if( color == Color.magenta || color == Color.MAGENTA )
+			return "magenta";
+		
 		return "{rgb,255:red," + color.getRed() + "; green," + color.getGreen() + "; blue," + color.getBlue() + "}";
 	}
-
-	public static Viewer show(Instancia instancia)
-    {
-        Viewer panel = new Viewer();
-        addRegion(panel, instancia);
-        addRestricciones(panel, instancia);
-        showFrame(instancia, panel, "Instancia");
-        
-        return panel;
-    }
-    
-    public static Viewer show(Instancia instancia, Region interna)
-    {
-        Viewer panel = new Viewer();
-        addRegion(panel, instancia);
-        addRegion(panel, interna, Color.BLUE, null);
-        addRestricciones(panel, instancia);
-        showFrame(instancia, panel, "Instancia");
-        
-        return panel;
-    }
     
     public static void show(Instancia instancia, Solucion solucion)
     {
@@ -333,21 +355,20 @@ public class Viewer extends JPanel
         showFrame(instancia, panel, "Solución");
     }
 
-    public static Viewer show(Instancia instancia, Map<Point, Double> dual, Semilla semilla)
+    public static Viewer construct(Instancia instancia, Map<Point, Double> dual, Semilla semilla)
     {
         Viewer panel = new Viewer();
         panel.addDual(instancia, dual);
         addRegion(panel, instancia);
         addRegion(panel, instancia.getRegionInterna(semilla), Color.BLUE, null);
         addRestricciones(panel, instancia);
-        showFrame(instancia, panel, "Solución dual");
 
         return panel;
     }
 
     private static void addRegion(Viewer panel, Instancia instancia)
     {
-    	addRegion(panel, instancia.getRegion(), Color.BLACK, new Color(224, 173, 122));
+    	addRegion(panel, instancia.getRegion(), Color.BLACK, null); // new Color(224, 173, 122));
     }
 
     private static void addRegion(Viewer panel, Region region, Color color, Color fill)
@@ -389,14 +410,24 @@ public class Viewer extends JPanel
         }
 	}
 	
+	public int getNumero()
+	{
+		return _numero;
+	}
+	
 	public static void setLatex(boolean valor)
 	{
 		_latex = valor;
 	}
+	
+	public static void show(Instancia instancia, Viewer panel, String texto)
+	{
+		showFrame(instancia, panel, texto);
+	}
 
 	private static void showFrame(Instancia instancia, Viewer panel, String texto)
 	{
-		JFrame frame = new JFrame(texto + " - " + instancia.getArchivo());
+		JFrame frame = new JFrame("#" + panel.getNumero() + " - " + texto + " - " + instancia.getArchivo());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(panel);
         frame.setSize(500, 500);
