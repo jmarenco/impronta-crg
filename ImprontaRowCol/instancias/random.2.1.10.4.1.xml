@@ -1,5 +1,5 @@
 <Parámetros>
-  <Esfuerzo_horizontal_mínimo Ángulo="0" Tolerancia="0" MaxTiempoModelo="1200" MaxTiempoSolver="600" Nx="1" Ny="1"/>
+  <Esfuerzo_horizontal_mínimo Ángulo="0" Tolerancia="0" MaxTiempoModelo="1200" MaxTiempoSolver="600" Nx="10" Ny="10"/>
   <Área Capa="Yacimiento" ID="1" Vértices="16">
     <Vértice X="743,129178794352" Y="987,4208338984266" />
     <Vértice X="510,3538283574343" Y="975,5379538142083" />

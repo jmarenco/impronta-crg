@@ -61,6 +61,9 @@ public class RegionInterna
 			todas = todas.stream().filter(p -> original.contains(p)).collect(Collectors.toList());
 			Collections.sort(todas, (p,q) -> (int)Math.signum(original.distance(q) - original.distance(p)));
 			
+			if( todas.size() == 0 )
+				System.err.println("El punto " + vertice + " no tiene un vertice interno factible asociado!");
+			
 			nuevos[i] = todas.get(0).getCoordinate();
 		}
 		

@@ -1,5 +1,5 @@
 <Parámetros>
-  <Esfuerzo_horizontal_mínimo Ángulo="0" Tolerancia="0" MaxTiempoModelo="1200" MaxTiempoSolver="600" Nx="1" Ny="1"/>
+  <Esfuerzo_horizontal_mínimo Ángulo="0" Tolerancia="0" MaxTiempoModelo="1200" MaxTiempoSolver="600" Nx="10" Ny="10"/>
   <Área Capa="Yacimiento" ID="1" Vértices="16">
     <Vértice X="665,5575884394311" Y="939,8653887819098" />
     <Vértice X="646,5852915757808" Y="937,6053684697348" />
@@ -11,7 +11,7 @@
     <Vértice X="5,025175992452557" Y="579,3201872800445" />
     <Vértice X="9,076288393365605" Y="541,2490057126059" />
     <Vértice X="120,01820043357081" Y="148,72166571031" />
-    <Vértice X="485,77941397651097" Y="6,117182265761301" />
+    <Vértice X="400,77941397651097" Y="141,117182265761301" />
     <Vértice X="705,4997247624021" Y="140,75479957395743" />
     <Vértice X="967,7559094241208" Y="467,35467326770726" />
     <Vértice X="881,4137187298011" Y="657,7727730965291" />
@@ -20,8 +20,8 @@
   </Área>
   <Semillas Cantidad="1">
     <Semilla ID="Semilla 1" Coeficiente="1">
-      <PAD Largo="200,0" Ancho="66" />
-      <LOCACION Largo="10,0" Ancho="10,0" Tolerancia="0"/>
+      <PAD Largo="100" Ancho="30" />
+      <LOCACION Largo="5,0" Ancho="1,0" Tolerancia="0"/>
     </Semilla>
   </Semillas>
   <Restricciones Cantidad="14">    <Restricción ID="1" Vértices="7" Ring="1">
