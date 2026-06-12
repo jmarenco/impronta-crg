@@ -24,7 +24,7 @@
       <LOCACION Largo="10,0" Ancho="10,0" Tolerancia="0"/>
     </Semilla>
     <Semilla ID="Semilla 2" Coeficiente="1">
-      <PAD Largo="133,33333333333331" Ancho="57,14285714285714" />
+      <PAD Largo="132" Ancho="56" />
       <LOCACION Largo="10,0" Ancho="10,0" Tolerancia="0"/>
     </Semilla>
   </Semillas>
