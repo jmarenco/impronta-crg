@@ -52,7 +52,7 @@ public class Goloso
 		Solucion ret = construirSolucion();
 		
 		if( _resumen == true )
-			System.out.println("v" + EntryPoint.version() + " | Goloso | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | Obj: " + String.format("%.5f", ret.valorizacion()) + " | Area: " + String.format("%.5f", ret.areaCubierta()) + " | " + _discretizacion.asList().size() + " pts | | | | | | " + EntryPoint.args() + "\r\n");
+			System.out.println("v" + EntryPoint.version() + " | Goloso | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | Obj: " + String.format("%.5f", ret.valorizacion()) + " | Area: " + String.format("%.5f", ret.areaCubierta()) + " | " + _discretizacion.asList().size() + " pts | | | | | | | " + EntryPoint.args() + "\r\n");
 
 		return ret;
 	}

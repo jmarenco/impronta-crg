@@ -100,8 +100,15 @@ public class ModeloCompleto
 			log("\r\nResolviendo el modelo");
 			cplex.solve();
 			
-			for(int i=0; i<_pads.size(); ++i) if( cplex.getValue(x.get(i)) > 0.01 )
-				ret.agregar(_pads.get(i), cplex.getValue(x.get(i)));
+			int fraccionarias = 0;
+			for(int i=0; i<_pads.size(); ++i)
+			{
+				if( cplex.getValue(x.get(i)) > 0.01 )
+					ret.agregar(_pads.get(i), cplex.getValue(x.get(i)));
+
+				if( cplex.getValue(x.get(i)) > 0.01 && cplex.getValue(x.get(i)) < 0.99 )
+					++fraccionarias;
+			}
 			
 			log("Tiempo total: " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " seg. \r\n");
 			log("Solución óptima: " + String.format("%.5f", cplex.getObjValue()));
@@ -113,7 +120,7 @@ public class ModeloCompleto
 			}
 
 			if( _resumen == true )
-				System.out.println("\r\nv" + EntryPoint.version() + " | Complete" + (_entero ? "Int" : "") + " | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " sec | Obj: " + String.format("%.5f", cplex.getObjValue()) + " | | " + _pads.size() + " vars | " + x.size() + " pvars | " + constraints + " pcons | | | | " + EntryPoint.args() + "\r\n");
+				System.out.println("\r\nv" + EntryPoint.version() + " | Complete" + (_entero ? "Int" : "") + " | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " sec | Obj: " + String.format("%.5f", cplex.getObjValue()) + " | | " + _pads.size() + " vars | " + x.size() + " pvars | " + constraints + " pcons | | | | " + fraccionarias + " frac | " + EntryPoint.args() + "\r\n");
 
 			cplex.close();
 			log("");

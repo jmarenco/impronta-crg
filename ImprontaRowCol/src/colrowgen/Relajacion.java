@@ -32,6 +32,7 @@ public class Relajacion
 	private long _start;
 	private double _time;
 	private int _activeVariables;
+	private int _fractionalVariables;
 	
 	private static double _infinity = Double.POSITIVE_INFINITY;
 	private static double _timeLimit = 3600;
@@ -138,6 +139,7 @@ public class Relajacion
 			_solucion = new Solucion(_instancia);
 			_objValue = _cplex.getObjValue();
 			_activeVariables = 0;
+			_fractionalVariables = 0;
 
 			for(IloNumVar var: _vars.keySet()) if( _cplex.getValue(var) > 0.05 )
 			{
@@ -147,6 +149,9 @@ public class Relajacion
 				_solucion.agregar(_vars.get(var), _cplex.getValue(var));
 				_activeVariables++;
 			}
+			
+			for(IloNumVar var: _vars.keySet()) if( _cplex.getValue(var) > 0.01 && _cplex.getValue(var) < 0.99 )
+				_fractionalVariables++;
 			
 			if( _mostrarSolucion == true )
 				System.out.println("Primal objective value: " + _objValue);
@@ -207,6 +212,11 @@ public class Relajacion
 	public int getActiveVariables()
 	{
 		return _activeVariables;
+	}
+	
+	public int getFractionalVariables()
+	{
+		return _fractionalVariables;
 	}
 	
 	public static void setVerbose(boolean value)
