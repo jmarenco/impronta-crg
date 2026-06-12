@@ -47,8 +47,10 @@ public class Relajacion
 		_pads = padCache;
 	}
 	
-	public Solucion resolver()
+	public Solucion resolver(double timeLimit)
 	{
+		_timeLimit = timeLimit;
+		
 		try
 		{
 			crearModelo();

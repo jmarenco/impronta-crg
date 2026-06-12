@@ -36,6 +36,7 @@ public class Instancia
 	public enum Formato { Nada, French, US };
 	private static Formato _formato = Formato.Nada;
 	private static boolean _verbose = false;
+	private static int _escala = 1;
 	
 	// Constructor por defecto
 	public Instancia()
@@ -177,7 +178,7 @@ public class Instancia
 		else if( _formato == Formato.US )
 			nf = NumberFormat.getInstance(Locale.US);
 
-		return nf != null ? nf.parse(s).doubleValue() : Double.parseDouble(s);
+		return nf != null ? _escala * nf.parse(s).doubleValue() : _escala * Double.parseDouble(s);
 	}	
 	
 	// Obtiene varias áreas del archivo .xml
@@ -321,6 +322,12 @@ public class Instancia
 				
 				log("  -> " + nueva);
 				_semillas.add(nueva);
+				
+				if( !esPar(nueva.getAncho()) || !esPar(nueva.getLargo()) )
+				{
+					System.err.println("Las dimensiones de la semilla no son enteros pares! " + nueva);
+					System.exit(1);
+				}
 			}
 
 			log("");
@@ -331,6 +338,14 @@ public class Instancia
 	    	System.out.println(e.getMessage());
 	    	e.printStackTrace();
 	    }
+	}
+	
+	private boolean esPar(double valor)
+	{
+		if( Math.abs(valor - (int)valor) > 0.01 )
+			return false;
+		
+		return (int)valor % 2 == 0;
 	}
 	
 	// Calcula valores por defecto para la discretización
@@ -592,6 +607,11 @@ public class Instancia
 	public static void setVerbose(boolean valor)
 	{
 		_verbose = valor;
+	}
+	
+	public static void setScale(int escala)
+	{
+		_escala = escala;
 	}
 	
 	// Obtiene un constructor de geometrías

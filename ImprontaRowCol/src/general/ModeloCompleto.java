@@ -109,7 +109,7 @@ public class ModeloCompleto
 			if( _mostrarSolucion == true )
 			{
 				for(Pad pad: ret.getPads())
-					log(" - " + pad.getCentro() + " = " + ret.getValor(pad));
+					log(" - " + pad.getCentro() + " " + pad.getPerimetro() + " = " + ret.getValor(pad));
 			}
 
 			if( _resumen == true )

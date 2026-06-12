@@ -8,14 +8,17 @@ import heuristicas.Goloso;
 
 public class EntryPoint
 {
-	private static String _version = "0.12";
+	private static String _version = "0.13";
 	private static ArgMap _args;
 	
 	public static void main(String[] args)
 	{
 		_args = new ArgMap(args);
 		procesarParametros();
-		
+
+		if( _args.containsArg("-scale") )
+			Instancia.setScale(_args.intArg("-scale", 1));
+
 		Instancia.set(Instancia.Formato.French);
 		Instancia instancia = new Instancia(_args.stringArg("-inst", "instancias/sqr.00.xml"));
 		
@@ -59,6 +62,7 @@ public class EntryPoint
 		{
 			System.out.println("UFO RowColGen - v" + _version);
 			System.out.println("-inst [s]		Instancia a resolver");
+			System.out.println("-scale [n]		Factor de escala para la instancia");
 			System.out.println("-step [n]		Paso de la discretizacion");
 			System.out.println("-model			Ejecutar el modelo completo");
 			System.out.println("-master			Ejecutar el master");

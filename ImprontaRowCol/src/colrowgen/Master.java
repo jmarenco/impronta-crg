@@ -29,6 +29,7 @@ public class Master
 	private int _eliminados = 0;
 	private int _BFSs = 0;
 	private int _explorados = 0;
+	private long _start;
 	
 	private static double _timeLimit = 3600;
 	private static boolean _verbose = true;
@@ -57,21 +58,21 @@ public class Master
 	public void solve()
 	{
 		int iteracion = 1;
-		long start = System.currentTimeMillis();
+		_start = System.currentTimeMillis();
 		boolean agregados = true;
 
 		_relajacion = new Relajacion(_instancia, _points, _pads);
 
-		while( agregados == true && (System.currentTimeMillis() - start) / 1000.0 <= _timeLimit)
+		while( agregados == true && elapsedTime() <= _timeLimit)
 		{
 			log("It: " + (iteracion++) + " | ");
 			
-			_solucion = _relajacion.resolver();
+			_solucion = _relajacion.resolver(remainingTime());
 			
 			log("Rel: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + _relajacion.varPoints().size() + " pts | " /*+ _relajacion.getActiveVariables() + " nz | "*/ + String.format("%.2f", _relajacion.getTime()) + " sec | ");
 
 			_dualizer = new Dualizer(_relajacion);
-			_dualizer.ejecutar();
+			_dualizer.ejecutar(remainingTime());
 
 			log("Dualizer: " + _dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", _dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec | BFSs: " + _dualizer.getIniciosBFS() + " | Expl: " + _dualizer.getExplorados() + " | "); // + "Int: " + String.format("%.2f", _dualizer.getIntersectionTime()) + " sec | BFS: " + String.format("%.2f", _dualizer.getBFSTime()) + " sec | ");
 
@@ -86,11 +87,11 @@ public class Master
 			_BFSs += _dualizer.getIniciosBFS();
 			_explorados += _dualizer.getExplorados();
 
-			log("New pts: " + _dualizer.getNuevos().size() + " | Total: " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec \r\n");
+			log("New pts: " + _dualizer.getNuevos().size() + " | Total: " + String.format("%.2f", elapsedTime()) + " sec \r\n");
 		}
 		
 		if( _resumen == true )
-			System.out.println("\r\nv" + EntryPoint.version() + " | Master | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - start) / 1000.0) + " sec | Obj: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + (iteracion-1) + " its | " + _relajacion.varPoints().size() + " pts | " + _relajacion.getNumVariables() + " pvars | " + _relajacion.getNumConstraints() + " pcons | BFSs: " + _BFSs + " | Expl: " + String.format("%.2f", _BFSs > 0 ? _explorados / (double)_BFSs : 0) + " prom | " + _eliminados + " rem | " + EntryPoint.args() + "\r\n");
+			System.out.println("\r\nv" + EntryPoint.version() + " | Master | " + _instancia.getArchivo() + " | " + String.format("%.2f", elapsedTime()) + " sec | Obj: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + (iteracion-1) + " its | " + _relajacion.varPoints().size() + " pts | " + _relajacion.getNumVariables() + " pvars | " + _relajacion.getNumConstraints() + " pcons | BFSs: " + _BFSs + " | Expl: " + String.format("%.2f", _BFSs > 0 ? _explorados / (double)_BFSs : 0) + " prom | " + _eliminados + " rem | " + EntryPoint.args() + "\r\n");
 	}
 	
 	private void eliminarPuntos(Set<Point> dualBindingConstraints)
@@ -130,6 +131,16 @@ public class Master
 
 		for(Pad pad: discretizacion.construirPads()) if( _points.contains(pad.getCentro()) == false )
 			_points.add(pad.getCentro());
+	}
+
+	private double elapsedTime()
+	{
+		return (System.currentTimeMillis() - _start) / 1000.0;
+	}
+
+	private double remainingTime()
+	{
+		return Math.max(0, _timeLimit - (System.currentTimeMillis() - _start) / 1000.0);
 	}
 	
 	public Solucion getSolucion()

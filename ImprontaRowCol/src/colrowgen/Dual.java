@@ -50,8 +50,10 @@ public class Dual
 		_factory = _instancia.getFactory();
 	}
 	
-	public Map<Point, Double> resolver()
+	public Map<Point, Double> resolver(double timeLimit)
 	{
+		_timeLimit = timeLimit;
+		
 		try
 		{
 			crearModelo();

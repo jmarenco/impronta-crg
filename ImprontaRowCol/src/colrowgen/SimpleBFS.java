@@ -38,8 +38,10 @@ public class SimpleBFS
 	private int _iniciados;
 	private int _explorados;
 	
+	private double _timeLimit;
 	private double _intersectionTime;
 	private double _bfsTime;
+	private long _start;
 	
 	private static boolean _mostrarBFS = false;
 	private static boolean _verbose = false;
@@ -53,8 +55,11 @@ public class SimpleBFS
 		_interna = instancia.getRegionInterna(semilla);
 	}
 	
-	public void ejecutar()
+	public void ejecutar(double timeLimit)
 	{
+		_timeLimit = timeLimit;
+		_start = System.currentTimeMillis();
+		
 		if( _mostrarBFS == true )
 		{
 			_puntosImagen = new ArrayList<Point>();
@@ -78,15 +83,20 @@ public class SimpleBFS
 //		for(Coordinate coord: _interna.getCoordinates())
 //			addNuevo(closestFeasible(coord, Long.MAX_VALUE));
 		
-		long start = System.currentTimeMillis();
+		long intStart = System.currentTimeMillis();
 		Set<Coordinate> coords = relevantCoordinates();
-		_intersectionTime = (System.currentTimeMillis() - start) / 1000.0;
+		_intersectionTime = (System.currentTimeMillis() - intStart) / 1000.0;
 
-		start = System.currentTimeMillis();
+		long bfsStart = System.currentTimeMillis();
 		for(Coordinate coord: coords)
+		{
 			addNuevo(closestFeasible(coord, Long.MAX_VALUE));
+			
+			if( remainingTime() <= 0.1 )
+				return;
+		}
 
-		_bfsTime = (System.currentTimeMillis() - start) / 1000.0;
+		_bfsTime = (System.currentTimeMillis() - bfsStart) / 1000.0;
 		
 		if( _mostrarBFS == true )
 		{
@@ -210,6 +220,11 @@ public class SimpleBFS
 		
 		ret.addAll(_interna.getCoordinates());
 		return ret;
+	}
+
+	private double remainingTime()
+	{
+		return Math.max(0, _timeLimit - (System.currentTimeMillis() - _start) / 1000.0);
 	}
 	
 	private void log(String texto)

@@ -13,7 +13,7 @@
   </Área>
   <Semillas Cantidad="1">
     <Semilla ID="Semilla 1" Coeficiente="1">
-      <PAD Largo="15" Ancho="7" />
+      <PAD Largo="16" Ancho="8" />
       <LOCACION Largo="2" Ancho="1" Tolerancia="0" />
     </Semilla>
   </Semillas>

@@ -20,7 +20,7 @@
   </Área>
   <Semillas Cantidad="2">
     <Semilla ID="Semilla 1" Coeficiente="1">
-      <PAD Largo="400,0" Ancho="133,33333333333331" />
+      <PAD Largo="400,0" Ancho="132" />
       <LOCACION Largo="10,0" Ancho="10,0" Tolerancia="0"/>
     </Semilla>
     <Semilla ID="Semilla 2" Coeficiente="1">

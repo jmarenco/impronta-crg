@@ -22,6 +22,7 @@ public class Dualizer
 	
 	private long _start;
 	private double _time;
+	private double _timeLimit;
 	private double _dualTime;
 	private double _intersectionTime;
 	private double _bfsTime;
@@ -41,8 +42,9 @@ public class Dualizer
 			mostrarPuntos(relajacion);
 	}
 	
-	public void ejecutar()
+	public void ejecutar(double timeLimit)
 	{
+		_timeLimit = timeLimit;
 		_start = System.currentTimeMillis();
 		_iniciados = 0;
 		_explorados = 0;
@@ -50,7 +52,7 @@ public class Dualizer
 		log("Resolviendo dual");
 		Dual dual = new Dual(_instancia, _relajacion);
 
-		_dualSolution = dual.resolver();
+		_dualSolution = dual.resolver(remainingTime());
 		_dualTime = dual.getTime();
 		_dualBindingConstraints = dual.getBindingConstraints();
 		_nuevos = new ArrayList<Point>();
@@ -64,7 +66,7 @@ public class Dualizer
 			log("Semilla " + semilla.getLargo() + " x " + semilla.getAncho());
 			
 			SimpleBFS multiBFS = new SimpleBFS(_instancia, _dualSolution, semilla, _pads);
-			multiBFS.ejecutar();
+			multiBFS.ejecutar(remainingTime());
 			
 			_nuevos.addAll(multiBFS.getNuevos());
 			_iniciados += multiBFS.getIniciados();
@@ -73,7 +75,17 @@ public class Dualizer
 			_bfsTime += multiBFS.getBFSTime();
 		}
 
-		_time = (System.currentTimeMillis() - _start) / 1000.0;
+		_time = elapsedTime();
+	}
+	
+	private double elapsedTime()
+	{
+		return (System.currentTimeMillis() - _start) / 1000.0;
+	}
+
+	private double remainingTime()
+	{
+		return Math.max(0, _timeLimit - (System.currentTimeMillis() - _start) / 1000.0);
 	}
 	
 	public Map<Point, Double> getDualSolution()
