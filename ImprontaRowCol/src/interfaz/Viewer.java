@@ -32,6 +32,7 @@ public class Viewer extends JPanel
 
 	private List<Geometry> geometries = new ArrayList<Geometry>();
 	private List<Color> colors = new ArrayList<Color>();
+	private List<Color> fills = new ArrayList<Color>();
 	private OGIP ogip = null;
 	private Map<Point, Double> dual = null;
 	private Instancia instancia = null; // Solo si hay una solución dual
@@ -41,6 +42,8 @@ public class Viewer extends JPanel
     private int _miny = Integer.MAX_VALUE;
     private int _maxy = Integer.MIN_VALUE;
     private int _margen = 20;
+    
+    private static boolean _latex = false;
 
     public void addGeometry(Geometry geom)
     {
@@ -51,6 +54,22 @@ public class Viewer extends JPanel
     {
         geometries.add(geom);
         colors.add(color);
+        fills.add(null);
+        
+        for(Coordinate c: geom.getCoordinates())
+        {
+        	_minx = Math.min(_minx, (int)c.x);
+        	_maxx = Math.max(_maxx, (int)c.x);
+        	_miny = Math.min(_miny, (int)c.y);
+        	_maxy = Math.max(_maxy, (int)c.y);
+        }
+    }
+    
+    public void addGeometry(Geometry geom, Color color, Color fill)
+    {
+        geometries.add(geom);
+        colors.add(color);
+        fills.add(fill);
         
         for(Coordinate c: geom.getCoordinates())
         {
@@ -193,7 +212,91 @@ public class Viewer extends JPanel
     	return -_margen + getHeight() - ((int)c.y - _miny) * (getHeight() - 2*_margen) / (_maxy - _miny);
     }
     
-    public static Viewer show(Instancia instancia)
+    private int convxo(Coordinate c)
+    {
+    	return (int)((c.x - _minx) * 500.0 / (_maxx - _minx));
+    }
+
+    private int convyo(Coordinate c)
+    {
+    	return (int)((c.y - _miny) * 500.0 / (_maxy - _miny));
+    }
+
+    public void printLatex()
+    {
+		System.out.println("\\begin{figure}");
+		System.out.println("\\begin{center}");
+		System.out.println("\\begin{adjustbox}{max width=0.7\\textwidth}");
+		System.out.println("\\begin{tikzpicture}[scale=0.03]");
+
+		if( dual != null )
+        	printDualCoveringLatex();
+
+        if (!geometries.isEmpty())
+        {
+        	for(int i=0; i<geometries.size(); ++i)
+            {
+        		Geometry geom = geometries.get(i);
+        		
+            	if( geom.getClass().getName().contains("Polygon") )
+            		printPolygonLatex((Polygon)geom, colors.get(i), fills.get(i));
+
+            	if( geom.getClass().getName().contains("MultiPoint") )
+            		printMultiPointLatex((MultiPoint)geom, colors.get(i));
+
+            	if( geom.getClass().getName().contains("LineString") )
+            		printLineStringLatex((LineString)geom, colors.get(i));
+
+            	if( geom.getClass().getName().contains(".Point") )
+            		printPointLatex((Point)geom, colors.get(i));
+            }
+        }
+
+        System.out.println("\\end{tikzpicture}");
+		System.out.println("\\end{adjustbox}");
+		System.out.println("\\end{center}");
+		System.out.println("\\end{figure}");
+    }
+    
+    private void printDualCoveringLatex()
+    {
+	}
+
+	private void printPolygonLatex(Polygon geom, Color color, Color fill)
+	{
+		System.out.print("\\draw[draw=" + toLatex(color));
+		
+		if( fill != null)
+			System.out.print(",fill=" + toLatex(fill) + ",opacity=0.3");
+			
+		System.out.print("] ");
+		
+    	Coordinate[] c = geom.getCoordinates();
+    	for(int i=0; i<c.length; ++i)
+    		System.out.print("(" + convxo(c[i]) + "," + convyo(c[i]) + ") -- ");
+    	
+    	System.out.println("cycle;");
+	}
+
+	private void printMultiPointLatex(MultiPoint geom, Color color)
+	{
+	}
+
+	private void printLineStringLatex(LineString geom, Color color)
+	{
+	}
+
+	private void printPointLatex(Point point, Color color)
+	{
+		System.out.println("\\draw[draw=" + toLatex(color) + ",fill=" + toLatex(color) +"] ("+ convxo(point.getCoordinate()) + "," + convyo(point.getCoordinate()) + ") circle (1);");
+	}
+	
+	private String toLatex(Color color)
+	{
+		return "{rgb,255:red," + color.getRed() + "; green," + color.getGreen() + "; blue," + color.getBlue() + "}";
+	}
+
+	public static Viewer show(Instancia instancia)
     {
         Viewer panel = new Viewer();
         addRegion(panel, instancia);
@@ -207,7 +310,7 @@ public class Viewer extends JPanel
     {
         Viewer panel = new Viewer();
         addRegion(panel, instancia);
-        addRegion(panel, interna, Color.BLUE);
+        addRegion(panel, interna, Color.BLUE, null);
         addRestricciones(panel, instancia);
         showFrame(instancia, panel, "Instancia");
         
@@ -226,11 +329,6 @@ public class Viewer extends JPanel
         addSolucion(panel, solucion);
         addRestricciones(panel, instancia);
         addPuntos(panel, puntos);
-
-//        addRegion(panel, instancia.getRegionInterna(instancia.getSemillas().get(0)), Color.BLUE);
-//        
-//        for(Coordinate c: instancia.getRegionInterna(instancia.getSemillas().get(0)).getCoordinates())
-//        	System.out.println("Region interna: " + c);
         
         showFrame(instancia, panel, "Solución");
     }
@@ -240,7 +338,7 @@ public class Viewer extends JPanel
         Viewer panel = new Viewer();
         panel.addDual(instancia, dual);
         addRegion(panel, instancia);
-        addRegion(panel, instancia.getRegionInterna(semilla), Color.BLUE);
+        addRegion(panel, instancia.getRegionInterna(semilla), Color.BLUE, null);
         addRestricciones(panel, instancia);
         showFrame(instancia, panel, "Solución dual");
 
@@ -249,22 +347,22 @@ public class Viewer extends JPanel
 
     private static void addRegion(Viewer panel, Instancia instancia)
     {
-    	addRegion(panel, instancia.getRegion(), Color.BLACK);
+    	addRegion(panel, instancia.getRegion(), Color.BLACK, new Color(224, 173, 122));
     }
 
-    private static void addRegion(Viewer panel, Region region, Color color)
+    private static void addRegion(Viewer panel, Region region, Color color, Color fill)
     {
         for(Polygon envolvente: region.getEnvolventes())
-        	panel.addGeometry(envolvente, color);
+        	panel.addGeometry(envolvente, color, fill);
         
         for(Polygon agujero: region.getAgujeros())
-        	panel.addGeometry(agujero, color);
+        	panel.addGeometry(agujero, color, fill);
     }
     
     private static void addRestricciones(Viewer panel, Instancia instancia)
     {
         for(Restriccion restriccion: instancia.getRestricciones())
-        	panel.addGeometry(restriccion.getPolygon());
+        	panel.addGeometry(restriccion.getPolygon(), Color.BLACK, new Color(205, 184, 255));
 
        	panel.addOGIP(instancia.getOGIP());
     }
@@ -276,9 +374,9 @@ public class Viewer extends JPanel
 			int nivel = 255 - (int)(255 * solucion.getValor(pad));
 			Color color = new Color(nivel, nivel, nivel);
 
-			panel.addGeometry(pad.getPerimetro(), color);
-		    panel.addGeometry(pad.getLocacion(), color);
-		    panel.addGeometry(pad.getCentro(), color);
+			panel.addGeometry(pad.getPerimetro(), color, color);
+		    panel.addGeometry(pad.getLocacion(), color, color);
+		    panel.addGeometry(pad.getCentro(), color, color);
 		}
 	}
 	
@@ -290,6 +388,11 @@ public class Viewer extends JPanel
         		panel.addGeometry(point, Color.RED);
         }
 	}
+	
+	public static void setLatex(boolean valor)
+	{
+		_latex = valor;
+	}
 
 	private static void showFrame(Instancia instancia, Viewer panel, String texto)
 	{
@@ -298,5 +401,8 @@ public class Viewer extends JPanel
         frame.add(panel);
         frame.setSize(500, 500);
         frame.setVisible(true);
+        
+        if( _latex == true )
+        	panel.printLatex();
 	}
 }

@@ -87,6 +87,7 @@ public class EntryPoint
 		Goloso.setIntentos(_args.intArg("-ig", 100));
 		Goloso.setFactorPasoHorizontal(_args.intArg("-fg", 20));
 		Goloso.setFactorPasoVertical(_args.intArg("-fg", 20));
+		Viewer.setLatex(_args.containsArg("-latex"));
 	}
 
 	public static String version()
