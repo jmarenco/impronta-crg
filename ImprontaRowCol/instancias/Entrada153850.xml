@@ -98,8 +98,8 @@
   </Área>
   <Semillas Cantidad="2">
     <Semilla ID="Hemi-N-Semilla 6H" Coeficiente="1">
-      <PAD Largo="900" Ancho="2800" />
-      <LOCACION Largo="175" Ancho="115" X="1400" Y="450" Tolerancia="58" />
+      <PAD Largo="900" Ancho="2700" />
+      <LOCACION Largo="175" Ancho="115" X="1350" Y="450" Tolerancia="58" />
     </Semilla>
     <Semilla ID="Hemi-S-Semilla 6H" Coeficiente="1">
       <PAD Largo="700" Ancho="1500" />
