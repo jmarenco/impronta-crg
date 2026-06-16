@@ -98,12 +98,12 @@
   </Área>
   <Semillas Cantidad="2">
     <Semilla ID="Hemi-N-Semilla 6H" Coeficiente="1">
-      <PAD Largo="900" Ancho="2860" />
+      <PAD Largo="800" Ancho="1600" />
       <LOCACION Largo="175" Ancho="115" X="2972" Y="450" Tolerancia="58" />
     </Semilla>
-    <Semilla ID="Hemi-S-Semilla 6H" Coeficiente="1">
-      <PAD Largo="900" Ancho="2860" />
-      <LOCACION Largo="165" Ancho="115" X="456" Y="114" Tolerancia="58" />
+    <Semilla ID="Hemi-S-Semilla 6H" Coeficiente="1,2">
+      <PAD Largo="1400" Ancho="2800" />
+      <LOCACION Largo="175" Ancho="115" X="2972" Y="450" Tolerancia="58" />
     </Semilla>
   </Semillas>
   <Restricciones Cantidad="78">

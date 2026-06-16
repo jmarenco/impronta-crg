@@ -26,9 +26,12 @@ public class EntryPoint
 		if( _args.containsArg("-step") )
 			instancia.setPasos(_args.intArg("-step", 1), _args.intArg("-step", 1));
 		
+		if( _args.containsArg("-showinst") )
+			Viewer.show(instancia, null);
+		
 		if( _args.containsArg("-model") )
 		{
-			ModeloCompleto modelo = new ModeloCompleto(instancia, false);
+			ModeloCompleto modelo = new ModeloCompleto(instancia, _args.containsArg("-intmodel"));
 			Solucion completa = modelo.resolver();
 		
 			if( _args.containsArg("-show") )

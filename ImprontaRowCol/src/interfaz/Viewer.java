@@ -239,9 +239,9 @@ public class Viewer extends JPanel
     	{
     		FileWriter writer = new FileWriter("grafico-" + _numero + ".tex");
     		
-			writer.write("\\begin{figure}\r\n");
-			writer.write("\\begin{center}\r\n");
-			writer.write("\\begin{adjustbox}{max width=0.7\\textwidth}\r\n");
+//			writer.write("\\begin{figure}\r\n");
+//			writer.write("\\begin{center}\r\n");
+//			writer.write("\\begin{adjustbox}{max width=0.7\\textwidth}\r\n");
 			writer.write("\\begin{tikzpicture}[scale=0.03]\r\n");
 	
 			if( dual != null )
@@ -268,9 +268,9 @@ public class Viewer extends JPanel
 	        }
 	
 	        writer.write("\\end{tikzpicture}\r\n");
-	        writer.write("\\end{adjustbox}\r\n");
-	        writer.write("\\end{center}\r\n");
-	        writer.write("\\end{figure}\r\n");
+//	        writer.write("\\end{adjustbox}\r\n");
+//	        writer.write("\\end{center}\r\n");
+//	        writer.write("\\end{figure}\r\n");
 	        writer.close();
     	}
     	catch(Exception e)
@@ -289,10 +289,20 @@ public class Viewer extends JPanel
    			int nivel = (int)(255 * (targetArea - valor) / targetArea);
     		
    			writer.write("\\draw[draw=gray,fill=" + toLatex(new Color(nivel, nivel, nivel)) + ",opacity=0.3]");
-
+   			
+   			String anterior = "";
    			Pad pad = new Pad(instancia, semilla, punto.getCoordinate());
-       		for(Coordinate c: pad.getPerimetro().getCoordinates())
-        		writer.write("(" + convxo(c) + "," + convyo(c) + ") -- ");
+
+   			for(Coordinate c: pad.getPerimetro().getCoordinates())
+   			{
+   				String nuevo = convxo(c) + "," + convyo(c);
+   				
+   				if( !nuevo.equals(anterior))
+   				{
+   					writer.write("(" + nuevo + ") -- ");
+   					anterior = nuevo;
+   				}
+   			}
        			
         	writer.write("cycle;\r\n");
         }
@@ -307,9 +317,18 @@ public class Viewer extends JPanel
 			
 		writer.write("] ");
 		
+		String anterior = "";
     	Coordinate[] c = geom.getCoordinates();
+
     	for(int i=0; i<c.length; ++i)
-    		writer.write("(" + convxo(c[i]) + "," + convyo(c[i]) + ") -- ");
+    	{
+    		String nueva = convxo(c[i]) + "," + convyo(c[i]);
+    		if( !nueva.equals(anterior) )
+    		{
+    			writer.write("(" + nueva + ") -- ");
+    			anterior = nueva;
+    		}
+    	}
     	
     	writer.write("cycle;\r\n");
 	}
@@ -335,6 +354,9 @@ public class Viewer extends JPanel
 		
 		if( color == Color.magenta || color == Color.MAGENTA )
 			return "magenta";
+		
+		if( color.getRed() == 0 && color.getGreen() == 0 && color.getBlue() == 0 )
+			return "black";
 		
 		return "{rgb,255:red," + color.getRed() + "; green," + color.getGreen() + "; blue," + color.getBlue() + "}";
 	}
@@ -390,14 +412,17 @@ public class Viewer extends JPanel
 
 	private static void addSolucion(Viewer panel, Solucion solucion)
 	{
-		for(Pad pad: solucion.getPads())
+		if( solucion != null )
 		{
-			int nivel = 255 - (int)(255 * solucion.getValor(pad));
-			Color color = new Color(nivel, nivel, nivel);
-
-			panel.addGeometry(pad.getPerimetro(), color, color);
-		    panel.addGeometry(pad.getLocacion(), color, color);
-		    panel.addGeometry(pad.getCentro(), color, color);
+			for(Pad pad: solucion.getPads())
+			{
+				int nivel = 255 - (int)(255 * solucion.getValor(pad));
+				Color color = new Color(nivel, nivel, nivel);
+	
+				panel.addGeometry(pad.getPerimetro(), color, color);
+			    panel.addGeometry(pad.getLocacion(), color, color);
+			    panel.addGeometry(pad.getCentro(), color, color);
+			}
 		}
 	}
 	

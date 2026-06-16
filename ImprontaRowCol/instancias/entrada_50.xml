@@ -22,7 +22,7 @@
   </Área>
   <Semillas Cantidad="1">
     <Semilla ID="Hemi-N-Semilla 43" Coeficiente="1">
-      <PAD Largo="710" Ancho="2505" />
+      <PAD Largo="710" Ancho="2500" />
       <LOCACION Largo="180" Ancho="120" X="2365" Y="355" Tolerancia="60" />
     </Semilla>
   </Semillas>
