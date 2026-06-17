@@ -13,6 +13,7 @@ import general.Pad;
 import general.Solucion;
 import heuristicas.Grafo.Clique;
 import interfaz.EntryPoint;
+import interfaz.Viewer;
 
 // Representa el proceso de resolución
 public class Goloso
@@ -32,6 +33,7 @@ public class Goloso
 	private static int _factorPasoVertical = 20;
 	private static boolean _verbose = false;
 	private static boolean _resumen = true;
+	private static boolean _mostrarSolucion = false;
 
 	// Constructor
 	public Goloso(Instancia instancia)
@@ -104,6 +106,9 @@ public class Goloso
 			
 			log("  -> Solución " + (i+1) + "/" + _intentos + " - fobj: " + valorizacion + best);
 		}
+		
+		if( _mostrarSolucion == true )
+			Viewer.show(_instancia, ret);
 		
 		return ret;
 	}

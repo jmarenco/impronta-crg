@@ -2,6 +2,7 @@ package general;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Point;
@@ -11,6 +12,7 @@ import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 import interfaz.EntryPoint;
+import interfaz.Viewer;
 
 public class ModeloCompleto
 {
@@ -20,6 +22,7 @@ public class ModeloCompleto
 
 	private static boolean _verbose = true;
 	private static boolean _mostrarSolucion = false;
+	private static boolean _mostrarDiscretizacion = false;
 	private static boolean _resumen = true;
 	private static double _timeLimit = 3600;
 	
@@ -57,6 +60,9 @@ public class ModeloCompleto
 	
 				log(" -> " + discretizacion.getPuntos().getCoordinates().length + " puntos\r\n\r\nConstruyendo pads");
 				_pads = discretizacion.construirPads();
+
+				if( _mostrarDiscretizacion == true )
+					Viewer.show(_instancia, null, new ArrayList<Point>(_pads.stream().map(p -> p.getCentro()).collect(Collectors.toSet())));
 			}
 
 			log(" -> " + _pads.size() + " pads\r\n\r\nConstruyendo variables");
