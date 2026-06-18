@@ -44,6 +44,7 @@ public class ModeloCompleto
 	{
 		Solucion ret = new Solucion(_instancia);
 		long inicio = System.currentTimeMillis();
+		int puntos = 0;
 		
 		try
 		{
@@ -57,8 +58,10 @@ public class ModeloCompleto
 			{
 				log("Construyendo discretizacion");
 				Discretizacion discretizacion = new Discretizacion(_instancia);
-	
-				log(" -> " + discretizacion.getPuntos().getCoordinates().length + " puntos\r\n\r\nConstruyendo pads");
+
+				puntos = discretizacion.getPuntos().getCoordinates().length;
+				
+				log(" -> " + puntos + " puntos\r\n\r\nConstruyendo pads");
 				_pads = discretizacion.construirPads();
 
 				if( _mostrarDiscretizacion == true )
@@ -126,7 +129,7 @@ public class ModeloCompleto
 			}
 
 			if( _resumen == true )
-				System.out.println("\r\nv" + EntryPoint.version() + " | Complete" + (_entero ? "Int" : "") + " | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " sec | Obj: " + String.format("%.5f", cplex.getObjValue()) + " | | " + _pads.size() + " vars | " + x.size() + " pvars | " + constraints + " pcons | | | | " + fraccionarias + " frac | " + EntryPoint.args() + "\r\n");
+				System.out.println("\r\nv" + EntryPoint.version() + " | Complete" + (_entero ? "Int" : "") + " | " + _instancia.getArchivo() + " | " + String.format("%.2f", (System.currentTimeMillis() - inicio) / 1000.0) + " sec | Obj: " + String.format("%.5f", cplex.getObjValue()) + " | | " + _pads.size() + " vars | " + x.size() + " pvars | " + constraints + " pcons | | | " + (puntos > 0 ? puntos + " pts | " : "| ") + fraccionarias + " frac | " + EntryPoint.args() + "\r\n");
 
 			cplex.close();
 			log("");
