@@ -183,10 +183,17 @@ public class SimpleBFS
 	
 	private void add(Point point, Color color)
 	{
-		if( _mostrarBFS == true && _puntosImagen.contains(point) == false )
+		if( _mostrarBFS == true )
 		{
-			_puntosImagen.add(point);
-			_coloresImagen.add(color);
+			if( _puntosImagen.contains(point) == false )
+			{
+				_puntosImagen.add(point);
+				_coloresImagen.add(color);
+			}
+			if( color == Color.GREEN )
+			{
+				_coloresImagen.set(_puntosImagen.indexOf(point), color);
+			}
 		}
 	}
 	

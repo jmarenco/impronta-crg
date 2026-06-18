@@ -9,6 +9,7 @@ import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
+import interfaz.Viewer;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,7 @@ public class Relajacion
 	private static double _infinity = Double.POSITIVE_INFINITY;
 	private static double _timeLimit = 3600;
 	private static boolean _mostrarSolucion = false;
+	private static boolean _imagenSolucion = false;
 	private static boolean _exportarModelo = false;
 	private static boolean _entero = false;
 	private static boolean _verbose = false;
@@ -159,6 +161,9 @@ public class Relajacion
 		
 		if( _mostrarSolucion == true )
 			System.out.println("Cplex status: " + _cplex.getStatus());
+		
+		if( _imagenSolucion == true )
+			Viewer.show(_instancia, _solucion);
 
 		_time = (System.currentTimeMillis() - _start) / 1000.0;
 		_cplex.end();
