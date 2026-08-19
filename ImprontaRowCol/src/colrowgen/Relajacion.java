@@ -29,6 +29,7 @@ public class Relajacion
 	private Map<IloNumVar, Pad> _vars;
 	private Map<Coordinate, IloRange> _constr;
 	private Solucion _solucion;
+	private Map<Coordinate, Double> _dual;
 	private double _objValue;
 	private long _start;
 	private double _time;
@@ -40,6 +41,7 @@ public class Relajacion
 	private static boolean _mostrarSolucion = false;
 	private static boolean _imagenSolucion = false;
 	private static boolean _exportarModelo = false;
+	private static boolean _guardarDual = true;
 	private static boolean _entero = false;
 	private static boolean _verbose = false;
 	
@@ -157,6 +159,9 @@ public class Relajacion
 			
 			if( _mostrarSolucion == true )
 				System.out.println("Primal objective value: " + _objValue);
+			
+			if( _guardarDual == true )
+				guardarDual();
 		}
 		
 		if( _mostrarSolucion == true )
@@ -167,6 +172,14 @@ public class Relajacion
 
 		_time = (System.currentTimeMillis() - _start) / 1000.0;
 		_cplex.end();
+	}
+	
+	private void guardarDual() throws IloException
+	{
+		_dual = new HashMap<Coordinate, Double>();
+		
+		for(Coordinate c: _constr.keySet())
+			_dual.put(c, _cplex.getDual(_constr.get(c)));
 	}
 	
 	public List<Point> varPoints()
@@ -197,6 +210,11 @@ public class Relajacion
 	public Solucion getSolucion()
 	{
 		return _solucion;
+	}
+	
+	public Map<Coordinate, Double> getDual()
+	{
+		return _dual;
 	}
 	
 	public double getTime()

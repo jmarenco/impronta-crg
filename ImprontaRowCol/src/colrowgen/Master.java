@@ -52,7 +52,7 @@ public class Master
 			_nullIterations = new HashMap<Point, Integer>();
 
 		if( _eliminacionDual )
-			Dual.setRegistrarBindings(true);
+			DualConModelo.setRegistrarBindings(true);
 	}
 	
 	public void solve()
@@ -108,7 +108,7 @@ public class Master
 				_nullIterations.put(point, 0);
 		}
 
-		if( _eliminacionDual == true )
+		if( _eliminacionDual == true && dualBindingConstraints != null )
 		{
 			for(Point point: dualBindingConstraints)
 				_nullIterations.put(point, 0);

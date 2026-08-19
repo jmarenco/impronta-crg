@@ -1,5 +1,6 @@
 package interfaz;
 
+import colrowgen.Dualizer;
 import colrowgen.Master;
 import colrowgen.SimpleBFS;
 import general.Instancia;
@@ -9,7 +10,7 @@ import heuristicas.Goloso;
 
 public class EntryPoint
 {
-	private static String _version = "0.14";
+	private static String _version = "0.15";
 	private static ArgMap _args;
 	
 	public static void main(String[] args)
@@ -74,6 +75,7 @@ public class EntryPoint
 			System.out.println("-pde [n]		Eliminacion primal y dual de puntos con n rondas inactivos");
 			System.out.println("-pe [n]			Eliminacion primal de puntos con n rondas inactivos");
 			System.out.println("-de [n]			Eliminacion dual de puntos con n rondas inactivos");
+			System.out.println("-dual [s]		Dual solver [model|primal]");
 			System.out.println("-ig [n]			Intentos del algoritmo goloso");
 			System.out.println("-fg [n]			Factor de discretizacion del algoritmo goloso");
 			System.out.println("-sg [n]			Semilla del algoritmo goloso");
@@ -92,6 +94,7 @@ public class EntryPoint
 		Goloso.setFactorPasoHorizontal(_args.intArg("-fg", 20));
 		Goloso.setFactorPasoVertical(_args.intArg("-fg", 20));
 		SimpleBFS.setMostrarBFS(_args.containsArg("-showbfs"));
+		Dualizer.setDualSolver(_args.stringArg("-dual", "model"));
 		Viewer.setLatex(_args.containsArg("-latex"));
 	}
 

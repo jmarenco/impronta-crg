@@ -31,6 +31,7 @@ public class Dualizer
 	
 	private static boolean _verbose = false;
 	private static boolean _mostrarPuntos = false;
+	private static String _dualSolver = "model";
 	
 	public Dualizer(Relajacion relajacion)
 	{
@@ -50,7 +51,7 @@ public class Dualizer
 		_explorados = 0;
 		
 		log("Resolviendo dual");
-		Dual dual = new Dual(_instancia, _relajacion);
+		Dual dual = crearDual();
 
 		_dualSolution = dual.resolver(remainingTime());
 		_dualTime = dual.getTime();
@@ -151,5 +152,21 @@ public class Dualizer
 	public static void setVerbose(boolean value)
 	{
 		_verbose = value;
+	}
+	
+	public static void setDualSolver(String solver)
+	{
+		_dualSolver = solver;
+	}
+	
+	private Dual crearDual()
+	{
+		if( _dualSolver.toLowerCase().trim().equals("model"))
+			return new DualConModelo(_instancia, _relajacion);
+
+		if( _dualSolver.toLowerCase().trim().equals("primal"))
+			return new DualDesdePrimal(_instancia, _relajacion);
+		
+		throw new RuntimeException("Dual solver desconocido: " + _dualSolver);
 	}
 }
