@@ -21,7 +21,7 @@ public class DualDesdePrimal extends Dual
 		Map<Point, Double> ret = new HashMap<Point, Double>();
 		Map<Coordinate, Double> dual = _primal.getDual();
 		
-		for(Coordinate c: dual.keySet())
+		for(Coordinate c: dual.keySet()) if( dual.get(c) > 0.0001 )
 			ret.put(_factory.createPoint(c), dual.get(c));
 		
 		return ret;

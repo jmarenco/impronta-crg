@@ -28,6 +28,7 @@ public class Dualizer
 	private double _bfsTime;
 	private long _iniciados;
 	private long _explorados;
+	private long _dualNonzeros;
 	
 	private static boolean _verbose = false;
 	private static boolean _mostrarPuntos = false;
@@ -56,6 +57,7 @@ public class Dualizer
 		_dualSolution = dual.resolver(remainingTime());
 		_dualTime = dual.getTime();
 		_dualBindingConstraints = dual.getBindingConstraints();
+		_dualNonzeros = _dualSolution.keySet().stream().filter(k -> _dualSolution.get(k) > 0).count();
 		_nuevos = new ArrayList<Point>();
 		_intersectionTime = 0;
 		_bfsTime = 0;
@@ -168,5 +170,10 @@ public class Dualizer
 			return new DualDesdePrimal(_instancia, _relajacion);
 		
 		throw new RuntimeException("Dual solver desconocido: " + _dualSolver);
+	}
+
+	public long getDualNonzeros()
+	{
+		return _dualNonzeros;
 	}
 }
