@@ -76,6 +76,7 @@ public class EntryPoint
 			System.out.println("-pe [n]			Eliminacion primal de puntos con n rondas inactivos");
 			System.out.println("-de [n]			Eliminacion dual de puntos con n rondas inactivos");
 			System.out.println("-dual [s]		Dual solver [model|primal]");
+			System.out.println("-udi [n]		Umbral dual inicial");
 			System.out.println("-ig [n]			Intentos del algoritmo goloso");
 			System.out.println("-fg [n]			Factor de discretizacion del algoritmo goloso");
 			System.out.println("-sg [n]			Semilla del algoritmo goloso");
@@ -87,6 +88,7 @@ public class EntryPoint
 		Master.eliminarPuntos(_args.containsArg("-pe") || _args.containsArg("-pde"), _args.containsArg("-de") || _args.containsArg("-pde"), Math.max(Math.max(_args.intArg("-pe", 0), _args.intArg("-de", 0)), _args.intArg("-pde", 0)));
 		ModeloCompleto.setTimeLimit(_args.doubleArg("-time", 3600));
 		Master.setTimeLimit(_args.doubleArg("-time", 3600));
+		Master.setUmbralDualInicial(_args.doubleArg("-udi", 0));
 		ModeloCompleto.setVerbose(!_args.containsArg("-silent"));
 		Master.setVerbose(!_args.containsArg("-silent"));
 		Goloso.setSemilla(_args.intArg("-sg", 0));

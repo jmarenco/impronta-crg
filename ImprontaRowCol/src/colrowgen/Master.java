@@ -32,6 +32,8 @@ public class Master
 	private long _start;
 	
 	private static double _timeLimit = 3600;
+	private static double _umbralDualInicial = 0;
+	private static double _umbralDualMinimo = 1e-5;
 	private static boolean _verbose = true;
 	private static boolean _resumen = true;
 	private static boolean _discretizacionInicial = false;
@@ -58,9 +60,10 @@ public class Master
 	public void solve()
 	{
 		int iteracion = 1;
-		_start = System.currentTimeMillis();
 		boolean agregados = true;
+		double umbralDual = _umbralDualInicial;
 
+		_start = System.currentTimeMillis();
 		_relajacion = new Relajacion(_instancia, _points, _pads);
 
 		while( agregados == true && elapsedTime() <= _timeLimit)
@@ -72,9 +75,9 @@ public class Master
 			log("Rel: " + String.format("%.5f", _relajacion.getObjValue()) + " | " + _relajacion.varPoints().size() + " pts | " /*+ _relajacion.getActiveVariables() + " nz | "*/ + String.format("%.2f", _relajacion.getTime()) + " sec | ");
 
 			_dualizer = new Dualizer(_relajacion);
-			_dualizer.ejecutar(remainingTime());
+			_dualizer.ejecutar(remainingTime(), umbralDual);
 
-			log("Dualizer: " + _dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", _dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec, " + _dualizer.getDualNonzeros() + " nonz | BFSs: " + _dualizer.getIniciosBFS() + " | Expl: " + _dualizer.getExplorados() + " | "); // + "Int: " + String.format("%.2f", _dualizer.getIntersectionTime()) + " sec | BFS: " + String.format("%.2f", _dualizer.getBFSTime()) + " sec | ");
+			log("Dualizer: " + _dualizer.getNuevos().size() + " new pts | " + String.format("%.2f", _dualizer.getTotalTime()) + " sec | Dual: " + String.format("%.2f", _dualizer.getDualTime()) + " sec, " + _dualizer.getDualNonzeros() + " nonz | BFSs: " + _dualizer.getIniciosBFS() + " | Expl: " + _dualizer.getExplorados() + " | "); // UD: " + umbralDual + " | "); // + "Int: " + String.format("%.2f", _dualizer.getIntersectionTime()) + " sec | BFS: " + String.format("%.2f", _dualizer.getBFSTime()) + " sec | ");
 
 			if( _eliminacionPrimal || _eliminacionDual )
 				eliminarPuntos(_dualizer.getDualBindingConstraints());
@@ -86,6 +89,15 @@ public class Master
 			agregados = _points.size() > anteriores;
 			_BFSs += _dualizer.getIniciosBFS();
 			_explorados += _dualizer.getExplorados();
+			
+			if( agregados == false && umbralDual > 0 ) // Baja el umbral si no se encontraron puntos
+			{
+				agregados = true;
+				umbralDual /= 10;
+				
+				if( umbralDual < _umbralDualMinimo )
+					umbralDual = 0;
+			}
 
 			log("New pts: " + _dualizer.getNuevos().size() + " | Total: " + String.format("%.2f", elapsedTime()) + " sec \r\n");
 		}
@@ -179,5 +191,15 @@ public class Master
 	public static void setTimeLimit(double value)
 	{
 		_timeLimit = value;
+	}
+	
+	public static void setUmbralDualInicial(double value)
+	{
+		_umbralDualInicial = value;
+	}
+	
+	public static void setUmbralDualMinimo(double value)
+	{
+		_umbralDualMinimo = value;
 	}
 }

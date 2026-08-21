@@ -16,12 +16,12 @@ public class DualDesdePrimal extends Dual
 		super(instancia, primal);
 	}
 	
-	public Map<Point, Double> resolver(double timeLimit)
+	public Map<Point, Double> resolver(double timeLimit, double umbralDual)
 	{
 		Map<Point, Double> ret = new HashMap<Point, Double>();
 		Map<Coordinate, Double> dual = _primal.getDual();
 		
-		for(Coordinate c: dual.keySet()) if( dual.get(c) > 0 )
+		for(Coordinate c: dual.keySet()) if( dual.get(c) > umbralDual )
 			ret.put(_factory.createPoint(c), dual.get(c));
 		
 		return ret;

@@ -43,7 +43,7 @@ public class DualConModelo extends Dual
 		_pads = primal.getPadCache();
 	}
 	
-	public Map<Point, Double> resolver(double timeLimit)
+	public Map<Point, Double> resolver(double timeLimit, double umbralDual)
 	{
 		_timeLimit = timeLimit;
 		
@@ -53,7 +53,7 @@ public class DualConModelo extends Dual
 			crearVariables();
 			crearObjetivo();
 			crearRestriccionesCubrimiento();
-			resolverModelo();
+			resolverModelo(umbralDual);
 		}
 		catch(Exception e)
 		{
@@ -117,7 +117,7 @@ public class DualConModelo extends Dual
 		}
 	}
 
-	private void resolverModelo() throws IloException
+	private void resolverModelo(double umbralDual) throws IloException
 	{
 		if( _exportarModelo == true )
 			_cplex.exportModel("/home/javier/Escritorio/dual.lp");
@@ -133,7 +133,7 @@ public class DualConModelo extends Dual
 			{
 				IloNumVar var = _vars.get(p);
 				
-				if( _cplex.getValue(var) > 0.0000001 )
+				if( _cplex.getValue(var) > umbralDual )
 				{
 					if( _mostrarSolucion == true )
 						System.out.println(var + " = " + _cplex.getValue(var) + " - " + p);

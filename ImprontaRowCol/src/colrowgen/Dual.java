@@ -21,7 +21,7 @@ public abstract class Dual
 		_factory = _instancia.getFactory();
 	}
 	
-	public abstract Map<Point, Double> resolver(double timeLimit);
+	public abstract Map<Point, Double> resolver(double timeLimit, double umbralDual);
 	public abstract double getTime();
 	public abstract double getObjValue();
 	public abstract Set<Point> getBindingConstraints();

@@ -44,7 +44,7 @@ public class Dualizer
 			mostrarPuntos(relajacion);
 	}
 	
-	public void ejecutar(double timeLimit)
+	public void ejecutar(double timeLimit, double umbralDual)
 	{
 		_timeLimit = timeLimit;
 		_start = System.currentTimeMillis();
@@ -54,7 +54,7 @@ public class Dualizer
 		log("Resolviendo dual");
 		Dual dual = crearDual();
 
-		_dualSolution = dual.resolver(remainingTime());
+		_dualSolution = dual.resolver(remainingTime(), umbralDual);
 		_dualTime = dual.getTime();
 		_dualBindingConstraints = dual.getBindingConstraints();
 		_dualNonzeros = _dualSolution.keySet().stream().filter(k -> _dualSolution.get(k) > 0).count();
